@@ -9,11 +9,27 @@ from pieces import King
 class Board:
     def __init__(self):
         self.board = [[None]*8 for _ in range(8)]
+        self.white_pieces = []
+        self.black_pieces = []
 
+        self.__setup_board()
+
+    def __add_piece(self, piece_type, colour, i, j):
+        piece = piece_type(colour, i, j)
+        self.board[i][j] = piece
+        
+        if colour == Colour.WHITE:
+            self.white_pieces.append(piece)
+        else:
+            self.black_pieces.append(piece)
+
+
+    def __setup_board(self):
         # Place pawns
         for j in range(8):
-            self.board[1][j] = Pawn(Colour.BLACK, 1, j)
-            self.board[6][j] = Pawn(Colour.WHITE, 6, j)
+            self.__add_piece(Pawn, Colour.BLACK, 1, j)
+
+            self.__add_piece(Pawn, Colour.WHITE, 6, j)
 
         # Place rooks
         self.board[0][0] = Rook(Colour.BLACK, 0, 0)
