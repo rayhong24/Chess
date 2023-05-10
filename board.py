@@ -1,5 +1,4 @@
 from enums import Colour
-from pieces import Piece
 from pieces import Pawn
 from pieces import Rook
 from pieces import Knight
@@ -13,34 +12,34 @@ class Board:
 
         # Place pawns
         for j in range(8):
-            self.board[1][j] = Pawn(Colour.BLACK)
-            self.board[6][j] = Pawn(Colour.WHITE)
+            self.board[1][j] = Pawn(Colour.BLACK, 1, j)
+            self.board[6][j] = Pawn(Colour.WHITE, 6, j)
 
         # Place rooks
-        self.board[0][0] = Rook(Colour.BLACK)
-        self.board[0][-1] = Rook(Colour.BLACK)
-        self.board[-1][0] = Rook(Colour.WHITE)
-        self.board[-1][-1] = Rook(Colour.WHITE)
+        self.board[0][0] = Rook(Colour.BLACK, 0, 0)
+        self.board[0][7] = Rook(Colour.BLACK, 0, 7)
+        self.board[7][0] = Rook(Colour.WHITE, 7, 0)
+        self.board[7][7] = Rook(Colour.WHITE, 7, 7)
 
         # Place knights
-        self.board[0][1] = Knight(Colour.BLACK)
-        self.board[0][6] = Knight(Colour.BLACK)
-        self.board[-1][1] = Knight(Colour.WHITE)
-        self.board[-1][6] = Knight(Colour.WHITE)
+        self.board[0][1] = Knight(Colour.BLACK, 0, 1)
+        self.board[0][6] = Knight(Colour.BLACK, 0, 6)
+        self.board[7][1] = Knight(Colour.WHITE, 7, 1)
+        self.board[7][6] = Knight(Colour.WHITE, 7, 6)
 
         # Place bishops
-        self.board[0][2] = Bishop(Colour.BLACK)
-        self.board[0][5] = Bishop(Colour.BLACK)
-        self.board[-1][2] = Bishop(Colour.WHITE)
-        self.board[-1][5] = Bishop(Colour.WHITE)
+        self.board[0][2] = Bishop(Colour.BLACK, 0, 2)
+        self.board[0][5] = Bishop(Colour.BLACK, 0, 5)
+        self.board[7][2] = Bishop(Colour.WHITE, 7, 2)
+        self.board[7][5] = Bishop(Colour.WHITE, 7, 5)
 
         # Place Queens
-        self.board[0][3] = Queen(Colour.BLACK)
-        self.board[-1][3] = Queen(Colour.WHITE)
+        self.board[0][3] = Queen(Colour.BLACK, 0, 3)
+        self.board[7][3] = Queen(Colour.WHITE, 7, 3)
 
         # Place Kings
-        self.board[0][4] = King(Colour.BLACK)
-        self.board[-1][4] = King(Colour.WHITE)
+        self.board[0][4] = King(Colour.BLACK, 0, 4)
+        self.board[7][4] = King(Colour.WHITE, 7, 4)
     
     def __get_square_representation(self, val):
         if val is None:
