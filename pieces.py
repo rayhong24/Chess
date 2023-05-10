@@ -6,6 +6,18 @@ class Piece:
         self.colour = colour
         self.row = row
         self.column = column
+    
+    def check_move_errors(self, board, representation):
+        if board[self.row][self.column] is None:
+            raise Exception(invalid_move_no_piece_message.format(\
+            self.row,\
+            self.column))
+        elif board[self.row][self.column].get_representation() != representation:
+            raise Exception(invalid_move_wrong_piece.format(\
+            self.row,\
+            self.column,\
+            board[self.row][self.column].get_representation(), \
+            representation))
 
 class Pawn(Piece):
     def __init__(self, colour, row, column):
@@ -16,13 +28,41 @@ class Pawn(Piece):
     def get_representation(self):
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_moves(self, board, i, j):
-        if board[i][j] is None:
-            print(invalid_move_no_piece_message.format(i, j))
-            return
-        elif board[i][j].colour != self.colour:
-            print(invalid_move_wrong_colour.format(i, j))
-            
+    def get_moves(self, board):
+        super().check_move_errors(board, self.get_representation())
+        # list of tuples of new coordinates the piece can go
+        valid_moves = []
+
+        direction = -1 if self.colour == Colour.WHITE else 1
+
+        # checking forward moves
+        moves_forward = 1 if self.has_moved else 2
+        for i in range(1, moves_forward+1):
+            valid_moves.append((self.row+(i*direction), self.column))
+        
+        # check captures
+        square_to_check1 = board[self.row+(i*direction)][self.column-1]
+        if self.column > 0 and square_to_check1 is not None and square_to_check1.colour != self.colour:
+            valid_moves.append((self.row+(i*direction), self.column-1))
+
+        square_to_check2 = board[self.row+(i*direction)][self.column+1]
+        if self.column < 7 and square_to_check2 is not None and square_to_check2.colour != self.colour:
+            valid_moves.append((self.row+(i*direction), self.column+1))
+
+        # TODO: En passent
+        
+        print(valid_moves)
+
+        return valid_moves
+
+    def move(self, board, orig_i, orig_j, new_i, new_j):
+        super.check_move_errors(board, self.get_representation())               
+        
+        self.row = new_i
+        self.column = new_j
+
+        self.has_moved = True
+        
 
 
 class Rook(Piece):
