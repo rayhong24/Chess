@@ -40,8 +40,6 @@ class Game():
         if orig_square is None or orig_square.colour != self.player_turn:
             return False
         orig_square.get_moves(self.board)
-
-        
     
         return
 
