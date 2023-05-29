@@ -37,26 +37,33 @@ class Pawn(Piece):
 
         # checking forward moves
         moves_forward = 1 if self.has_moved else 2
-        for i in range(1, moves_forward+1):
-            valid_moves.append((self.row+(i*direction), self.column))
+        for di in range(1, moves_forward+1):
+            i, j = self.row+(di*direction), self.column
+            if 0<=i<=7 and 0<=j<=7 and board[i][j] == None: #TODO: Find better way for bounds error-checking
+                valid_moves.append((i, j))
         
         # check captures
-        square_to_check1 = board[self.row+(i*direction)][self.column-1]
-        if self.column > 0 and square_to_check1 is not None and square_to_check1.colour != self.colour:
-            valid_moves.append((self.row+(i*direction), self.column-1))
+        i = self.row+direction
+        j_left = self.column-1
+        j_right = self.column+1
+        if 0<=i<=7 and 0<=j_left<=7:
+            square_to_check1 = board[i][j_left]
+            if square_to_check1 is not None and square_to_check1.colour != self.colour:
+                valid_moves.append((i, j_left))
+        
+        if 0<=i<=7 and 0<=j_right<=7:
+            square_to_check2 = board[i][j_right]
+            if  square_to_check2 is not None and square_to_check2.colour != self.colour:
+                valid_moves.append((i, j_right))
 
-        square_to_check2 = board[self.row+(i*direction)][self.column+1]
-        if self.column < 7 and square_to_check2 is not None and square_to_check2.colour != self.colour:
-            valid_moves.append((self.row+(i*direction), self.column+1))
-
-        # TODO: En passent
+        # TODO: En passant
         
         print(valid_moves)
 
         return valid_moves
 
-    def move(self, board, orig_i, orig_j, new_i, new_j):
-        super.check_move_errors(board, self.get_representation())               
+    def move(self, board, new_i, new_j):
+        super().check_move_errors(board, self.get_representation())               
         
         self.row = new_i
         self.column = new_j

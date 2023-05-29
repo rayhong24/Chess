@@ -9,6 +9,7 @@ from pieces import King
 class Board:
     def __init__(self):
         self.board = [[None]*8 for _ in range(8)]
+        # Maybe change to a dictionary
         self.white_pieces = []
         self.black_pieces = []
 
@@ -68,7 +69,12 @@ class Board:
             print(["{:^3}".format(self.__get_square_representation(val)) for val in row])
 
         print("="*57)
+    
+    def is_inbounds(self, i, j):
+        return (0 <= i < 8) and (0 <= j < 8)
+
 
     def move_piece(self, orig_i, orig_j, new_i, new_j):
+        self.board[orig_i][orig_j].move(self.board, new_i, new_j)
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
 
