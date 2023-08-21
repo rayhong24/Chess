@@ -2,15 +2,15 @@ from Pieces.piece import Piece
 from enums import Colour
 
 class Pawn(Piece):
-    def __init__(self, board, colour, row, column):
-        super().__init__(board, colour, row, column)
+    def __init__(self, colour, row, column):
+        super().__init__(colour, row, column)
         self.has_moved = False
     
     def get_representation(self):
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_moves(self):
-        super().check_move_errors(self.get_representation())
+    def get_moves(self, board):
+        super().check_move_errors(board, self.get_representation())
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
@@ -20,7 +20,7 @@ class Pawn(Piece):
         moves_forward = 1 if self.has_moved else 2
         for di in range(1, moves_forward+1):
             i, j = self.row+(di*direction), self.column
-            if self.board.is_inbounds(i, j) and self.board.board[i][j] == None: #TODO: Find better way for bounds error-checking
+            if 0<=i<=7 and 0<=j<=7 and board[i][j] == None: #TODO: Find better way for bounds error-checking
                 valid_moves.append((i, j))
         
         # check captures
@@ -28,12 +28,12 @@ class Pawn(Piece):
         j_left = self.column-1
         j_right = self.column+1
         if 0<=i<=7 and 0<=j_left<=7:
-            square_to_check1 = self.board.board[i][j_left]
+            square_to_check1 = board[i][j_left]
             if square_to_check1 is not None and square_to_check1.colour != self.colour:
                 valid_moves.append((i, j_left))
         
         if 0<=i<=7 and 0<=j_right<=7:
-            square_to_check2 = self.board.board[i][j_right]
+            square_to_check2 = board[i][j_right]
             if  square_to_check2 is not None and square_to_check2.colour != self.colour:
                 valid_moves.append((i, j_right))
 
@@ -41,8 +41,8 @@ class Pawn(Piece):
         
         return valid_moves
 
-    def move(self, new_i, new_j):
-        super().move(new_i, new_j)               
+    def move(self, board, new_i, new_j):
+        super().move(board, new_i, new_j)               
         
         self.has_moved = True
         

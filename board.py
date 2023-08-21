@@ -16,7 +16,7 @@ class Board:
         self.__setup_board()
 
     def __add_piece(self, piece_type, colour, i, j):
-        piece = piece_type(self, colour, i, j)
+        piece = piece_type(colour, i, j)
         self.board[i][j] = piece
         
         if colour == Colour.WHITE:
@@ -77,6 +77,6 @@ class Board:
 
 
     def move_piece(self, orig_i, orig_j, new_i, new_j):
-        self.board[orig_i][orig_j].move(new_i, new_j)
+        self.board[orig_i][orig_j].move(self.board, new_i, new_j)
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
 
