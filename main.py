@@ -5,6 +5,7 @@ def keep_making_first_move(board, piece, num_moves):
     for i in range(num_moves):
         old_i, old_j = piece.row, piece.column
         moves = piece.get_moves(board.board)
+        print(moves)
 
         if not moves:
             print(f"No more valid moves. Stopped at move {i}.")
@@ -30,6 +31,7 @@ def pawn_test():
     print("Moving pawn 2")
     pawn2 = forward_test_board.board[6][4]
     keep_making_first_move(forward_test_board, pawn2, 10)
+
 
 def rook_test():
     print("Testing Rook implementation")
