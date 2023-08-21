@@ -33,30 +33,30 @@ class Board:
             self.__add_piece(Pawn, Colour.WHITE, 6, j)
 
         # Place rooks
-        self.board[0][0] = Rook(self, Colour.BLACK, 0, 0)
-        self.board[0][7] = Rook(self, Colour.BLACK, 0, 7)
-        self.board[7][0] = Rook(self, Colour.WHITE, 7, 0)
-        self.board[7][7] = Rook(self, Colour.WHITE, 7, 7)
+        self.__add_piece(Rook, Colour.BLACK, 0, 0)
+        self.__add_piece(Rook, Colour.BLACK, 0, 7)
+        self.__add_piece(Rook, Colour.WHITE, 7, 0)
+        self.__add_piece(Rook, Colour.WHITE, 7, 7)
 
         # Place knights
-        self.board[0][1] = Knight(self, Colour.BLACK, 0, 1)
-        self.board[0][6] = Knight(self, Colour.BLACK, 0, 6)
-        self.board[7][1] = Knight(self, Colour.WHITE, 7, 1)
-        self.board[7][6] = Knight(self, Colour.WHITE, 7, 6)
+        self.__add_piece(Knight, Colour.BLACK, 0, 1)
+        self.__add_piece(Knight, Colour.BLACK, 0, 6)
+        self.__add_piece(Knight, Colour.BLACK, 7, 1)
+        self.__add_piece(Knight, Colour.BLACK, 7, 6)
 
         # Place bishops
-        self.board[0][2] = Bishop(self, Colour.BLACK, 0, 2)
-        self.board[0][5] = Bishop(self, Colour.BLACK, 0, 5)
-        self.board[7][2] = Bishop(self, Colour.WHITE, 7, 2)
-        self.board[7][5] = Bishop(self, Colour.WHITE, 7, 5)
+        self.__add_piece(Bishop, Colour.BLACK, 0, 2)
+        self.__add_piece(Bishop, Colour.BLACK, 0, 5)
+        self.__add_piece(Bishop, Colour.BLACK, 7, 2)
+        self.__add_piece(Bishop, Colour.BLACK, 7, 5)
 
         # Place Queens
-        self.board[0][3] = Queen(self, Colour.BLACK, 0, 3)
-        self.board[7][3] = Queen(self, Colour.WHITE, 7, 3)
+        self.__add_piece(Queen, Colour.BLACK, 0, 3)
+        self.__add_piece(Queen, Colour.WHITE, 7, 3)
 
         # Place Kings
-        self.board[0][4] = King(self, Colour.BLACK, 0, 4)
-        self.board[7][4] = King(self, Colour.WHITE, 7, 4)
+        self.__add_piece(King, Colour.BLACK, 0, 4)
+        self.__add_piece(King, Colour.BLACK, 7, 4)
     
     def __get_square_representation(self, val):
         if val is None:
