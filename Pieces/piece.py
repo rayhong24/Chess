@@ -14,7 +14,10 @@ class Piece:
         raise NotImplementedError
     
     def move(self, board, new_i, new_j):
-        raise NotImplementedError
+        self.check_move_errors(board, self.get_representation())               
+        
+        self.row = new_i
+        self.column = new_j
     
     def check_move_errors(self, board, representation):
         if board[self.row][self.column] is None:
