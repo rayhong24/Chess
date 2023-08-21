@@ -16,7 +16,7 @@ class Board:
         self.__setup_board()
 
     def __add_piece(self, piece_type, colour, i, j):
-        piece = piece_type(colour, i, j)
+        piece = piece_type(self, colour, i, j)
         self.board[i][j] = piece
         
         if colour == Colour.WHITE:
@@ -33,30 +33,30 @@ class Board:
             self.__add_piece(Pawn, Colour.WHITE, 6, j)
 
         # Place rooks
-        self.board[0][0] = Rook(Colour.BLACK, 0, 0)
-        self.board[0][7] = Rook(Colour.BLACK, 0, 7)
-        self.board[7][0] = Rook(Colour.WHITE, 7, 0)
-        self.board[7][7] = Rook(Colour.WHITE, 7, 7)
+        self.board[0][0] = Rook(self, Colour.BLACK, 0, 0)
+        self.board[0][7] = Rook(self, Colour.BLACK, 0, 7)
+        self.board[7][0] = Rook(self, Colour.WHITE, 7, 0)
+        self.board[7][7] = Rook(self, Colour.WHITE, 7, 7)
 
         # Place knights
-        self.board[0][1] = Knight(Colour.BLACK, 0, 1)
-        self.board[0][6] = Knight(Colour.BLACK, 0, 6)
-        self.board[7][1] = Knight(Colour.WHITE, 7, 1)
-        self.board[7][6] = Knight(Colour.WHITE, 7, 6)
+        self.board[0][1] = Knight(self, Colour.BLACK, 0, 1)
+        self.board[0][6] = Knight(self, Colour.BLACK, 0, 6)
+        self.board[7][1] = Knight(self, Colour.WHITE, 7, 1)
+        self.board[7][6] = Knight(self, Colour.WHITE, 7, 6)
 
         # Place bishops
-        self.board[0][2] = Bishop(Colour.BLACK, 0, 2)
-        self.board[0][5] = Bishop(Colour.BLACK, 0, 5)
-        self.board[7][2] = Bishop(Colour.WHITE, 7, 2)
-        self.board[7][5] = Bishop(Colour.WHITE, 7, 5)
+        self.board[0][2] = Bishop(self, Colour.BLACK, 0, 2)
+        self.board[0][5] = Bishop(self, Colour.BLACK, 0, 5)
+        self.board[7][2] = Bishop(self, Colour.WHITE, 7, 2)
+        self.board[7][5] = Bishop(self, Colour.WHITE, 7, 5)
 
         # Place Queens
-        self.board[0][3] = Queen(Colour.BLACK, 0, 3)
-        self.board[7][3] = Queen(Colour.WHITE, 7, 3)
+        self.board[0][3] = Queen(self, Colour.BLACK, 0, 3)
+        self.board[7][3] = Queen(self, Colour.WHITE, 7, 3)
 
         # Place Kings
-        self.board[0][4] = King(Colour.BLACK, 0, 4)
-        self.board[7][4] = King(Colour.WHITE, 7, 4)
+        self.board[0][4] = King(self, Colour.BLACK, 0, 4)
+        self.board[7][4] = King(self, Colour.WHITE, 7, 4)
     
     def __get_square_representation(self, val):
         if val is None:
@@ -77,6 +77,6 @@ class Board:
 
 
     def move_piece(self, orig_i, orig_j, new_i, new_j):
-        self.board[orig_i][orig_j].move(self.board, new_i, new_j)
+        self.board[orig_i][orig_j].move(new_i, new_j)
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
 
