@@ -1,23 +1,5 @@
+from Pieces.piece import Piece
 from enums import Colour
-from strings import *
-
-class Piece:
-    def __init__(self, colour, row, column):
-        self.colour = colour
-        self.row = row
-        self.column = column
-    
-    def check_move_errors(self, board, representation):
-        if board[self.row][self.column] is None:
-            raise Exception(invalid_move_no_piece_message.format(\
-            self.row,\
-            self.column))
-        elif board[self.row][self.column].get_representation() != representation:
-            raise Exception(invalid_move_wrong_piece.format(\
-            self.row,\
-            self.column,\
-            board[self.row][self.column].get_representation(), \
-            representation))
 
 class Pawn(Piece):
     def __init__(self, colour, row, column):
@@ -70,36 +52,3 @@ class Pawn(Piece):
 
         self.has_moved = True
         
-
-
-class Rook(Piece):
-    def __init__(self, colour, row, column):
-        super().__init__(colour, row, column)
-
-    def get_representation(self):
-        return 'r' if self.colour == Colour.BLACK else 'R'
-
-class Knight(Piece):
-    def __init__(self, colour, row, column):
-        super().__init__(colour, row, column)
-    def get_representation(self):
-        return 'n' if self.colour == Colour.BLACK else 'N'
-
-class Bishop(Piece):
-    def __init__(self, colour, row, column):
-        super().__init__(colour, row, column)
-    def get_representation(self):
-        return 'b' if self.colour == Colour.BLACK else 'B'
-
-class Queen(Piece):
-    def __init__(self, colour, row, column):
-        super().__init__(colour, row, column)
-    def get_representation(self):
-        return 'q' if self.colour == Colour.BLACK else 'Q'
-
-class King(Piece):
-    def __init__(self, colour, row, column):
-        super().__init__(colour, row, column)
-    def get_representation(self):
-        return 'k' if self.colour == Colour.BLACK else 'K'
-    
