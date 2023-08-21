@@ -44,10 +44,7 @@ class Pawn(Piece):
         return valid_moves
 
     def move(self, board, new_i, new_j):
-        super().check_move_errors(board, self.get_representation())               
+        super().move(board, new_i, new_j)               
         
-        self.row = new_i
-        self.column = new_j
-
         self.has_moved = True
         
