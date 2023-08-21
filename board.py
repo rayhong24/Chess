@@ -65,8 +65,10 @@ class Board:
             return val.get_representation()
 
     def print_board(self):
-        for row in self.board:
-            print(["{:^3}".format(self.__get_square_representation(val)) for val in row])
+        for i, row in enumerate(self.board):
+            print(f"{i} {['{:^3}'.format(self.__get_square_representation(val)) for val in row]}")
+        print()
+        print(f"  {['{:^3}'.format(str(i)) for i in range(8)]}")
 
         print("="*57)
     
