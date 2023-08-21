@@ -1,10 +1,10 @@
 from enums import Colour
-from pieces import Pawn
-from pieces import Rook
-from pieces import Knight
-from pieces import Bishop
-from pieces import Queen
-from pieces import King
+from Pieces.pawn import Pawn
+from Pieces.rook import Rook
+from Pieces.knight import Knight
+from Pieces.bishop import Bishop
+from Pieces.queen import Queen
+from Pieces.king import King
 
 class Board:
     def __init__(self):
