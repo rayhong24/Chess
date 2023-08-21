@@ -7,6 +7,15 @@ class Piece:
         self.row = row
         self.column = column
     
+    def get_representation(self):
+        raise NotImplementedError
+
+    def get_moves(self, board):
+        raise NotImplementedError
+    
+    def move(self, board, new_i, new_j):
+        raise NotImplementedError
+    
     def check_move_errors(self, board, representation):
         if board[self.row][self.column] is None:
             raise Exception(invalid_move_no_piece_message.format(\

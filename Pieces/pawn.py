@@ -5,7 +5,6 @@ class Pawn(Piece):
     def __init__(self, colour, row, column):
         super().__init__(colour, row, column)
         self.has_moved = False
-        
     
     def get_representation(self):
         return 'p' if self.colour == Colour.BLACK else 'P'
