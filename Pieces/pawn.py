@@ -39,8 +39,6 @@ class Pawn(Piece):
 
         # TODO: En passant
         
-        print(valid_moves)
-
         return valid_moves
 
     def move(self, board, new_i, new_j):
