@@ -1,7 +1,8 @@
 import game
 from board import Board
+from Pieces.piece import Piece
 
-def keep_making_first_move(board, piece, num_moves):
+def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
     for i in range(num_moves):
         old_i, old_j = piece.row, piece.column
         moves = piece.get_moves(board.board)
@@ -52,5 +53,6 @@ def main():
     # pawn_test()
     rook_test()
     return
+
 if __name__ == "__main__":
     main()

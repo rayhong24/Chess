@@ -55,10 +55,6 @@ class Game():
                 break
             else:
                 print("Invalid move. Try again.")
-
-
-
-
     
     def make_move(self):
         self.player_turn = not self.player_turn

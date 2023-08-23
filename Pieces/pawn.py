@@ -1,15 +1,15 @@
+from board import Board
 from Pieces.piece import Piece
 from enums import Colour
 
 class Pawn(Piece):
-    def __init__(self, colour, row, column):
+    def __init__(self, colour: Colour, row: int, column: int) -> None:
         super().__init__(colour, row, column)
-        self.has_moved = False
     
-    def get_representation(self):
+    def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_moves(self, board):
+    def get_moves(self, board: Board) -> [tuple]:
         super().check_move_errors(board, self.get_representation())
         # list of tuples of new coordinates the piece can go
         valid_moves = []
@@ -41,8 +41,8 @@ class Pawn(Piece):
         
         return valid_moves
 
-    def move(self, board, new_i, new_j):
-        super().move(board, new_i, new_j)               
+    def move(self, board: Board, new_i: int, new_j: int) -> None:
+        super().move(board, new_i, new_j)
         
         self.has_moved = True
         
