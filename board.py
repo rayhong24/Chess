@@ -1,4 +1,5 @@
 from enums import Colour
+from Pieces.piece import Piece
 from Pieces.pawn import Pawn
 from Pieces.rook import Rook
 from Pieces.knight import Knight
@@ -15,7 +16,7 @@ class Board:
 
         self.__setup_board()
 
-    def __add_piece(self, piece_type, colour, i, j):
+    def __add_piece(self, piece_type: Piece, colour: Colour, i: int, j: int):
         piece = piece_type(colour, i, j)
         self.board[i][j] = piece
         
@@ -58,7 +59,7 @@ class Board:
         self.__add_piece(King, Colour.BLACK, 0, 4)
         self.__add_piece(King, Colour.BLACK, 7, 4)
     
-    def __get_square_representation(self, val):
+    def __get_square_representation(self, val: Piece) -> Str:
         if val is None:
             return ""
         else:
@@ -72,11 +73,11 @@ class Board:
 
         print("="*57)
     
-    def is_inbounds(self, i, j):
+    def is_inbounds(self, i: int, j: int) -> bool:
         return (0 <= i < 8) and (0 <= j < 8)
 
 
-    def move_piece(self, orig_i, orig_j, new_i, new_j):
+    def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         self.board[orig_i][orig_j].move(self.board, new_i, new_j)
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
 
