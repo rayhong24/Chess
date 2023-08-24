@@ -77,11 +77,27 @@ def queen_test():
     print("Moving queen")
     keep_making_first_move(queen_test_board, queen, 3)
 
+def king_test():
+    print("Testing King implementation")
+    king_test_board = Board()
+    king_test_board.print_board()
+
+    print("Printing moves in starting position (should be none)")
+    king = king_test_board.board[0][4]
+    keep_making_first_move(king_test_board, king, 10)
+    pawn = king_test_board.board[1][4]
+    print("Moving pawn blocking king")
+    keep_making_first_move(king_test_board, pawn, 10)
+    print("Moving king")
+    keep_making_first_move(king_test_board, king, 3)
+
+
 def main():
     # pawn_test()
     # rook_test()
     # bishop_test()
-    queen_test()
+    # queen_test()
+    king_test()
     return
 
 if __name__ == "__main__":
