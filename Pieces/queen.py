@@ -17,7 +17,8 @@ class Queen(Piece):
 
         for di, dj in [
             [-1, -1], [-1, 1], [1, -1], [1, 1],
-            [-1, 0], [1, 0], [0, -1], [0, 1]]:
+            [-1, 0], [1, 0], [0, -1], [0, 1]
+            ]:
             i, j = self.row + di, self.column + dj
 
             while board.is_inbounds(i, j) and board.board[i][j] == None:
