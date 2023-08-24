@@ -91,13 +91,21 @@ def king_test():
     print("Moving king")
     keep_making_first_move(king_test_board, king, 3)
 
+def knight_test():
+    print("Testing knight implementation")
+    knight_test_board = Board()
+    knight_test_board.print_board()
+
+    knight = knight_test_board.board[0][1]
+    keep_making_first_move(knight_test_board, knight, 10)
 
 def main():
     # pawn_test()
     # rook_test()
     # bishop_test()
     # queen_test()
-    king_test()
+    # king_test()
+    knight_test()
     return
 
 if __name__ == "__main__":
