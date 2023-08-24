@@ -11,4 +11,5 @@ class Bishop(Piece):
     def get_moves(self, board: [[Piece]]) -> [tuple]:
         super().check_move_errors(board, self.get_representation())
         # list of tuples of new coordinates the piece can go
+
         

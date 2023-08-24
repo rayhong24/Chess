@@ -21,20 +21,20 @@ class Pawn(Piece):
         moves_forward = 1 if self.has_moved else 2
         for di in range(1, moves_forward+1):
             i, j = self.row+(di*direction), self.column
-            if 0<=i<=7 and 0<=j<=7 and board[i][j] == None: #TODO: Find better way for bounds error-checking
+            if board.is_inbounds(i, j) and board.board[i][j] == None:
                 valid_moves.append((i, j))
         
         # check captures
         i = self.row+direction
         j_left = self.column-1
         j_right = self.column+1
-        if 0<=i<=7 and 0<=j_left<=7:
-            square_to_check1 = board[i][j_left]
+        if board.is_inbounds(i, j_left):
+            square_to_check1 = board.board[i][j_left]
             if square_to_check1 is not None and square_to_check1.colour != self.colour:
                 valid_moves.append((i, j_left))
         
-        if 0<=i<=7 and 0<=j_right<=7:
-            square_to_check2 = board[i][j_right]
+        if board.is_inbounds(i, j_right):
+            square_to_check2 = board.board[i][j_right]
             if  square_to_check2 is not None and square_to_check2.colour != self.colour:
                 valid_moves.append((i, j_right))
 

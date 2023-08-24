@@ -80,6 +80,6 @@ class Board:
 
 
     def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
-        self.board[orig_i][orig_j].move(self.board, new_i, new_j)
+        self.board[orig_i][orig_j].move(self, new_i, new_j)
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
 
