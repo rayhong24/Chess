@@ -18,11 +18,11 @@ class Rook(Piece):
         for di, dj in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
             i, j = self.row + di, self.column + dj
 
-            while 0<=i<=7 and 0<=j<=7 and board[i][j] == None:
+            while board.is_inbounds(i, j) and board.board[i][j] == None:
                 valid_moves.append((i, j))
                 i, j = i+di, j+dj
 
-            if 0<=i<=7 and 0<=j<=7 and board[i][j] != None and board[i][j].colour != self.colour:
+            if board.is_inbounds(i, j) and board.board[i][j] != None and board.board[i][j].colour != self.colour:
                 valid_moves.append((i, j))
             
 

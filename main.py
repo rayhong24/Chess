@@ -5,7 +5,7 @@ from Pieces.piece import Piece
 def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
     for i in range(num_moves):
         old_i, old_j = piece.row, piece.column
-        moves = piece.get_moves(board.board)
+        moves = piece.get_moves(board)
         print(moves)
 
         if not moves:
