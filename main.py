@@ -48,10 +48,25 @@ def rook_test():
     keep_making_first_move(rook_test_board, pawn, 10)
     print("Moving rook")
     keep_making_first_move(rook_test_board, rook, 3)
-    
+
+def bishop_test():
+    print("Testing Bishop implementation")
+    bishop_test_board = Board()
+    bishop_test_board.print_board()
+
+    print("Printing moves in starting position (should be none)")
+    bishop = bishop_test_board.board[0][2]
+    keep_making_first_move(bishop_test_board, bishop, 10)
+    pawn = bishop_test_board.board[1][1]
+    print("Moving pawn blocking bishop")
+    keep_making_first_move(bishop_test_board, pawn, 10)
+    print("Moving bishop")
+    keep_making_first_move(bishop_test_board, bishop, 3)
+
 def main():
     # pawn_test()
-    rook_test()
+    # rook_test()
+    bishop_test()
     return
 
 if __name__ == "__main__":
