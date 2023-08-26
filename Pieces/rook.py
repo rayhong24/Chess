@@ -8,7 +8,7 @@ class Rook(Piece):
     def get_representation(self) -> str:
         return 'r' if self.colour == Colour.BLACK else 'R'
 
-    def get_moves(self, board: [[Piece]]) -> [tuple]:
+    def get_moves(self, board: [[Piece]]) -> [str]:
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
@@ -16,11 +16,11 @@ class Rook(Piece):
             i, j = self.row + di, self.column + dj
 
             while self.is_inbounds(i, j) and board[i][j] == None:
-                valid_moves.append((i, j))
+                valid_moves.append(self.coords_to_move(self.row, self.column, i, j))
                 i, j = i+di, j+dj
 
             if self.is_inbounds(i, j) and board[i][j] != None and board[i][j].colour != self.colour:
-                valid_moves.append((i, j))
+                valid_moves.append(self.coords_to_move(self.row, self.column, i, j))
             
         return valid_moves
 

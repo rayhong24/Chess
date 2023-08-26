@@ -8,7 +8,7 @@ class King(Piece):
     def get_representation(self) -> str:
         return 'k' if self.colour == Colour.BLACK else 'K'
 
-    def get_moves(self, board: [[Piece]]) -> [tuple]:
+    def get_moves(self, board: [[Piece]]) -> [str]:
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
@@ -19,6 +19,6 @@ class King(Piece):
             i, j = self.row + di, self.column + dj
 
             if self.is_inbounds(i, j) and (board[i][j] == None or board[i][j].colour != self.colour):
-                valid_moves.append((i, j))
+                valid_moves.append(self.coords_to_move(self.row, self.column, i, j))
         
         return valid_moves

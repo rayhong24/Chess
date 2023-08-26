@@ -8,7 +8,7 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_moves(self, board: [[Piece]]) -> [tuple]:
+    def get_moves(self, board: [[Piece]]) -> [str]:
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
@@ -19,7 +19,7 @@ class Pawn(Piece):
         for di in range(1, moves_forward+1):
             i, j = self.row+(di*direction), self.column
             if self.is_inbounds(i, j) and board[i][j] == None:
-                valid_moves.append((i, j))
+                valid_moves.append(self.coords_to_move(self.row, self.column, i, j))
         
         # check captures
         i = self.row+direction
@@ -28,12 +28,12 @@ class Pawn(Piece):
         if self.is_inbounds(i, j_left):
             square_to_check1 = board[i][j_left]
             if square_to_check1 is not None and square_to_check1.colour != self.colour:
-                valid_moves.append((i, j_left))
+                valid_moves.append(self.coords_to_move(self.row, self.column, i, j_left))
         
         if self.is_inbounds(i, j_right):
             square_to_check2 = board[i][j_right]
             if  square_to_check2 is not None and square_to_check2.colour != self.colour:
-                valid_moves.append((i, j_right))
+                valid_moves.append(self.coords_to_move(self.row, self.column, i, j_right))
 
         # TODO: En passant
         
