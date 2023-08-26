@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Self
 
 from enums import Colour
 from strings import *
@@ -16,7 +16,7 @@ class Piece:
     def is_inbounds(self, i, j):
         return 0<=i<=7 and 0<=j<=7
 
-    def get_moves(self, board: [[Piece]]) -> [tuple]:
+    def get_moves(self, board: [[Self]]) -> [tuple]:
         raise NotImplementedError
     
     def move(self, new_i: int, new_j: int) -> None:

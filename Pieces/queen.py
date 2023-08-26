@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from Pieces.piece import Piece
 from enums import Colour
 
