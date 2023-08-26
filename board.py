@@ -61,7 +61,7 @@ class Board:
         self.__add_piece(King, Colour.BLACK, 0, 4)
         self.__add_piece(King, Colour.BLACK, 7, 4)
     
-    def __get_square_representation(self, val: Piece) -> Str:
+    def __get_square_representation(self, val: Piece) -> str:
         if val is None:
             return ""
         else:
