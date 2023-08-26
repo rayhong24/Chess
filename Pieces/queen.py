@@ -19,10 +19,10 @@ class Queen(Piece):
             i, j = self.row + di, self.column + dj
 
             while self.is_inbounds(i, j) and board[i][j] == None:
-                valid_moves.append(self.coords_to_move(self.row, self.column, i, j))
+                valid_moves.append(self.get_move_str(self.row, self.column, i, j))
                 i, j = i+di, j+dj
 
             if self.is_inbounds(i, j) and board[i][j] != None and board[i][j].colour != self.colour:
-                valid_moves.append(self.coords_to_move(self.row, self.column, i, j))
+                valid_moves.append(self.get_move_str(self.row, self.column, i, j))
         
         return valid_moves

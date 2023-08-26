@@ -78,9 +78,26 @@ class Board:
         return (0 <= i < 8) and (0 <= j < 8)
 
     def handle_move(self, move: str) -> bool:
+        def get_new_piece(piece: str, colour: Colour) -> str:
+            if piece == 'q':
+                return Queen(colour, new_i, new_j)
+            elif piece == 'r':
+                return Rook(colour, new_i, new_j)
+            elif piece == 'b':
+                return Bishop(colour, new_i, new_j)
+            elif piece == 'n':
+                return Knight(colour, new_i, new_j)
+        # TODO add check to make sure it is a valid move
+
         start_i, start_j = int(move[1]), File[move[0]].value
         new_i, new_j = int(move[3]), File[move[2]].value
-        self.move_piece(start_i, start_j, new_i, new_j)
+        if len(move) == 4:
+            self.move_piece(start_i, start_j, new_i, new_j)
+        elif len(move) == 5:
+            colour = self.board[start_i][start_j].colour
+            self.board[start_i][start_j] = None
+            self.board[new_i][new_j] = get_new_piece(move[4], colour)
+
 
     def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         self.board[orig_i][orig_j].move(new_i, new_j)

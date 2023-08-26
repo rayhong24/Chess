@@ -17,7 +17,7 @@ class Piece:
     def is_inbounds(self, i, j):
         return 0<=i<=7 and 0<=j<=7
 
-    def coords_to_move(self, start_i, start_j, new_i, new_j):
+    def get_move_str(self, start_i, start_j, new_i, new_j):
         return f"{File(start_j).name}{start_i}{File(new_j).name}{new_i}"
 
     def get_moves(self, board: [[Self]]) -> [str]:
