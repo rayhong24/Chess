@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enums import Colour
 from Pieces.piece import Piece
 from Pieces.pawn import Pawn
