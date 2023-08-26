@@ -12,8 +12,8 @@ class Board:
     def __init__(self):
         self.board = [[None]*8 for _ in range(8)]
         # Maybe change to a dictionary
-        self.white_pieces = []
-        self.black_pieces = []
+        self.white_pieces = set()
+        self.black_pieces = set()
 
         self.__setup_board()
 
@@ -22,9 +22,9 @@ class Board:
         self.board[i][j] = piece
         
         if colour == Colour.WHITE:
-            self.white_pieces.append(piece)
+            self.white_pieces.add(piece)
         else:
-            self.black_pieces.append(piece)
+            self.black_pieces.add(piece)
 
 
     def __setup_board(self):
@@ -77,6 +77,17 @@ class Board:
     def is_inbounds(self, i: int, j: int) -> bool:
         return (0 <= i < 8) and (0 <= j < 8)
 
+    def remove_piece(self, piece: Piece):
+        if piece.colour == Colour.BLACK:
+            self.black_pieces.remove(piece)
+        else:
+            self.white_pieces.remove(piece)
+    def add_piece(self, piece: Piece):
+        if piece.colour == Colour.BLACK:
+            self.black_pieces.add(piece)
+        else:
+            self.white_pieces.add(piece)
+
     def handle_move(self, move: str) -> bool:
         def get_new_piece(piece: str, colour: Colour) -> str:
             if piece == 'q':
@@ -95,11 +106,16 @@ class Board:
             self.move_piece(start_i, start_j, new_i, new_j)
         elif len(move) == 5:
             colour = self.board[start_i][start_j].colour
+            self.remove_piece(self.board[start_i][start_j])
             self.board[start_i][start_j] = None
-            self.board[new_i][new_j] = get_new_piece(move[4], colour)
+            new_piece = get_new_piece(move[4], colour)
+            self.board[new_i][new_j] = new_piece
+            self.add_piece(new_piece)
 
 
     def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         self.board[orig_i][orig_j].move(new_i, new_j)
+        if self.board[new_i][new_j] != None:
+            self.remove_piece(self.board[new_i][new_j])
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
 
