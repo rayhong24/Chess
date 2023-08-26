@@ -4,7 +4,6 @@ from Pieces.piece import Piece
 
 def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
     for i in range(num_moves):
-        old_i, old_j = piece.row, piece.column
         moves = piece.get_moves(board.board)
         print(moves)
 
@@ -12,8 +11,8 @@ def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
             print(f"No more valid moves. Stopped at move {i}.")
             break
 
-        new_i, new_j = moves[0]
-        board.move_piece(old_i, old_j, new_i, new_j)
+        move = moves[0]
+        board.handle_move(move)
         board.print_board()
 
     return

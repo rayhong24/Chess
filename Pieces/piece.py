@@ -1,6 +1,7 @@
 from typing import Self
 
 from enums import Colour
+from enums import File
 from strings import *
 
 class Piece:
@@ -16,7 +17,10 @@ class Piece:
     def is_inbounds(self, i, j):
         return 0<=i<=7 and 0<=j<=7
 
-    def get_moves(self, board: [[Self]]) -> [tuple]:
+    def coords_to_move(self, start_i, start_j, new_i, new_j):
+        return f"{File(start_j).name}{start_i}{File(new_j).name}{new_i}"
+
+    def get_moves(self, board: [[Self]]) -> [str]:
         raise NotImplementedError
     
     def move(self, new_i: int, new_j: int) -> None:

@@ -1,4 +1,5 @@
 from enums import Colour
+from enums import File
 from Pieces.piece import Piece
 from Pieces.pawn import Pawn
 from Pieces.rook import Rook
@@ -69,12 +70,17 @@ class Board:
         for i, row in enumerate(self.board):
             print(f"{i} {['{:^3}'.format(self.__get_square_representation(val)) for val in row]}")
         print()
-        print(f"  {['{:^3}'.format(str(i)) for i in range(8)]}")
+        print(f"  {['{:^3}'.format(File(i).name) for i in range(8)]}")
 
         print("="*57)
     
     def is_inbounds(self, i: int, j: int) -> bool:
         return (0 <= i < 8) and (0 <= j < 8)
+
+    def handle_move(self, move: str) -> bool:
+        start_i, start_j = int(move[1]), File[move[0]].value
+        new_i, new_j = int(move[3]), File[move[2]].value
+        self.move_piece(start_i, start_j, new_i, new_j)
 
     def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         self.board[orig_i][orig_j].move(new_i, new_j)
