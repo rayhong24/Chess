@@ -5,7 +5,7 @@ from Pieces.piece import Piece
 def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
     for i in range(num_moves):
         old_i, old_j = piece.row, piece.column
-        moves = piece.get_moves(board)
+        moves = piece.get_moves(board.board)
         print(moves)
 
         if not moves:
@@ -100,11 +100,11 @@ def knight_test():
     keep_making_first_move(knight_test_board, knight, 10)
 
 def main():
-    # pawn_test()
-    # rook_test()
-    # bishop_test()
-    # queen_test()
-    # king_test()
+    pawn_test()
+    rook_test()
+    bishop_test()
+    queen_test()
+    king_test()
     knight_test()
     return
 

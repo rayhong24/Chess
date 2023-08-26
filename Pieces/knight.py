@@ -10,8 +10,7 @@ class Knight(Piece):
     def get_representation(self) -> str:
         return 'n' if self.colour == Colour.BLACK else 'N'
 
-    def get_moves(self, board: Board) -> [tuple]:
-        super().check_move_errors(board, self.get_representation())
+    def get_moves(self, board: [[Piece]]) -> [tuple]:
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
@@ -21,7 +20,7 @@ class Knight(Piece):
             ]:
             i, j = self.row + di, self.column + dj
 
-            if board.is_inbounds(i, j) and (board.board[i][j] == None or board.board[i][j].colour != self.colour):
+            if self.is_inbounds(i, j) and (board[i][j] == None or board[i][j].colour != self.colour):
                 valid_moves.append((i, j))
         
         return valid_moves
