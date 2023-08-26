@@ -13,32 +13,14 @@ class Piece:
     def get_representation(self) -> str:
         raise NotImplementedError
 
-    def get_moves(self, board: Board) -> [tuple]:
+    def is_inbounds(self, i, j):
+        return 0<=i<=7 and 0<=j<=7
+
+    def get_moves(self, board: [[Piece]]) -> [tuple]:
         raise NotImplementedError
     
-    def move(self, board: Board, new_i: int, new_j: int) -> None:
-        self.check_move_errors(board, self.get_representation())               
-        
+    def move(self, new_i: int, new_j: int) -> None:
         self.row = new_i
         self.column = new_j
         self.has_moved = True
-    
-    def check_move_errors(self, board: Board, representation) -> None:
-        if board.board[self.row][self.column] is None:
-            raise Exception(invalid_move_no_piece_message.format(\
-            self.row,\
-            self.column))
-        elif board.board[self.row][self.column].get_representation() != representation:
-            raise Exception(invalid_move_wrong_piece.format(\
-            self.row,\
-            self.column,\
-            board[self.row][self.column].get_representation(), \
-            representation))
-
-
-
-
-
-
-
     
