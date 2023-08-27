@@ -105,6 +105,18 @@ class Board:
         new_i, new_j = int(move[3]), File[move[2]].value
         if len(move) == 4:
             self.move_piece(start_i, start_j, new_i, new_j)
+            # check king side castling (assuming valid)
+            if type(self.board[start_i][start_j]) == King\
+            and start_j == 4 and new_j == 6:
+                # move rook (assumes rook is in the right place)
+                self.move_piece(start_i, 7, start_i, 5)
+
+            # check queen side castling (assuming valid)
+            if type(self.board[start_i][start_j]) == King\
+            and start_j == 4 and new_j == 2:
+                # move rook (assumes rook is in the right place)
+                self.move_piece(start_i, 0, start_i, 3)
+
         elif len(move) == 5:
             colour = self.board[start_i][start_j].colour
             self.remove_piece(self.board[start_i][start_j])
