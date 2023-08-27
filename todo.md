@@ -1,6 +1,6 @@
 # TODO
 - Implement a Test class
-- Implement Promotion
 - Implement Castling
+- Implement en Passant
 - Make sure move is valid in handle move
 
