@@ -1,3 +1,4 @@
+from strings import *
 from enums import Colour
 from enums import File
 from Pieces.piece import Piece
@@ -118,4 +119,3 @@ class Board:
         if self.board[new_i][new_j] != None:
             self.remove_piece(self.board[new_i][new_j])
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
-

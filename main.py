@@ -7,7 +7,7 @@ def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
         moves = piece.get_moves(board.board)
         print(moves)
 
-        if not moves or board.board[piece.row][piece.column] == None:
+        if not moves or (piece not in board.white_pieces and piece not in board.black_pieces):
             print(f"No more valid moves. Stopped at move {i}.")
             break
 
