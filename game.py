@@ -7,8 +7,10 @@ from enums import File
 
 
 class Game():
+    startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
     def __init__(self):
         self.board = Board()
+        self.board.setup_board(self.startpos_fenstr)
 
         self.player_turn = Colour.WHITE
         self.player_white = Player()

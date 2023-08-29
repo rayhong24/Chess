@@ -12,12 +12,13 @@ from Pieces.king import King
 
 class Board:
     def __init__(self):
-        self.board = [[None]*8 for _ in range(8)]
-        # Maybe change to a dictionary
+        self.board: [Piece] = [[None]*8 for _ in range(8)]
+
+        # piece sets will probably be moved to player class later
         self.white_pieces = set()
         self.black_pieces = set()
 
-        self.__setup_board()
+        self.setup_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
     def __add_piece(self, piece_type: Piece, colour: Colour, i: int, j: int):
         piece = piece_type(colour, i, j)
@@ -29,39 +30,17 @@ class Board:
             self.black_pieces.add(piece)
 
 
-    def __setup_board(self):
-        # Place pawns
-        for j in range(8):
-            self.__add_piece(Pawn, Colour.BLACK, 1, j)
+    def setup_board(self, fenstr: str) -> None:
+        for i, row in enumerate(fenstr.split('/')):
+            j = 0
+            for c in row:
+                if c.isnumeric():
+                    j += int(c)
+                else:
+                    piece_type, colour = get_piece_type(c)
+                    self.__add_piece(piece_type, colour, i, j)
+                    j += 1
 
-            self.__add_piece(Pawn, Colour.WHITE, 6, j)
-
-        # Place rooks
-        self.__add_piece(Rook, Colour.BLACK, 0, 0)
-        self.__add_piece(Rook, Colour.BLACK, 0, 7)
-        self.__add_piece(Rook, Colour.WHITE, 7, 0)
-        self.__add_piece(Rook, Colour.WHITE, 7, 7)
-
-        # Place knights
-        self.__add_piece(Knight, Colour.BLACK, 0, 1)
-        self.__add_piece(Knight, Colour.BLACK, 0, 6)
-        self.__add_piece(Knight, Colour.BLACK, 7, 1)
-        self.__add_piece(Knight, Colour.BLACK, 7, 6)
-
-        # Place bishops
-        self.__add_piece(Bishop, Colour.BLACK, 0, 2)
-        self.__add_piece(Bishop, Colour.BLACK, 0, 5)
-        self.__add_piece(Bishop, Colour.BLACK, 7, 2)
-        self.__add_piece(Bishop, Colour.BLACK, 7, 5)
-
-        # Place Queens
-        self.__add_piece(Queen, Colour.BLACK, 0, 3)
-        self.__add_piece(Queen, Colour.WHITE, 7, 3)
-
-        # Place Kings
-        self.__add_piece(King, Colour.BLACK, 0, 4)
-        self.__add_piece(King, Colour.BLACK, 7, 4)
-    
     def __get_square_representation(self, val: Piece) -> str:
         if val is None:
             return ""
