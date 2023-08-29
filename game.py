@@ -1,6 +1,7 @@
 from string import ascii_uppercase
 
 from board import Board
+from player import Player
 from enums import Colour
 from enums import File
 
@@ -8,7 +9,10 @@ from enums import File
 class Game():
     def __init__(self):
         self.board = Board()
+
         self.player_turn = Colour.WHITE
+        self.player_white = Player()
+        self.player_black = Player()
 
     def _get_file_input(self, orig=True):
         while True:
