@@ -1,6 +1,7 @@
 from strings import *
 from enums import Colour
 from enums import File
+from utils import *
 from Pieces.piece import Piece
 from Pieces.pawn import Pawn
 from Pieces.rook import Rook
@@ -101,8 +102,7 @@ class Board:
                 return Knight(colour, new_i, new_j)
         # TODO add check to make sure it is a valid move
 
-        start_i, start_j = int(move[1]), File[move[0]].value
-        new_i, new_j = int(move[3]), File[move[2]].value
+        start_i, start_j, new_i, new_j = get_coords(move)
         if len(move) == 4:
             self.move_piece(start_i, start_j, new_i, new_j)
             # check king side castling (assuming valid)
