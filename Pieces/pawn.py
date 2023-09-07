@@ -8,7 +8,6 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    # TODO: 
     def get_moves(self, board: [[Piece]], enpassant_squares: [tuple[int, int]]) -> [str]:
         def append_promotion_move(move_str):
             for piece in "qrbn":
@@ -55,6 +54,5 @@ class Pawn(Piece):
                 else:
                     valid_moves.append(move_str)
 
-        # TODO: En passant
         
         return valid_moves
