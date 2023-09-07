@@ -1,6 +1,9 @@
+import unittest
 from game import Game
 from board import Board
 from Pieces.piece import Piece
+
+from testGameClass import TestGameClass
 
 def keep_making_first_move(board: Board, piece: Piece, num_moves: int):
     for i in range(num_moves):
@@ -104,4 +107,5 @@ def main():
     return
 
 if __name__ == "__main__":
+    unittest.main()
     main()

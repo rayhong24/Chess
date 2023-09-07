@@ -8,14 +8,16 @@ from enums import File
 
 class Game():
     startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    def __init__(self):
+    def __init__(self, fenstr=None):
+        if not fenstr:
+            fenstr = self.startpos_fenstr
         self.board = Board()
 
         self.player_turn = Colour.WHITE
         self.player_white = Player()
         self.player_black = Player()
 
-        self.setup_fenstr(self.startpos_fenstr)
+        self.setup_fenstr(fenstr)
 
     def setup_fenstr(self, fenstr: str) -> None:
         fenstr_sections = fenstr.split(' ')
@@ -73,8 +75,9 @@ class Game():
             else:
                 print("Invalid move. Try again.")
     
+    # TODO: implement
     def make_move(self):
-        self.player_turn = not self.player_turn
+        self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
 
     # TODO: Refactor
     def get_castle_str(self) -> str:
