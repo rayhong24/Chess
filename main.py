@@ -1,4 +1,4 @@
-import game
+from game import Game
 from board import Board
 from Pieces.piece import Piece
 
@@ -99,12 +99,8 @@ def knight_test():
     keep_making_first_move(knight_test_board, knight, 10)
 
 def main():
-    pawn_test()
-    rook_test()
-    bishop_test()
-    queen_test()
-    king_test()
-    knight_test()
+    game = Game()
+    game.display_game()
     return
 
 if __name__ == "__main__":

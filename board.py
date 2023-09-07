@@ -18,8 +18,6 @@ class Board:
         self.white_pieces = set()
         self.black_pieces = set()
 
-        self.setup_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
-
     def __add_piece(self, piece_type: Piece, colour: Colour, i: int, j: int):
         piece = piece_type(colour, i, j)
         self.board[i][j] = piece
@@ -29,17 +27,42 @@ class Board:
         else:
             self.black_pieces.add(piece)
 
-
-    def setup_board(self, fenstr: str) -> None:
-        for i, row in enumerate(fenstr.split('/')):
+    # Input: string from a fenstring (i.e. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR)
+    def add_fenstr_pieces(self, s: str) -> None:
+        for i, row in enumerate(s.split('/')):
             j = 0
             for c in row:
                 if c.isnumeric():
-                    j += int(c)
+                    for _ in range(int(c)):
+                        self.board[i][j] = None
+                        j += 1
                 else:
                     piece_type, colour = get_piece_type(c)
                     self.__add_piece(piece_type, colour, i, j)
                     j += 1
+
+    # Input: string from a fenstring (ei. KQkq or -)
+    #TODO: Refactor (see comments in function)
+    def set_castling_rights(self, s: str) -> None:
+        if s == '-':
+            for piece in self.white_pieces+self.black_pieces:
+                if type(piece) == Rook:
+                    piece.has_moved = True
+
+        # TODO: Change implementation to not use hardcoded indices
+        # TODO: Error Checking (e.i. make sure rook is actually on board[7][7])
+        if 'K' in s:
+            self.board[7][7].has_moved = False
+            self.board[7][4].has_moved = False
+        elif 'Q' in s:
+            self.board[7][0].has_moved = False
+            self.board[7][4].has_moved = False
+        elif 'k' in s:
+            self.board[0][7].has_moved = False
+            self.board[0][4].has_moved = False
+        elif 'q' in s:
+            self.board[0][0].has_moved = False
+            self.board[0][4].has_moved = False
 
     def __get_square_representation(self, val: Piece) -> str:
         if val is None:
@@ -53,8 +76,6 @@ class Board:
         print()
         print(f"  {['{:^3}'.format(File(i).name) for i in range(8)]}")
 
-        print("="*57)
-    
     def is_inbounds(self, i: int, j: int) -> bool:
         return (0 <= i < 8) and (0 <= j < 8)
 
