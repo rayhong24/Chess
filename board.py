@@ -45,7 +45,10 @@ class Board:
     #TODO: Refactor (see comments in function)
     def set_castling_rights(self, s: str) -> None:
         if s == '-':
-            for piece in self.white_pieces+self.black_pieces:
+            for piece in self.white_pieces:
+                if type(piece) == Rook:
+                    piece.has_moved = True
+            for piece in self.black_pieces:
                 if type(piece) == Rook:
                     piece.has_moved = True
 
