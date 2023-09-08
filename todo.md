@@ -8,4 +8,6 @@
 - 50 move rule and turn counter
     - Like from fenstr
 - Refactor castling
+- Change board check in testGameClass 
+    - either change formatting or implementation
 

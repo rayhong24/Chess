@@ -83,6 +83,7 @@ class Game():
     def get_castle_str(self) -> str:
         out = ""
 
+        # TODO: Fix if no piece on hardcoded squares like (self.board.board[7][7] == None)
         if self.board.board[7][7].has_moved == False and\
         self.board.board[7][4].has_moved == False:
             out += "K"
