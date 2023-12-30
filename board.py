@@ -75,7 +75,7 @@ class Board:
 
     def print_board(self):
         for i, row in enumerate(self.board):
-            print(f"{i} {['{:^3}'.format(self.get_square_representation(val)) for val in row]}")
+            print(f"{8-i} {['{:^3}'.format(self.get_square_representation(val)) for val in row]}")
         print()
         print(f"  {['{:^3}'.format(File(i).name) for i in range(8)]}")
 

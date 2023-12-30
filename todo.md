@@ -10,4 +10,6 @@
 - Refactor castling
 - Change board check in testGameClass 
     - either change formatting or implementation
+- Change stored coords of a piece to use file and row
+    - i.e. row=6, col=4 becomes file=e, rank=2
 
