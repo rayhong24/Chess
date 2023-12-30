@@ -18,7 +18,7 @@ class Piece:
         return 0<=i<=7 and 0<=j<=7
 
     def get_move_str(self, start_i, start_j, new_i, new_j):
-        return f"{File(start_j).name}{start_i}{File(new_j).name}{new_i}"
+        return f"{File(start_j).name}{8-start_i}{File(new_j).name}{8-new_i}"
 
     def get_moves(self, board: [[Self]]) -> [str]:
         raise NotImplementedError
