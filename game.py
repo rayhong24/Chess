@@ -64,10 +64,10 @@ class Game():
     
         return
 
-    # TODO: implement
     # INPUT: move - string in long algebraic notation
     def make_move(self, move:str):
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
+        self.board.handle_move(move)
 
 
     # TODO: Refactor
