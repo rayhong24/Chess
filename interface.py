@@ -6,13 +6,14 @@ class Interface:
     def start_regular(self):
         while not self.game.ended:
             self.game.display_game()
-            move = input("Input a valid move (currently no error checking) or end to stop the game: ")
+            input = input("Input a valid move (currently no error checking) or end to stop the game: ")
             
-            if move == "exit":
+            if input == "exit":
                 self.game.ended = True
             else:
-                self.game.make_move(move)
+                self.game.make_move(input)
 
+    # TODO: Implement to UCI standards
     # Talks to a uci interface
     def start_uci(self):
         return

@@ -9,11 +9,10 @@ from Pieces.bishop import Bishop
 from Pieces.queen import Queen
 from Pieces.king import King
 
-def get_coords(move: str) -> tuple[int]:
-    start_i, start_j = int(move[1]), File[move[0]].value
-    new_i, new_j = int(move[3]), File[move[2]].value
+def to_coords(move: str) -> (int, int):
+    i, j = 8-int(move[1]), File[move[0]].value
 
-    return (start_i, start_j, new_i, new_j)
+    return (i, j)
 
 def get_piece_type(s: str) -> Piece:
     piece_dict = {'p': Pawn, 'r': Rook, 'n': Knight, 'b': Bishop, 'q':Queen, 'k':King}

@@ -93,44 +93,73 @@ class Board:
         else:
             self.white_pieces.add(piece)
 
+    # INPUT: move - string in algebraic chess notation
+    # TODO: Refactor
     def handle_move(self, move: str) -> bool:
         def get_new_piece(piece: str, colour: Colour) -> str:
-            if piece == 'q':
-                return Queen(colour, new_i, new_j)
-            elif piece == 'r':
-                return Rook(colour, new_i, new_j)
-            elif piece == 'b':
-                return Bishop(colour, new_i, new_j)
-            elif piece == 'n':
-                return Knight(colour, new_i, new_j)
+            if piece == 'Q':
+                return Queen(colour, end_i, end_j)
+            elif piece == 'R':
+                return Rook(colour, end_i, end_j)
+            elif piece == 'B':
+                return Bishop(colour, end_i, end_j)
+            elif piece == 'N':
+                return Knight(colour, end_i, end_j)
         # TODO add check to make sure it is a valid move
+        print(f"{move=}")
 
-        start_i, start_j, new_i, new_j = get_coords(move)
-        if len(move) == 4:
-            self.move_piece(start_i, start_j, new_i, new_j)
-            # check king side castling (assuming valid)
-            if type(self.board[start_i][start_j]) == King\
-            and start_j == 4 and new_j == 6:
-                # move rook (assumes rook is in the right place)
-                self.move_piece(start_i, 7, start_i, 5)
+        start = end = None
+        capture = False
+        # Move
+        if "-" in move:
+            start, end = move.split('-')
+        # Capture
+        else:
+            start, end = move.split('x')
+            capture = True
 
-            # check queen side castling (assuming valid)
-            if type(self.board[start_i][start_j]) == King\
-            and start_j == 4 and new_j == 2:
-                # move rook (assumes rook is in the right place)
-                self.move_piece(start_i, 0, start_i, 3)
+        piece = 'P'
+        if len(start) == 3:
+            piece = start[0]
+            start_i, start_j = to_coords(start[1:])
+        else:
+            start_i, start_j = to_coords(start[:2])
 
-        elif len(move) == 5:
-            colour = self.board[start_i][start_j].colour
-            self.remove_piece(self.board[start_i][start_j])
-            self.board[start_i][start_j] = None
-            new_piece = get_new_piece(move[4], colour)
-            self.board[new_i][new_j] = new_piece
+        end_i, end_j = to_coords(end[:2])
+
+        self.move_piece(start_i, start_j, end_i, end_j)
+
+        print(start_i, start_j, capture)
+
+        # check king side castling (assuming valid)
+        if type(self.board[start_i][start_j]) == King\
+        and start_j == 4 and end_j == 6:
+            # move rook (assumes rook is in the right place)
+            self.move_piece(start_i, 7, start_i, 5)
+
+        # check queen side castling (assuming valid)
+        if type(self.board[start_i][start_j]) == King\
+        and start_j == 4 and end_j == 2:
+            # move rook (assumes rook is in the right place)
+            self.move_piece(start_i, 0, start_i, 3)
+
+        # Promotion
+        if '=' in end:
+            _, piece_type = end.split('=')
+            colour = self.board[end_i][end_j].colour
+            self.remove_piece(self.board[end_i][end_j])
+            self.board[end_i][end_j] = None
+            new_piece = get_new_piece(piece_type, colour)
+            self.board[end_i][end_j] = new_piece
             self.add_piece(new_piece)
 
 
+
     def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
-        self.board[orig_i][orig_j].move(new_i, new_j)
+        if self.board[orig_i][orig_j] is not None:
+            self.board[orig_i][orig_j].move(new_i, new_j)
+
         if self.board[new_i][new_j] != None:
             self.remove_piece(self.board[new_i][new_j])
+        print(f"{new_i=}, {new_j=}")
         self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
