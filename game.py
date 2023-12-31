@@ -17,6 +17,8 @@ class Game():
 
         self.setup_fenstr(fenstr)
 
+        self.ended = False
+
     def setup_fenstr(self, fenstr: str=None) -> None:
         if not fenstr:
             fenstr = self.startpos_fenstr
@@ -62,26 +64,13 @@ class Game():
     
         return
 
-    def _get_input(self):
-        while True:
-            orig_i = self._get_row_input(True)
-            orig_j = self._get_file_input(True)
-
-            new_i = self._get_row_input(False)
-            new_j = self._get_file_input(False)
-
-            if self._is_move_valid(orig_i, orig_j, new_i, new_j):
-                break
-            else:
-                print("Invalid move. Try again.")
-    
     # TODO: implement
-    def make_move(self):
+    def make_move(self, move:str):
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
-        
-        player_input = self._get_input()
 
-        print(player_input)
+        
+        
+
 
     # TODO: Refactor
     def get_castle_str(self) -> str:

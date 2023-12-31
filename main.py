@@ -1,4 +1,6 @@
 import unittest
+
+from interface import GameInterface
 from game import Game
 from board import Board
 from Pieces.piece import Piece
@@ -100,8 +102,10 @@ def knight_test():
     keep_making_first_move(knight_test_board, knight, 10)
 
 def main():
-    game = Game()
-    game.display_game()
+    interface = GameInterface()
+
+    interface.start_game()
+
     return
 
 if __name__ == "__main__":
