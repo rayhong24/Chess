@@ -127,7 +127,7 @@ class Board:
 
         end_i, end_j = to_coords(end[:2])
 
-        self.move_piece(start_i, start_j, end_i, end_j)
+        self._move_piece(start_i, start_j, end_i, end_j)
 
         print(start_i, start_j, capture)
 
@@ -135,13 +135,13 @@ class Board:
         if type(self.board[start_i][start_j]) == King\
         and start_j == 4 and end_j == 6:
             # move rook (assumes rook is in the right place)
-            self.move_piece(start_i, 7, start_i, 5)
+            self._move_piece(start_i, 7, start_i, 5)
 
         # check queen side castling (assuming valid)
         if type(self.board[start_i][start_j]) == King\
         and start_j == 4 and end_j == 2:
             # move rook (assumes rook is in the right place)
-            self.move_piece(start_i, 0, start_i, 3)
+            self._move_piece(start_i, 0, start_i, 3)
 
         # Promotion
         if '=' in end:
@@ -155,7 +155,7 @@ class Board:
 
 
 
-    def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
+    def _move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         if self.board[orig_i][orig_j] is not None:
             self.board[orig_i][orig_j].move(new_i, new_j)
 
