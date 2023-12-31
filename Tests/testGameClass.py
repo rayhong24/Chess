@@ -54,7 +54,7 @@ class TestGameClass(unittest.TestCase):
             ]
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
-        # self.check_castling_rights('-')
+        self.check_castling_rights('-')
         
     # def test_widget_resize(self):
     #     self.widget.resize(100,150)
