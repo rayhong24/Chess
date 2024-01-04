@@ -65,9 +65,16 @@ class Game():
         return
 
     # INPUT: move - string in long algebraic notation
-    def make_move(self, move:str):
-        self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
-        self.board.handle_move(move)
+    def make_move(self, move:str) -> bool:
+        # Valid move
+        if self.board.handle_move(move, self.player_turn):
+            self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
+            return True
+        else:
+            return False
+        
+
+
 
 
     # TODO: Refactor

@@ -94,8 +94,9 @@ class Board:
             self.white_pieces.add(piece)
 
     # INPUT: move - string in algebraic chess notation
+    # INPUT: player_to_move - colour used for error checking
     # TODO: Refactor
-    def handle_move(self, move: str) -> bool:
+    def handle_move(self, move: str, player_to_move: Colour) -> bool:
         def get_new_piece(piece: str, colour: Colour) -> str:
             if piece == 'Q':
                 return Queen(colour, end_i, end_j)
@@ -114,9 +115,13 @@ class Board:
         if "-" in move:
             start, end = move.split('-')
         # Capture
-        else:
+        elif "x" in move:
             start, end = move.split('x')
             capture = True
+        else:
+            return False
+
+        
 
         piece = 'P'
         if len(start) == 3:
@@ -126,6 +131,10 @@ class Board:
             start_i, start_j = to_coords(start[:2])
 
         end_i, end_j = to_coords(end[:2])
+
+        # error checking
+        if self.board[start_i][start_j].colour != player_to_move or self.board[start_i][start_j].get_representation().upper() != piece:
+            return False
 
         self._move_piece(start_i, start_j, end_i, end_j)
 
@@ -153,6 +162,7 @@ class Board:
             self.board[end_i][end_j] = new_piece
             self.add_piece(new_piece)
 
+        return True
 
 
     def _move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
