@@ -11,7 +11,9 @@ class Interface:
             if usr_input == "exit":
                 self.game.ended = True
             else:
-                self.game.make_move(usr_input)
+                if not self.game.make_move(usr_input):
+                    print("Invalid move. Try again")
+
 
     # TODO: Implement to UCI standards
     # Talks to a uci interface
