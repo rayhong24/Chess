@@ -109,51 +109,74 @@ class Board:
         # TODO add check to make sure it is a valid move
         print(f"{move=}")
 
-        start = end = None
-        capture = False
-        # Move
-        if "-" in move:
+        start_i = start_j = end_i = end_j = None
+        piece = 'P'
+        promotion = False
+
+        if move == "O-O":
+            start_i = 7 if player_to_move == Colour.WHITE else 0
+            start_j = 4
+
+            end_i = 7 if player_to_move == Colour.WHITE else 0
+            end_j = 6
+
+            piece = 'K' 
+        elif move == "O-O-O":
+            start_i = 0 if player_to_move == Colour.WHITE else 7
+            start_j = 4
+
+            end_i = 0 if player_to_move == Colour.WHITE else 7
+            end_j = 2
+
+            piece = 'K' 
+        elif "-" in move:
             start, end = move.split('-')
-        # Capture
+
+            if len(start) == 3:
+                piece = start[0]
+                start_i, start_j = to_coords(start[1:])
+            else:
+                start_i, start_j = to_coords(start[:2])
+
+            end_i, end_j = to_coords(end[:2])
+            if '=' in end:
+                promotion = True
+
+
         elif "x" in move:
             start, end = move.split('x')
-            capture = True
+
+            if len(start) == 3:
+                piece = start[0]
+                start_i, start_j = to_coords(start[1:])
+            else:
+                start_i, start_j = to_coords(start[:2])
+
+            end_i, end_j = to_coords(end[:2])
+
+            if '=' in end:
+                promotion = True
         else:
             return False
 
-        
-
-        piece = 'P'
-        if len(start) == 3:
-            piece = start[0]
-            start_i, start_j = to_coords(start[1:])
-        else:
-            start_i, start_j = to_coords(start[:2])
-
-        end_i, end_j = to_coords(end[:2])
-
         # error checking
-        if self.board[start_i][start_j].colour != player_to_move or self.board[start_i][start_j].get_representation().upper() != piece:
+        if not self.board[start_i][start_j] or \
+        self.board[start_i][start_j].colour != player_to_move or \
+        self.board[start_i][start_j].get_representation().upper() != piece or \
+        move not in self.board[start_i][start_j].get_moves(self.board):
             return False
 
         self._move_piece(start_i, start_j, end_i, end_j)
 
-        print(start_i, start_j, capture)
 
-        # check king side castling (assuming valid)
-        if type(self.board[start_i][start_j]) == King\
-        and start_j == 4 and end_j == 6:
-            # move rook (assumes rook is in the right place)
-            self._move_piece(start_i, 7, start_i, 5)
+        if move == "O-O":
+            # Move Rook
+            self._move_piece(start_i, 7, end_i, 5)
+        elif move == "O-O-O":
+            # Move Rook
+            self._move_piece(start_i, 0, end_i, 3)
 
-        # check queen side castling (assuming valid)
-        if type(self.board[start_i][start_j]) == King\
-        and start_j == 4 and end_j == 2:
-            # move rook (assumes rook is in the right place)
-            self._move_piece(start_i, 0, start_i, 3)
-
-        # Promotion
-        if '=' in end:
+        if promotion: 
             _, piece_type = end.split('=')
             colour = self.board[end_i][end_j].colour
             self.remove_piece(self.board[end_i][end_j])
