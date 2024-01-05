@@ -27,7 +27,7 @@ class TestPieces(unittest.TestCase):
     def test_e_pawn(self):
         self.game.setup_fenstr()
         piece = self.game.board.board[6][4]
-        expected_moves = ["e2e3", "e2e4"]
+        expected_moves = ["e2-e3", "e2-e4"]
 
         self.check_moves(piece, expected_moves)
 

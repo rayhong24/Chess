@@ -55,7 +55,176 @@ class TestGameClass(unittest.TestCase):
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
         self.check_castling_rights('-')
-        
+    
+    def test_game(self):
+        self.game.setup_fenstr()
+
+        b = [
+                ['r','n','b','q','k','b','n','r'],\
+                ['p','p','p','p','p','p','p','p'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['P','P','P','P','P','P','P','P'],\
+                ['R','N','B','Q','K','B','N','R']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("KQkq")
+
+        self.game.make_move("e2-e4")
+        b = [
+                ['r','n','b','q','k','b','n','r'],\
+                ['p','p','p','p','p','p','p','p'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','P','','',''],\
+                ['','','','','','','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','K','B','N','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("KQkq")
+
+        self.game.make_move("e7-e5")
+        b = [
+                ['r','n','b','q','k','b','n','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','','','','','',''],\
+                ['','','','','p','','',''],\
+                ['','','','','P','','',''],\
+                ['','','','','','','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','K','B','N','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("KQkq")
+
+        self.game.make_move("Ng1-f3")
+        b = [
+                ['r','n','b','q','k','b','n','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','','','','','',''],\
+                ['','','','','p','','',''],\
+                ['','','','','P','','',''],\
+                ['','','','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','K','B','','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("KQkq")
+
+
+        self.game.make_move("Nb8-c6")
+        b = [
+                ['r','','b','q','k','b','n','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','','',''],\
+                ['','','','','p','','',''],\
+                ['','','','','P','','',''],\
+                ['','','','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','K','B','','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("KQkq")
+
+        self.game.make_move("Bf1-c4")
+        b = [
+                ['r','','b','q','k','b','n','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','','',''],\
+                ['','','','','p','','',''],\
+                ['','','B','','P','','',''],\
+                ['','','','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','K','','','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("KQkq")
+
+        self.game.make_move("Bf8-c5")
+        b = [
+                ['r','','b','q','k','','n','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','','',''],\
+                ['','','b','','p','','',''],\
+                ['','','B','','P','','',''],\
+                ['','','','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','K','','','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("KQkq")
+
+        self.game.make_move("O-O")
+        b = [
+                ['r','','b','q','k','','n','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','','',''],\
+                ['','','b','','p','','',''],\
+                ['','','B','','P','','',''],\
+                ['','','','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','','R','K','']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("kq")
+
+        self.game.make_move("Ng8-f6")
+        b = [
+                ['r','','b','q','k','','','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','n','',''],\
+                ['','','b','','p','','',''],\
+                ['','','B','','P','','',''],\
+                ['','','','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','N','B','Q','','R','K','']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("kq")
+
+        self.game.make_move("Nb1-c3")
+        b = [
+                ['r','','b','q','k','','','r'],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','n','',''],\
+                ['','','b','','p','','',''],\
+                ['','','B','','P','','',''],\
+                ['','','N','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','','B','Q','','R','K','']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("kq")
+
+        self.game.make_move("O-O")
+        b = [
+                ['r','','b','q','','r','k',''],\
+                ['p','p','p','p','','p','p','p'],\
+                ['','','n','','','n','',''],\
+                ['','','b','','p','','',''],\
+                ['','','B','','P','','',''],\
+                ['','','N','','','N','',''],\
+                ['P','P','P','P','','P','P','P'],\
+                ['R','','B','Q','','R','K','']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("-")
+
     # def test_widget_resize(self):
     #     self.widget.resize(100,150)
     #     self.assertEqual(self.widget.size(), (100,150),
