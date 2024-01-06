@@ -11,8 +11,9 @@ from Pieces.king import King
 
 def to_coords(move: str) -> (int, int):
     i, j = 8-int(move[1]), File[move[0]].value
-
     return (i, j)
+
+
 
 def get_piece_type(s: str) -> Piece:
     piece_dict = {'p': Pawn, 'r': Rook, 'n': Knight, 'b': Bishop, 'q':Queen, 'k':King}
