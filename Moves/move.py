@@ -22,7 +22,7 @@ class Move:
         and piece_on_square is not None \
         and piece_on_square.colour == self.player_to_move \
         and piece_on_square.get_representation().upper() == self.piece_str \
-        # and self in piece_on_square.get_moves(game.board.board)
+        and self in piece_on_square.get_moves(game.board.board)
 
     def make_move(self, game) -> bool:
         if not self.check_valid(game):

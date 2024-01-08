@@ -1,11 +1,13 @@
 from typing import Self
 
+from Moves.moveFactory import MoveFactory
 from enums import Colour
 from enums import File
 from strings import *
 
 class Piece:
     def __init__(self, colour: Colour, row: int, column: int) -> None:
+        self.move_factory = MoveFactory()
         self.colour = colour
         self.row = row
         self.column = column
