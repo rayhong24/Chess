@@ -2,7 +2,6 @@ from utils import *
 from Moves.move import Move
 from Moves.castle import Castle
 from Moves.promotion import Promotion
-from utils import Colour
 
 class MoveFactory():
     def init_move(self, move_str: str, player_to_move: Colour) -> Move:
