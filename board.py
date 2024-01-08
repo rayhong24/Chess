@@ -2,6 +2,8 @@ from strings import *
 from enums import Colour
 from enums import File
 from utils import *
+
+from Moves.move import Move
 from Pieces.piece import Piece
 from Pieces.pawn import Pawn
 from Pieces.rook import Rook
@@ -96,9 +98,9 @@ class Board:
     # INPUT: move - string in algebraic chess notation
     # INPUT: player_to_move - colour used for error checking
     # TODO: Refactor
-    def handle_move(self, move: str, player_to_move: Colour) -> bool:
+    def handle_move(self, move: Move) -> bool:
         def get_new_piece(piece: str, colour: Colour) -> str:
-            if piece == 'Q':
+            if piece == 'Q' :
                 return Queen(colour, end_i, end_j)
             elif piece == 'R':
                 return Rook(colour, end_i, end_j)
@@ -108,6 +110,8 @@ class Board:
                 return Knight(colour, end_i, end_j)
         # TODO add check to make sure it is a valid move
         print(f"{move=}")
+
+
 
         start_i = start_j = end_i = end_j = None
         piece = 'P'
@@ -188,7 +192,7 @@ class Board:
         return True
 
 
-    def _move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
+    def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         if self.board[orig_i][orig_j] is not None:
             self.board[orig_i][orig_j].move(new_i, new_j)
 
