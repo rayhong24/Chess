@@ -1,7 +1,10 @@
 from game import Game
+from Moves.moveFactory import MoveFactory
+
 class Interface:
     def __init__(self):
         self.game = Game()
+        self.move_factory = MoveFactory()
 
     def start_regular(self):
         while not self.game.ended:
@@ -11,8 +14,14 @@ class Interface:
             if usr_input == "exit":
                 self.game.ended = True
             else:
-                if not self.game.make_move(usr_input):
-                    print("Invalid move. Try again")
+                try:
+                    move = self.move_factory.init_move(usr_input, self.game.player_turn)
+
+                    if not move.make_move(self.game):
+                        print("Invalid move. Try again")
+                except:
+                    print("Error")
+                    pass
 
 
     # TODO: Implement to UCI standards
