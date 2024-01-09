@@ -1,6 +1,8 @@
 from Pieces.piece import Piece
 from enums import Colour
 
+from Moves.move import Move
+
 class Pawn(Piece):
     def __init__(self, colour: Colour, row: int, column: int) -> None:
         super().__init__(colour, row, column)
@@ -11,7 +13,9 @@ class Pawn(Piece):
     def get_moves(self, board: [[Piece]], enpassant_squares: [tuple[int, int]]=[]) -> [str]:
         def append_promotion_move(move_str):
             for piece in "QRBN":
-                valid_moves.append(f"{move_str}=piece")
+                move_str = f"{move_str}=piece"
+                move = self.move_factory.init_move(move_str)
+                valid_moves.append(move)
 
         # list of tuples of new coordinates the piece can go
         valid_moves = []
@@ -28,7 +32,12 @@ class Pawn(Piece):
                 if i == 0 or i == 7:
                     append_promotion_move(move_str)
                 else:
-                    valid_moves.append(move_str)
+                    move = Move(self.colour,
+                        self.get_representation().upper(),
+                        (self.row, self.column),
+                        False,
+                        (i, j))
+                    valid_moves.append(move)
         
         # check captures
         i = self.row+direction
@@ -42,7 +51,8 @@ class Pawn(Piece):
                 if i == 0 or i == 7:
                     append_promotion_move(move_str)
                 else:
-                    valid_moves.append(move_str)
+                    move = self.move_factory.init_move(move_str)
+                    valid_moves.append(move)
         
         if self.is_inbounds(i, j_right):
             square_to_check2 = board[i][j_right]
@@ -52,7 +62,8 @@ class Pawn(Piece):
                 if i == 0 or i == 7:
                     append_promotion_move(move_str)
                 else:
-                    valid_moves.append(move_str)
+                    move = self.move_factory.init_move(move_str)
+                    valid_moves.append(move)
 
         
         return valid_moves

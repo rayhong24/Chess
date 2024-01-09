@@ -1,11 +1,13 @@
 import unittest
 
 from game import Game
+from Moves.moveFactory import MoveFactory
 from enums import *
 
 class TestGameClass(unittest.TestCase):
     def setUp(self):
         self.game = Game()
+        self.move_factory = MoveFactory()
 
     def check_board_equal(self, b):
         for i in range(8):
@@ -74,7 +76,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.WHITE)
         self.check_castling_rights("KQkq")
 
-        self.game.make_move("e2-e4")
+        move = self.move_factory.init_move("e2-e4", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','n','b','q','k','b','n','r'],\
                 ['p','p','p','p','p','p','p','p'],\
@@ -89,7 +92,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("KQkq")
 
-        self.game.make_move("e7-e5")
+        move = self.move_factory.init_move("e7-e5", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','n','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -104,7 +108,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.WHITE)
         self.check_castling_rights("KQkq")
 
-        self.game.make_move("Ng1-f3")
+        move = self.move_factory.init_move("Ng1-f3", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','n','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -120,7 +125,8 @@ class TestGameClass(unittest.TestCase):
         self.check_castling_rights("KQkq")
 
 
-        self.game.make_move("Nb8-c6")
+        move = self.move_factory.init_move("Nb8-c6", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -135,7 +141,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.WHITE)
         self.check_castling_rights("KQkq")
 
-        self.game.make_move("Bf1-c4")
+        move = self.move_factory.init_move("Bf1-c4", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -150,7 +157,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("KQkq")
 
-        self.game.make_move("Bf8-c5")
+        move = self.move_factory.init_move("Bf8-c5", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','k','','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -165,7 +173,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.WHITE)
         self.check_castling_rights("KQkq")
 
-        self.game.make_move("O-O")
+        move = self.move_factory.init_move("O-O", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','k','','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -180,7 +189,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("kq")
 
-        self.game.make_move("Ng8-f6")
+        move = self.move_factory.init_move("Ng8-f6", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','k','','','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -195,7 +205,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.WHITE)
         self.check_castling_rights("kq")
 
-        self.game.make_move("Nb1-c3")
+        move = self.move_factory.init_move("Nb1-c3", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','k','','','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -210,7 +221,8 @@ class TestGameClass(unittest.TestCase):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("kq")
 
-        self.game.make_move("O-O")
+        move = self.move_factory.init_move("O-O", self.game.player_turn)
+        move.make_move(self.game)
         b = [
                 ['r','','b','q','','r','k',''],\
                 ['p','p','p','p','','p','p','p'],\

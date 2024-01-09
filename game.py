@@ -73,6 +73,9 @@ class Game():
             return True
         else:
             return False
+
+    def switch_player_turn(self):
+        self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
         
 
 

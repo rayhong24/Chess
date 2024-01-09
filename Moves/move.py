@@ -15,6 +15,34 @@ class Move:
     def __hash__(self) -> int:
         return hash(repr(self))
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Move):
+            return False
+        return self.player_to_move == other.player_to_move\
+        and self.piece_str == other.piece_str\
+        and self.start_coords == other.start_coords\
+        and self.capture == other.capture\
+        and self.end_coords == other.end_coords
+
+    def __repr__(self):
+        repr = f"{self.player_to_move}\n\
+        {self.piece_str}\n\
+        {self.start_coords}\n\
+        {self.capture}\n\
+        {self.end_coords}\n\
+        {self.__str__}"
+
+        return repr
+
+    def __str__(self):
+        piece_str = "" if self.piece_str == 'P' else self.piece_str
+        capture_str = "x" if self.capture else "-"
+        return f"{piece_str}\
+        {coords_to_square(self.start_coords[0], self.start_coords[1])}\
+        {capture_str}\
+        {coords_to_square(self.end_coords[0], self.end_coords[1])}"
+
+
     def check_valid(self, game) -> bool:
         piece_on_square = game.board.board[self.start_coords[0]][self.start_coords[1]] 
 
@@ -34,5 +62,6 @@ class Move:
             self.end_coords[0],\
             self.end_coords[1]
         )
+        game.switch_player_turn()
         return True
 
