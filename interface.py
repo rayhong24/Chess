@@ -17,8 +17,11 @@ class Interface:
                 try:
                     move = self.move_factory.init_move(usr_input, self.game.player_turn)
 
-                    if not move.make_move(self.game):
+                    if move.make_move(self.game):
+                        self.game.switch_player_turn()
+                    else:
                         print("Invalid move. Try again")
+
                 except:
                     print("Error")
                     pass

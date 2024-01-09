@@ -1,4 +1,7 @@
 from utils import *
+from enums import *
+from utils import to_coords
+
 from Moves.move import Move
 from Moves.castle import Castle
 from Moves.promotion import Promotion

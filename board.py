@@ -31,6 +31,13 @@ class Board:
 
     # Input: string from a fenstring (i.e. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR)
     def add_fenstr_pieces(self, s: str) -> None:
+        def get_piece_type(s: str) -> Piece:
+            piece_dict = {'p': Pawn, 'r': Rook, 'n': Knight, 'b': Bishop, 'q':Queen, 'k':King}
+
+            piece_type = piece_dict[s.lower()]
+            piece_colour = Colour.WHITE if s.isupper() else Colour.BLACK
+
+            return piece_type, piece_colour
         for i, row in enumerate(s.split('/')):
             j = 0
             for c in row:
