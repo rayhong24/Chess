@@ -25,14 +25,17 @@ class Move:
         and self.end_coords == other.end_coords
 
     def __repr__(self):
-        repr = f"{self.player_to_move}\n\
-        {self.piece_str}\n\
-        {self.start_coords}\n\
-        {self.capture}\n\
-        {self.end_coords}\n\
-        {self.__str__}"
+        repr_str = "{}{}{}{}{}{}{}".format(
+            self.__class__.__name__,
+            self.player_to_move,
+            self.piece_str,
+            self.start_coords,
+            self.capture,
+            self.end_coords,
+            self.__str__()
+        )
 
-        return repr
+        return repr_str
 
     def __str__(self):
         piece_str = "" if self.piece_str == 'P' else self.piece_str
@@ -57,9 +60,9 @@ class Move:
             return False
 
         game.board.move_piece(
-            self.start_coords[0],\
-            self.start_coords[1],\
-            self.end_coords[0],\
+            self.start_coords[0],
+            self.start_coords[1],
+            self.end_coords[0],
             self.end_coords[1]
         )
         game.switch_player_turn()

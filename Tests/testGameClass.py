@@ -3,6 +3,7 @@ import unittest
 from game import Game
 from Moves.moveFactory import MoveFactory
 from enums import *
+from utils import *
 
 class TestGameClass(unittest.TestCase):
     def setUp(self):
@@ -15,7 +16,7 @@ class TestGameClass(unittest.TestCase):
                 with self.subTest(i=i, j=j):
                     piece = self.game.board.board[i][j]
                     self.assertEqual(self.game.board.get_square_representation(piece), b[i][j],\
-                                    f"Incorrect board set-up on ({i},{j})")
+                                    f"Incorrect board set-up on ({coords_to_square(i, j)})")
 
     def check_move(self, expected_turn):
         self.assertEqual(self.game.player_turn, expected_turn, 'incorrect player turn')
@@ -57,6 +58,44 @@ class TestGameClass(unittest.TestCase):
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
         self.check_castling_rights('-')
+
+    def test_kingside_castle(self):
+        # Might need to fix the castling rights fenstring check
+        self.game.setup_fenstr("4k2r/8/8/8/8/8/8/4K2R w KQkq - 0 1")
+
+
+        b = [
+                ['','','','','k','','','r'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','K','','','R']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        # Might need to fix the castling rights fenstring check
+        self.check_castling_rights("Kk")
+
+        move = self.move_factory.init_move("O-O", self.game.player_turn)
+        move.make_move(self.game)
+
+        b = [
+                ['','','','','k','','','r'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','R','K','']
+            ]
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")
+
     
     def test_game(self):
         self.game.setup_fenstr()
