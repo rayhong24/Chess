@@ -13,7 +13,7 @@ class Pawn(Piece):
     def get_moves(self, board: [[Piece]], enpassant_squares: [tuple[int, int]]=[]) -> [str]:
         def append_promotion_move(move_str):
             for piece in "QRBN":
-                move_str = f"{move_str}=piece"
+                move_str = f"{move_str}={piece}"
                 move = self.move_factory.init_move(move_str)
                 valid_moves.append(move)
 

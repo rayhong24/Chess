@@ -7,9 +7,11 @@ from Pieces.piece import Piece
 from Moves.moveFactory import MoveFactory
 
 def main():
-    factory = MoveFactory()
-    m = factory.init_move("e29-b232", Colour.WHITE)
-    print(f"{m=}")
+    # factory = MoveFactory()
+    # m = factory.init_move("e29-b232", Colour.WHITE)
+    # print(f"{m=}")
+    s = f"{Colour.WHITE}"
+    print(s)
 
 
 
