@@ -35,7 +35,7 @@ class King(Piece):
         if self.column == 4 and not self.has_moved \
             and board[self.row][3] == None and board[self.row][2] == None and board[self.row][1] == None\
             and type(board[self.row][0]) == Rook and not board[self.row][0].has_moved:
-                move = self.move_factory("O-O-O", self.colour)
+                move = self.move_factory.init_move("O-O-O", self.colour)
                 valid_moves.append(move)
         
         return valid_moves
