@@ -39,8 +39,6 @@ class Castle(Move):
     def __str__(self):
         return "O-O" if self.king_side else "O-O-O"
 
-
-
     def check_valid(self, game) -> bool:
         if not super().check_valid(game):
             return False

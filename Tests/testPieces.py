@@ -54,7 +54,7 @@ class TestPieces(unittest.TestCase):
 
         self.check_moves(piece, expected_moves)
 
-    def test_king_castle(self):
+    def test_king_castle_white(self):
         self.game.setup_fenstr("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq 0 1")
 
         piece = self.game.board.board[7][4]
@@ -66,10 +66,23 @@ class TestPieces(unittest.TestCase):
             self.move_factory.init_move("Ke1-f1", Colour.WHITE),
         ]
 
-        print(self.game.get_castle_str())
 
         self.check_moves(piece, expected_moves)
 
+    def test_king_castle_black(self):
+        self.game.setup_fenstr("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq 0 1")
+
+        piece = self.game.board.board[0][4]
+
+        expected_moves = [
+            self.move_factory.init_move("O-O", Colour.BLACK),
+            self.move_factory.init_move("O-O-O", Colour.BLACK),
+            self.move_factory.init_move("Ke8-d8", Colour.BLACK),
+            self.move_factory.init_move("Ke8-f8", Colour.BLACK),
+        ]
+
+
+        self.check_moves(piece, expected_moves)
 
 
 
