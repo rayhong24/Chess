@@ -66,14 +66,20 @@ class Board:
         # TODO: Change implementation to not use hardcoded indices
         # TODO: Error Checking (e.i. make sure rook is actually on board[7][7])
         if 'K' in s:
-            self.board[7][7].has_moved = False
-            self.board[7][4].has_moved = False
+            if self.board[7][7]:
+                self.board[7][7].has_moved = False
+            if self.board[7][4]:
+                self.board[7][4].has_moved = False
         elif 'Q' in s:
-            self.board[7][0].has_moved = False
-            self.board[7][4].has_moved = False
+            if self.board[7][0]:
+                self.board[7][0].has_moved = False
+            if self.board[7][4]:
+                self.board[7][4].has_moved = False
         elif 'k' in s:
-            self.board[0][7].has_moved = False
-            self.board[0][4].has_moved = False
+            if self.board[0][7]:
+                self.board[0][7].has_moved = False
+            if self.board[0][4]:
+                self.board[0][4].has_moved = False
         elif 'q' in s:
             self.board[0][0].has_moved = False
             self.board[0][4].has_moved = False
