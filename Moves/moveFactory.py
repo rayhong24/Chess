@@ -77,7 +77,6 @@ class MoveFactory():
 
         return Promotion(
             player_to_move,
-            'P',
             start_coords,
             capture,
             end_coords,

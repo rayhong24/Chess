@@ -40,10 +40,14 @@ class Move:
     def __str__(self):
         piece_str = "" if self.piece_str == 'P' else self.piece_str
         capture_str = "x" if self.capture else "-"
-        return f"{piece_str}\
-        {coords_to_square(self.start_coords[0], self.start_coords[1])}\
-        {capture_str}\
-        {coords_to_square(self.end_coords[0], self.end_coords[1])}"
+        s = "{}{}{}{}".format(
+            piece_str,
+            coords_to_square(self.start_coords[0], self.start_coords[1]),
+            capture_str,
+            coords_to_square(self.end_coords[0], self.end_coords[1])
+        )
+
+        return s
 
 
     def check_valid(self, game) -> bool:
