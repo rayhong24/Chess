@@ -12,6 +12,11 @@ class Promotion(Move):
 
         self.promotion_piece_str = promotion_piece_str
 
+    def __eq__(self, other):
+        if not isinstance(other, Promotion):
+            return False
+        return super().__eq__(other) and self.promotion_piece_str == other.promotion_piece_str
+
     def __repr__(self):
         repr_str = super().__repr__() + self.promotion_piece
         return repr_str
