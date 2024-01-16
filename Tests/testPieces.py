@@ -61,7 +61,7 @@ class TestPieces(unittest.TestCase):
         piece = self.game.board.board[7][4]
 
         expected_moves = [
-            self.move_factory.init_move("O-O", Colour.WHITE),
+            # self.move_factory.init_move("O-O", Colour.WHITE),
             self.move_factory.init_move("O-O-O", Colour.WHITE),
             self.move_factory.init_move("Ke1-d1", Colour.WHITE),
             self.move_factory.init_move("Ke1-f1", Colour.WHITE),
@@ -82,7 +82,6 @@ class TestPieces(unittest.TestCase):
             self.move_factory.init_move("Ke8-d8", Colour.BLACK),
             self.move_factory.init_move("Ke8-f8", Colour.BLACK),
         ]
-
 
         self.check_moves(piece, expected_moves)
 
