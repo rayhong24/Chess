@@ -4,6 +4,7 @@ from board import Board
 from player import Player
 from enums import Colour
 from enums import File
+from Moves.move import Move
 
 
 class Game():
@@ -65,13 +66,16 @@ class Game():
         return
 
     # INPUT: move - string in long algebraic notation
-    def make_move(self, move:str) -> bool:
+    def make_move(self, move: Move) -> bool:
         # Valid move
-        if self.board.handle_move(move, self.player_turn):
+        if move.make_move(self.board):
             self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
             return True
         else:
             return False
+
+    def switch_player_turn(self):
+        self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
         
 
 
