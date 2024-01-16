@@ -19,6 +19,15 @@ class Castle(Move):
 
         self.king_side = move_str == "O-O"
     
+    def __hash__(self) -> int:
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        if not isinstance(other, Castle):
+            return False
+
+        return self.king_side == other.king_side and self.player_to_move == other.player_to_move
+
     def __repr__(self):
         repr_str = "{}{}{}".format(
             self.__class__.__name__,
@@ -29,7 +38,6 @@ class Castle(Move):
 
     def __str__(self):
         return "O-O" if self.king_side else "O-O-O"
-
 
     def check_valid(self, game) -> bool:
         if not super().check_valid(game):

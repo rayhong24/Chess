@@ -16,12 +16,16 @@ class Rook(Piece):
             i, j = self.row + di, self.column + dj
 
             while self.is_inbounds(i, j) and board[i][j] == None:
-                valid_moves.append(self.get_move_str(self.row, self.column, i, j, False))
+                move_str = self.get_move_str(self.row, self.column, i, j, False)
+                move = self.move_factory(move_str, self.colour)
+                valid_moves.append(move)
                 i, j = i+di, j+dj
 
             if self.is_inbounds(i, j) and board[i][j] != None and board[i][j].colour != self.colour:
                 is_capture = self.is_inbounds(i, j) and board[i][j] is not None
-                valid_moves.append(self.get_move_str(self.row, self.column, i, j, is_capture))
+                move_str = self.get_move_str(self.row, self.column, i, j, is_capture)
+                move = self.move_factory(move_str, self.colour)
+                valid_moves.append(move)
             
         return valid_moves
 
