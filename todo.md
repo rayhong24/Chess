@@ -11,3 +11,5 @@
     - either change formatting or implementation
 - Change stored coords of a piece to use file and row
     - i.e. row=6, col=4 becomes file=e, rank=2
+
+- Fix fenstring castling rights check for tests

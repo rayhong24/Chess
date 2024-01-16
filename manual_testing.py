@@ -8,11 +8,8 @@ from Moves.moveFactory import MoveFactory
 
 def main():
     factory = MoveFactory()
-    # try:
     m = factory.init_move("e92-e3", Colour.WHITE)
     print(f"{m=}")
-    # except:
-    #     pass
 
 
 
