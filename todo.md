@@ -1,5 +1,6 @@
 # TODO
 - Add tests for Promotion
+- Make test errors clearer
 - Implement en Passant
 - Make sure valid moves returned by a piece does not leave the king in check
 - No castling if through a check.

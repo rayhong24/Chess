@@ -1,13 +1,12 @@
 import unittest
-from game import Game
-from board import Board
-from Pieces.piece import Piece
-
-from Tests.testGameClass import TestGameClass
-from Tests.testPieces import TestPieces
 
 def main():
-    unittest.main()
+    loader = unittest.TestLoader()
+    start_dir = 'Tests'
+    suite = loader.discover(start_dir)
+
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
     return
 
 if __name__ == "__main__":
