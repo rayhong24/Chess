@@ -7,6 +7,14 @@ class testKing(PiecesTestCases.TestPieces):
     def setUp(self):
         return super().setUp()
 
+    def test_starting_position(self):
+        self.game.setup_fenstr()
+
+        king = self.game.board.board[7][4]
+        expected_moves = []
+
+        self.check_moves(king, expected_moves)
+
     def test_king_simple(self):
         self.game.setup_fenstr("8/8/8/4K3/8/8/8/k7 w - 0 1")
         piece = self.game.board.board[3][4]
