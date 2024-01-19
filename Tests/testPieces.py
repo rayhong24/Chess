@@ -20,10 +20,12 @@ class PiecesTestCases:
             for piece_move in piece_moves:
                 self.assertIn(piece_move, expected_moves, f"{piece} listing extra move {piece_move}")
 
+        @unittest.skip("Base Test to be implement by subclasses")
+        def test_starting_position(self):
+            pass
 
 
 
-        # def test_
 
 
 
