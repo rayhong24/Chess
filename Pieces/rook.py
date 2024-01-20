@@ -17,7 +17,7 @@ class Rook(Piece):
 
             while self.is_inbounds(i, j) and board[i][j] == None:
                 move_str = self.get_move_str(self.row, self.column, i, j, False)
-                move = self.move_factory(move_str, self.colour)
+                move = self.move_factory.init_move(move_str, self.colour)
                 valid_moves.append(move)
                 i, j = i+di, j+dj
 

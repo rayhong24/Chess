@@ -25,7 +25,7 @@ class testKnight(PiecesTestCases.TestPieces):
         self.check_moves(knight2, expected_moves)
 
 
-    def test_knight_middle_of_board(self):
+    def test_middle(self):
         self.game.setup_fenstr("8/8/8/8/4N3/8/8/8 w - 0 1")
         piece = self.game.board.board[4][4]
         expected_moves = [
@@ -40,3 +40,5 @@ class testKnight(PiecesTestCases.TestPieces):
         ]
 
         self.check_moves(piece, expected_moves)
+
+    

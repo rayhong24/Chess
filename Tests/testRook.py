@@ -16,3 +16,30 @@ class testRook(PiecesTestCases.TestPieces):
 
         rook2 = self.game.board.board[7][7]
         self.check_moves(rook2, expected_moves)
+
+    def test_middle(self):
+        self.game.setup_fenstr("8/8/8/8/4R3/8/8/8 w 0 1")
+
+        rook = self.game.board.board[4][4]
+        expected_moves = [
+            # Up
+            self.move_factory.init_move("Re4-e5", Colour.WHITE),
+            self.move_factory.init_move("Re4-e6", Colour.WHITE),
+            self.move_factory.init_move("Re4-e7", Colour.WHITE),
+            self.move_factory.init_move("Re4-e8", Colour.WHITE),
+            # Down 
+            self.move_factory.init_move("Re4-e3", Colour.WHITE),
+            self.move_factory.init_move("Re4-e2", Colour.WHITE),
+            self.move_factory.init_move("Re4-e1", Colour.WHITE),
+            # Left
+            self.move_factory.init_move("Re4-d4", Colour.WHITE),
+            self.move_factory.init_move("Re4-c4", Colour.WHITE),
+            self.move_factory.init_move("Re4-b4", Colour.WHITE),
+            self.move_factory.init_move("Re4-a4", Colour.WHITE),
+            # Right
+            self.move_factory.init_move("Re4-f4", Colour.WHITE),
+            self.move_factory.init_move("Re4-g4", Colour.WHITE),
+            self.move_factory.init_move("Re4-h4", Colour.WHITE),
+        ]
+
+        self.check_moves(rook, expected_moves)

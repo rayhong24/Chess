@@ -18,9 +18,9 @@ class testBishop(PiecesTestCases.TestPieces):
         expected_moves = []
         self.check_moves(bishop2, expected_moves)
 
-    def test_bishop_middle_of_board(self):
+    def test_middle(self):
         self.game.setup_fenstr("8/8/8/8/4B3/8/8/8 w - 0 1")
-        piece = self.game.board.board[4][4]
+        bishop = self.game.board.board[4][4]
         expected_moves = [
             # Up and left
             self.move_factory.init_move("Be4-d5", Colour.WHITE),
@@ -41,4 +41,4 @@ class testBishop(PiecesTestCases.TestPieces):
             self.move_factory.init_move("Be4-h1", Colour.WHITE),
         ]
 
-        self.check_moves(piece, expected_moves)
+        self.check_moves(bishop, expected_moves)

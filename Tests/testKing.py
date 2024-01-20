@@ -15,19 +15,19 @@ class testKing(PiecesTestCases.TestPieces):
 
         self.check_moves(king, expected_moves)
 
-    def test_king_simple(self):
-        self.game.setup_fenstr("8/8/8/4K3/8/8/8/k7 w - 0 1")
-        piece = self.game.board.board[3][4]
+    def test_middle(self):
+        self.game.setup_fenstr("8/8/8/8/4K3/8/8/k7 w - 0 1")
+        piece = self.game.board.board[4][4]
 
         expected_moves = [
-            self.move_factory.init_move("Ke5-d6", Colour.WHITE),
-            self.move_factory.init_move("Ke5-e6", Colour.WHITE),
-            self.move_factory.init_move("Ke5-f6", Colour.WHITE),
-            self.move_factory.init_move("Ke5-d5", Colour.WHITE),
-            self.move_factory.init_move("Ke5-f5", Colour.WHITE),
-            self.move_factory.init_move("Ke5-d4", Colour.WHITE),
-            self.move_factory.init_move("Ke5-e4", Colour.WHITE),
-            self.move_factory.init_move("Ke5-f4", Colour.WHITE),
+            self.move_factory.init_move("Ke4-d5", Colour.WHITE),
+            self.move_factory.init_move("Ke4-e5", Colour.WHITE),
+            self.move_factory.init_move("Ke4-f5", Colour.WHITE),
+            self.move_factory.init_move("Ke4-d4", Colour.WHITE),
+            self.move_factory.init_move("Ke4-f4", Colour.WHITE),
+            self.move_factory.init_move("Ke4-d3", Colour.WHITE),
+            self.move_factory.init_move("Ke4-e3", Colour.WHITE),
+            self.move_factory.init_move("Ke4-f3", Colour.WHITE),
         ]
 
         self.check_moves(piece, expected_moves)
