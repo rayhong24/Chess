@@ -23,6 +23,9 @@ class PiecesTestCases:
         def test_starting_position(self):
             pass
 
+        def test_middle(self):
+            pass
+
 
 
 

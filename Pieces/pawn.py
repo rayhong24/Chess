@@ -6,6 +6,10 @@ from Moves.move import Move
 class Pawn(Piece):
     def __init__(self, colour: Colour, row: int, column: int) -> None:
         super().__init__(colour, row, column)
+        self.has_moved = not (
+            (colour == Colour.WHITE and row == 6) or\
+            (colour == Colour.BLACK and row == 1)
+        )
     
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
