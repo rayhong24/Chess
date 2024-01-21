@@ -2,7 +2,6 @@ from strings import *
 from enums import *
 from utils import *
 
-from Moves.move import Move
 from Pieces.pieceFactory import PieceFactory
 
 class Board:
