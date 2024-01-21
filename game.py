@@ -2,8 +2,8 @@ from string import ascii_uppercase
 
 from board import Board
 from player import Player
-from enums import Colour
-from enums import File
+from enums import *
+from utils import *
 from Moves.move import Move
 
 
@@ -16,7 +16,6 @@ class Game():
         self.player_white = Player()
         self.player_black = Player()
 
-        self.enpassant_coords = None
 
         self.setup_fenstr(fenstr)
 
@@ -34,7 +33,10 @@ class Game():
         # Sets castling rights
         self.board.set_castling_rights(fenstr_sections[2])
         # Sets enpassant_coords
-        self.board
+        if fenstr_sections[3] == "-":
+            self.enpassant_coords = None
+        else:
+            self.enpassant_coords = to_coords(fenstr_sections[3])
     
     # INPUT: move - string in long algebraic notation
     def make_move(self, move: Move) -> bool:

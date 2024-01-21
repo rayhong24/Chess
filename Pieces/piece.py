@@ -30,7 +30,7 @@ class Piece:
         else:
             return f"{piece_str}{File(start_j).name}{8-start_i}-{File(new_j).name}{8-new_i}"
 
-    def get_moves(self, board: [[Self]]) -> [str]:
+    def get_moves(self, game, en_passant_coords: (int, int)) -> [str]:
         raise NotImplementedError
     
     def move(self, new_i: int, new_j: int) -> None:

@@ -6,7 +6,7 @@ from Moves.move import Move
 from Moves.castle import Castle
 from Moves.promotion import Promotion
 
-class MoveFactory():
+class MoveFactory:
     def init_move(self, move_str: str, player_to_move: Colour) -> Move:
         initializer = self._get_move_initializer(move_str)
 
