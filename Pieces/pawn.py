@@ -14,7 +14,7 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_moves(self, board: [[Piece]], enpassant_squares: [tuple[int, int]]=[]) -> [str]:
+    def get_moves(self, game) -> [str]:
         def append_promotion_move(move_str):
             for piece in "QRBN":
                 new_s = f"{move_str}={piece}"
@@ -30,7 +30,7 @@ class Pawn(Piece):
         moves_forward = 1 if self.has_moved else 2
         for di in range(1, moves_forward+1):
             i, j = self.row+(di*direction), self.column
-            if self.is_inbounds(i, j) and board[i][j] == None:
+            if self.is_inbounds(i, j) and game.board.board[i][j] == None:
                 move_str = self.get_move_str(self.row, self.column, i, j, False)
                 # For promotions
                 if i == 0 or i == 7:
@@ -48,7 +48,7 @@ class Pawn(Piece):
         j_left = self.column-1
         j_right = self.column+1
         if self.is_inbounds(i, j_left):
-            square_to_check1 = board[i][j_left]
+            square_to_check1 = game.board.board[i][j_left]
             if square_to_check1 is not None and square_to_check1.colour != self.colour:
                 move_str = self.get_move_str(self.row, self.column, i, j_left, True)
                 # For promotions
@@ -59,7 +59,7 @@ class Pawn(Piece):
                     valid_moves.append(move)
         
         if self.is_inbounds(i, j_right):
-            square_to_check2 = board[i][j_right]
+            square_to_check2 = game.board.board[i][j_right]
             if  square_to_check2 is not None and square_to_check2.colour != self.colour:
                 move_str = self.get_move_str(self.row, self.column, i, j_right, True)
                 # For promotions

@@ -63,7 +63,7 @@ class Move:
         
         # en passant
 
-        return self in piece_on_square.get_moves(game.board.board)
+        return self in piece_on_square.get_moves(game)
 
     def make_move(self, game) -> bool:
         if not self.check_valid(game):
