@@ -8,7 +8,7 @@ class Queen(Piece):
     def get_representation(self) -> str:
         return 'q' if self.colour == Colour.BLACK else 'Q'
 
-    def get_moves(self, board: [[Piece]]) -> [str]:
+    def get_moves(self, game) -> [str]:
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
@@ -18,14 +18,14 @@ class Queen(Piece):
             ]:
             i, j = self.row + di, self.column + dj
 
-            while self.is_inbounds(i, j) and board[i][j] == None:
+            while self.is_inbounds(i, j) and game.board.board[i][j] == None:
                 move_str = self.get_move_str(self.row, self.column, i, j, False)
                 move = self.move_factory.init_move(move_str, self.colour)
                 valid_moves.append(move)
                 i, j = i+di, j+dj
 
-            if self.is_inbounds(i, j) and board[i][j] != None and board[i][j].colour != self.colour:
-                is_capture = self.is_inbounds(i, j) and board[i][j] is not None
+            if self.is_inbounds(i, j) and game.board.board[i][j] != None and game.board.board[i][j].colour != self.colour:
+                is_capture = self.is_inbounds(i, j) and game.board.board[i][j] is not None
                 move_str = self.get_move_str(self.row, self.column, i, j, is_capture)
                 move = self.move_factory.init_move(move_str, self.colour)
                 valid_moves.append(move)

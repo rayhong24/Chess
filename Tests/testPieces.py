@@ -12,7 +12,7 @@ class PiecesTestCases:
             self.move_factory = MoveFactory()
 
         def check_moves(self, piece: Piece, expected_moves: list):
-            piece_moves = set(piece.get_moves(self.game.board.board))
+            piece_moves = set(piece.get_moves(self.game))
 
             for move in expected_moves:
                 self.assertIn(move, piece_moves, f"{piece} is missing move {move}")

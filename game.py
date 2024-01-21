@@ -1,9 +1,7 @@
-from string import ascii_uppercase
-
 from board import Board
 from player import Player
-from enums import Colour
-from enums import File
+from enums import *
+from utils import *
 from Moves.move import Move
 
 
@@ -15,6 +13,7 @@ class Game():
         self.player_turn = Colour.WHITE
         self.player_white = Player()
         self.player_black = Player()
+
 
         self.setup_fenstr(fenstr)
 
@@ -31,40 +30,12 @@ class Game():
         self.player_turn = Colour.WHITE if fenstr_sections[1] == 'w' else Colour.BLACK
         # Sets castling rights
         self.board.set_castling_rights(fenstr_sections[2])
-
-    def _get_file_input(self, orig: bool=True) -> None:
-        while True:
-            if orig:
-                orig_file = input("File of piece start. (Letters A-H): ")
-            else:
-                orig_file = input("File of piece destination (Letters A-H): ")
-
-            if orig_file not in File._member_names_:
-                print("Invalid File. Try again")
-            else:
-                return File[orig_file]
-            
-    def _get_row_input(self, orig=True):
-        while True:
-            if orig:
-                row = input("Row of piece start. (1-8): ")
-            else:
-                row = input("Row of piece destination (1-8): ")
-            
-
-            if not (row.isdigit() and 1<= int(row) <= 8):
-                print("Invalid row. Try again")
-            else:
-                return int(row)-1
+        # Sets enpassant_coords
+        if fenstr_sections[3] == "-":
+            self.enpassant_coords = None
+        else:
+            self.enpassant_coords = to_coords(fenstr_sections[3])
     
-    def _is_move_valid(self, orig_i, orig_j, new_i, new_j):
-        orig_square = self.board.board[orig_i][orig_j]
-        if orig_square is None or orig_square.colour != self.player_turn:
-            return False
-        orig_square.get_moves(self.board)
-    
-        return
-
     # INPUT: move - string in long algebraic notation
     def make_move(self, move: Move) -> bool:
         # Valid move
