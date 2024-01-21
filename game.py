@@ -76,9 +76,6 @@ class Game():
 
     def switch_player_turn(self):
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
-        
-
-
 
 
     # TODO: Refactor
