@@ -1,5 +1,6 @@
 # TODO
 - Make test errors clearer
+- Implement coords class
 - Implement en Passant
 - Make sure valid moves returned by a piece does not leave the king in check
 - No castling if through a check.
