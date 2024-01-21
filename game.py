@@ -1,5 +1,3 @@
-from string import ascii_uppercase
-
 from board import Board
 from player import Player
 from enums import *
