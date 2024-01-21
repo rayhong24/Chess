@@ -18,7 +18,7 @@ class testRook(PiecesTestCases.TestPieces):
         self.check_moves(rook2, expected_moves)
 
     def test_middle(self):
-        self.game.setup_fenstr("8/8/8/8/4R3/8/8/8 w 0 1")
+        self.game.setup_fenstr("8/8/8/8/4R3/8/8/8 w - - 0 1")
 
         rook = self.game.board.board[4][4]
         expected_moves = [

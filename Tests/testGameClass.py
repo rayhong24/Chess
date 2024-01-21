@@ -97,7 +97,7 @@ class TestGameClass(unittest.TestCase):
         self.check_castling_rights("k")
 
     def test_promotion(self):
-        self.game.setup_fenstr("8/1P6/8/8/8/8/8/k1K5 w - 0 1")
+        self.game.setup_fenstr("8/1P6/8/8/8/8/8/k1K5 w - - 0 1")
 
         b = [
                 ['','','','','','','',''],\

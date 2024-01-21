@@ -15,7 +15,7 @@ class testQueen(PiecesTestCases.TestPieces):
         self.check_moves(queen, expected_moves)
     
     def test_middle(self):
-        self.game.setup_fenstr("8/8/8/8/4Q3/8/8/8 w - 0 1")
+        self.game.setup_fenstr("8/8/8/8/4Q3/8/8/8 w - - 0 1")
         queen = self.game.board.board[4][4]
         expected_moves = [
             # Up and left

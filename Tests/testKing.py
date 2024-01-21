@@ -16,7 +16,7 @@ class testKing(PiecesTestCases.TestPieces):
         self.check_moves(king, expected_moves)
 
     def test_middle(self):
-        self.game.setup_fenstr("8/8/8/8/4K3/8/8/k7 w - 0 1")
+        self.game.setup_fenstr("8/8/8/8/4K3/8/8/k7 w - - 0 1")
         piece = self.game.board.board[4][4]
 
         expected_moves = [
@@ -33,7 +33,7 @@ class testKing(PiecesTestCases.TestPieces):
         self.check_moves(piece, expected_moves)
 
     def test_king_castle_white(self):
-        self.game.setup_fenstr("8/8/8/8/8/8/3PPP2/R3K2R w KQkq 0 1")
+        self.game.setup_fenstr("8/8/8/8/8/8/3PPP2/R3K2R w KQkq - 0 1")
 
         # White king
         piece = self.game.board.board[7][4]
@@ -49,7 +49,7 @@ class testKing(PiecesTestCases.TestPieces):
         self.check_moves(piece, expected_moves)
 
     def test_king_castle_black(self):
-        self.game.setup_fenstr("r3k2r/3ppp2/8/8/8/8/8/8 b KQkq 0 1")
+        self.game.setup_fenstr("r3k2r/3ppp2/8/8/8/8/8/8 b KQkq - 0 1")
 
         # Black king
         piece = self.game.board.board[0][4]
