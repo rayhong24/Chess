@@ -94,6 +94,10 @@ class Board:
         else:
             self.white_pieces.add(piece)
 
+    def remove_piece(self, i, j):
+        self.remove_piece_from_sets(self.board[i][j])
+        self.board[i][j] = None
+
     def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
         if self.board[orig_i][orig_j] is not None:
             self.board[orig_i][orig_j].move(new_i, new_j)
