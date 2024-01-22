@@ -29,3 +29,50 @@ class TestPawn(PiecesTestCases.TestPieces):
         ]
 
         self.check_moves(pawn, expected_moves)
+
+    def test_en_passant_white(self):
+        # Test left
+        self.game.setup_fenstr("8/8/8/3pP3/8/8/8/8 w - d6 0 1")
+
+        pawn = self.game.board.board[3][4]
+        expected_moves = [
+            self.move_factory.init_move("e5-e6", Colour.WHITE),
+            self.move_factory.init_move("e5xd6", Colour.WHITE)
+        ]
+
+        self.check_moves(pawn, expected_moves)
+
+        # Test right
+        self.game.setup_fenstr("8/8/8/4Pp2/8/8/8/8 w - f6 0 1")
+
+        pawn = self.game.board.board[3][4]
+        expected_moves = [
+            self.move_factory.init_move("e5-e6", Colour.WHITE),
+            self.move_factory.init_move("e5xf6", Colour.WHITE)
+        ]
+
+        self.check_moves(pawn, expected_moves)
+
+
+    def test_en_passant_black(self):
+        # Test left
+        self.game.setup_fenstr("8/8/8/8/3Pp3/8/8/8 b - d3 0 1")
+
+        pawn = self.game.board.board[4][4]
+        expected_moves = [
+            self.move_factory.init_move("e4-e3", Colour.BLACK),
+            self.move_factory.init_move("e4xd3", Colour.BLACK)
+        ]
+
+        self.check_moves(pawn, expected_moves)
+
+        # Test right
+        self.game.setup_fenstr("8/8/8/8/4pP2/8/8/8 b - f3 0 1")
+
+        pawn = self.game.board.board[4][4]
+        expected_moves = [
+            self.move_factory.init_move("e4-e3", Colour.BLACK),
+            self.move_factory.init_move("e4xf3", Colour.BLACK)
+        ]
+
+        self.check_moves(pawn, expected_moves)
