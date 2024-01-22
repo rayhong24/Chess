@@ -36,12 +36,7 @@ class Promotion(Move):
         if not self.check_valid(game):
             return False
 
-        game.board.move_piece(
-            self.start_coords[0],
-            self.start_coords[1],
-            self.end_coords[0],
-            self.end_coords[1]
-        )
+        super().make_move(game)
 
         game.board.promote_piece(
             self.end_coords[0],
@@ -49,7 +44,6 @@ class Promotion(Move):
             self.promotion_piece_str   
         )
 
-        game.switch_player_turn()
 
 
 

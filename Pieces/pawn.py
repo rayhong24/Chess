@@ -48,6 +48,9 @@ class Pawn(Piece):
         j_left = self.column-1
         j_right = self.column+1
         if self.is_inbounds(i, j_left):
+            if (i, j_left) == game.enpassant_coords:
+                enpassant_move = self.move_factory.init_enPassant(game.player_turn, (self.row, self.column), (i, j_left))
+                valid_moves.append(enpassant_move)
             square_to_check1 = game.board.board[i][j_left]
             if square_to_check1 is not None and square_to_check1.colour != self.colour:
                 move_str = self.get_move_str(self.row, self.column, i, j_left, True)
@@ -59,6 +62,9 @@ class Pawn(Piece):
                     valid_moves.append(move)
         
         if self.is_inbounds(i, j_right):
+            if (i, j_right) == game.enpassant_coords:
+                enpassant_move = self.move_factory.init_enPassant(game.player_turn, (self.row, self.column), (i, j_right))
+                valid_moves.append(enpassant_move)
             square_to_check2 = game.board.board[i][j_right]
             if  square_to_check2 is not None and square_to_check2.colour != self.colour:
                 move_str = self.get_move_str(self.row, self.column, i, j_right, True)
