@@ -73,7 +73,6 @@ class Castle(Move):
         board.board[rook_i][rook_j].get_representation().upper() != 'R':
             rook_j += dj
 
-
         # Move king
         game.board.move_piece(
             self.start_coords[0],
@@ -90,5 +89,6 @@ class Castle(Move):
             self.end_coords[1]-dj
         )
 
+        game.enpassant_coords = None
 
         game.switch_player_turn()
