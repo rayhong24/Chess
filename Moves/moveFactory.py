@@ -5,12 +5,23 @@ from utils import to_coords
 from Moves.move import Move
 from Moves.castle import Castle
 from Moves.promotion import Promotion
+from Moves.enPassant import EnPassant
 
 class MoveFactory:
     def init_move(self, move_str: str, player_to_move: Colour) -> Move:
         initializer = self._get_move_initializer(move_str)
 
         return initializer(move_str, player_to_move)
+
+    def init_enPassant(self, player_to_move, start_coords, end_coords):
+        return EnPassant(player_to_move, start_coords, end_coords)
+
+    def init_enPassant_from_str(self, move_str, player_to_move):
+        coords = move_str.split("x")
+        start = to_coords(coords[0])
+        end = to_coords(coords[1])
+        return EnPassant(player_to_move, start, end)
+
 
     def _get_move_initializer(self, move_str):
         if move_str == "O-O" or move_str == "O-O-O":

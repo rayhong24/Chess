@@ -71,6 +71,13 @@ class Move:
             self.end_coords[0],
             self.end_coords[1]
         )
+
+        # enpassant
+        if self.piece_str == 'P' and abs(self.end_coords[0]-self.start_coords[0]) == 2:
+            game.enpassant_coords = (self.start_coords[0], self.end_coords[1])
+        else:
+            game.enpassant_coords = None
+
         game.switch_player_turn()
         return True
 

@@ -9,6 +9,12 @@ class EnPassant(Move):
             return False
         return super().__eq__(other)
 
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+    def __repr__(self):
+        return super().__repr__()
+
     def check_valid(self, game) -> bool:
         return super().check_valid(game)
 
