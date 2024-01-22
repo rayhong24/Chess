@@ -13,14 +13,6 @@ class Board:
         self.white_pieces = set()
         self.black_pieces = set()
 
-    # def get_piece_type(self, s: str) -> Piece:
-        # piece_dict = {'p': Pawn, 'r': Rook, 'n': Knight, 'b': Bishop, 'q':Queen, 'k':King}
-
-        # piece_type = piece_dict[s.lower()]
-        # piece_colour = Colour.WHITE if s.isupper() else Colour.BLACK
-
-        # return piece_type, piece_colour
-
     def _add_piece(self, piece_str, i: int, j: int):
         piece = self.piece_factory.init_piece(piece_str, i, j)
         self.board[i][j] = piece

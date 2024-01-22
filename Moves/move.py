@@ -54,16 +54,12 @@ class Move:
     def check_valid(self, game) -> bool:
         piece_on_square = game.board.board[self.start_coords[0]][self.start_coords[1]] 
 
-        # Check piece at starting coords
-        if not (game.player_turn == self.player_to_move\
-        and piece_on_square is not None \
-        and piece_on_square.colour == self.player_to_move \
-        and piece_on_square.get_representation().upper() == self.piece_str):
-            return False
+        return game.player_turn == self.player_to_move\
+        and piece_on_square is not None\
+        and piece_on_square.colour == self.player_to_move\
+        and piece_on_square.get_representation().upper() == self.piece_str\
+        and self in piece_on_square.get_moves(game)
         
-        # en passant
-
-        return self in piece_on_square.get_moves(game)
 
     def make_move(self, game) -> bool:
         if not self.check_valid(game):
