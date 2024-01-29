@@ -69,7 +69,6 @@ class Game():
         return False
 
 
-
     # TODO: Refactor
     def get_castle_str(self) -> str:
         out = ""
