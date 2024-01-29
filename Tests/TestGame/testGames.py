@@ -1,4 +1,4 @@
-from Tests.gameTestCases import GameTestCases
+from Tests.TestGame.gameTestCases import GameTestCases
 from enums import *
 
 class TestGames(GameTestCases.TestGameClass):
