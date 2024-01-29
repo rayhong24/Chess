@@ -1,6 +1,4 @@
-import unittest
-
-from testPieces import PiecesTestCases
+from Tests.pieceTestCases import PiecesTestCases
 from enums import *
 
 class testQueen(PiecesTestCases.TestPieces):
