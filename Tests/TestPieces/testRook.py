@@ -1,4 +1,4 @@
-from Tests.pieceTestCases import PiecesTestCases
+from Tests.TestPieces.pieceTestCases import PiecesTestCases
 from enums import *
 
 class testRook(PiecesTestCases.TestPieces):
