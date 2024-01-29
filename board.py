@@ -116,3 +116,4 @@ class Board:
 
         self.board[i][j] = new_piece
 
+    # def is_square_in_check(self, i, j):

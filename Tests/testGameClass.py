@@ -131,6 +131,45 @@ class TestGameClass(unittest.TestCase):
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
         self.check_castling_rights("-")
+
+    def test_check_with_pawn(self):
+        self.game.setup_fenstr("8/4p3/8/8/3K4/8/8/8 b - - 0 1")
+
+        b = [
+                ['','','','','','','',''],\
+                ['','','','','p','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','K','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("-")
+        self.assertEqual(False, self.game.is_king_in_check(Colour.WHITE))
+
+        move = self.move_factory.init_move("e7-e5", self.game.player_turn)
+        move.make_move(self.game)
+
+        b = [
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','p','','',''],\
+                ['','','','K','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("-")
+        self.assertEqual(True, self.game.is_king_in_check(Colour.WHITE))
+
     
     def test_game(self):
         self.game.setup_fenstr()
