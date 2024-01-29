@@ -49,6 +49,27 @@ class Game():
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
 
 
+    def is_king_in_check(self, colour: Colour):
+        king_repr = 'K' if colour == Colour.WHITE else 'k'
+
+        for i in range(8):
+            for j in range(8):
+                square = self.board.board[i][j]
+                if square is not None and square.get_representation() == king_repr:
+                    return self.is_square_in_check(i, j, colour)
+
+    def is_square_in_check(self, i, j, colour):
+        opponent_pieces = self.board.black_pieces if colour == Colour.WHITE else self.board.white_pieces
+
+        for piece in opponent_pieces:
+            for move in piece.get_moves(self):
+                if move.end_coords == (i, j):
+                    return True
+        
+        return False
+
+
+
     # TODO: Refactor
     def get_castle_str(self) -> str:
         out = ""
