@@ -6,7 +6,6 @@ class TestCastling(GameTestCases.TestGameClass):
         # Might need to fix the castling rights fenstring check
         self.game.setup_fenstr("4k2r/8/8/8/8/8/8/4K2R w KQkq - 0 1")
 
-
         b = [
                 ['','','','','k','','','r'],\
                 ['','','','','','','',''],\
