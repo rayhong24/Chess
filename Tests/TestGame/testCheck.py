@@ -408,3 +408,29 @@ class TestCheck(GameTestCases.TestGameClass):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("-")
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
+
+
+    def test_enpassant_while_in_check(self):
+        self.game.setup_fenstr("8/8/8/3pP3/8/8/8/rK6 w - d3 0 1")
+
+        b = [
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','p','P','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['r','K','','','','','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("-")
+
+        move = self.move_factory.init_enPassant_from_str("e4xd3", Colour.WHITE)
+        self.assertFalse(move.make_move(self.game))
+
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("-")
