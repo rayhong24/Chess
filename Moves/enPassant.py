@@ -1,3 +1,4 @@
+from copy import deepcopy
 from Moves.move import Move
 
 class EnPassant(Move):
@@ -18,16 +19,16 @@ class EnPassant(Move):
     def check_valid(self, game) -> bool:
         return super().check_valid(game)
 
-    def make_move(self, game) -> bool:
-        if not self.check_valid(game):
-            return False
+    def set_new_board(self, board) -> bool:
+        super().set_new_board(board)
 
-        super().make_move(game)
-
-        game.board.remove_piece(
+        board.remove_piece(
             self.start_coords[0],
             self.end_coords[1],
         )
+
+    def make_move(self, game) -> bool:
+        super().make_move(game)
 
 
 
