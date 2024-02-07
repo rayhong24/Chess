@@ -37,3 +37,78 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
         self.check_castling_rights("k")
+
+    def test_castle_through_check1(self):
+        self.game.setup_fenstr("4k2r/8/8/8/8/8/8/4R3 b k - 0 1")
+
+        b = [
+                ['','','','','k','','','r'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','R','','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")
+
+        move = self.move_factory.init_move("O-O", Colour.BLACK)
+        self.assertFalse(move.make_move(self.game))
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")
+
+    def test_castle_through_check2(self):
+        self.game.setup_fenstr("4k2r/8/8/8/8/8/8/5R2 b k - 0 1")
+
+        b = [
+                ['','','','','k','','','r'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','R','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")
+
+        move = self.move_factory.init_move("O-O", Colour.BLACK)
+        self.assertFalse(move.make_move(self.game))
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")
+
+    def test_castle_through_check3(self):
+        self.game.setup_fenstr("4k2r/8/8/8/8/8/8/6R1 b k - 0 1")
+
+        b = [
+                ['','','','','k','','','r'],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','R','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")
+
+        move = self.move_factory.init_move("O-O", Colour.BLACK)
+        self.assertFalse(move.make_move(self.game))
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("k")

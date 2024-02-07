@@ -403,3 +403,8 @@ class TestCheck(GameTestCases.TestGameClass):
 
         move = self.move_factory.init_move("Qe6-a6", self.game.player_turn)
         self.assertFalse(move.make_move(self.game))
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("-")
+        self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
