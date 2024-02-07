@@ -434,3 +434,28 @@ class TestCheck(GameTestCases.TestGameClass):
         self.check_board_equal(b)
         self.check_move(Colour.WHITE)
         self.check_castling_rights("-")
+        
+    def test_promotion_while_in_check(self):
+        self.game.setup_fenstr("8/4P3/8/8/8/8/8/rK6 w - - 0 1")
+
+        b = [
+                ['','','','','','','',''],\
+                ['','','','','P','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['r','K','','','','','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("-")
+
+        move = self.move_factory.init_move("e7-d8=Q", Colour.WHITE)
+        self.assertFalse(move.make_move(self.game))
+
+        self.check_board_equal(b)
+        self.check_move(Colour.WHITE)
+        self.check_castling_rights("-")
