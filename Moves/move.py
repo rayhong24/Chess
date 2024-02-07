@@ -62,29 +62,25 @@ class Move:
         and piece_on_square.get_representation().upper() == self.piece_str\
         and self in piece_on_square.get_moves(game)
 
-    def get_new_board(self, board) -> bool:
-        new_board = copy.deepcopy(board)
-
-        new_board.move_piece(
+    def set_new_board(self, board) -> bool:
+        board.move_piece(
             self.start_coords[0],
             self.start_coords[1],
             self.end_coords[0],
             self.end_coords[1]
         )
 
-        return new_board
-
-
     def make_move(self, game) -> bool:
         if not self.check_valid(game):
             return False
 
-        new_board = self.get_new_board(game.board)
+        old_board = copy.deepcopy(game.board)
+        self.set_new_board(game.board)
 
         if game.is_king_in_check(game.player_turn):
+            game.board = old_board
             return False
 
-        game.board = new_board
 
         # enpassant
         if self.piece_str == 'P' and abs(self.end_coords[0]-self.start_coords[0]) == 2:
