@@ -32,17 +32,18 @@ class Promotion(Move):
     def check_valid(self, game) -> bool:
         return super().check_valid(game)
 
-    def make_move(self, game) -> bool:
-        if not self.check_valid(game):
-            return False
+    def set_new_board(self, board) -> bool:
+        super().set_new_board(board)
 
-        super().make_move(game)
-
-        game.board.promote_piece(
+        board.promote_piece(
             self.end_coords[0],
             self.end_coords[1],
             self.promotion_piece_str   
         )
+
+    def make_move(self, game) -> bool:
+        super().make_move(game)
+
 
 
 
