@@ -381,3 +381,25 @@ class TestCheck(GameTestCases.TestGameClass):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("-")
         self.assertTrue(self.game.is_king_in_check(Colour.BLACK))
+    
+    def test_pin_with_rook(self):
+        self.game.setup_fenstr("4k3/8/4q3/8/8/8/8/3KR3 b - - 0 1")
+
+        b = [
+                ['','','','','k','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','q','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','','','','',''],\
+                ['','','','K','R','','','']
+            ]
+
+        self.check_board_equal(b)
+        self.check_move(Colour.BLACK)
+        self.check_castling_rights("-")
+        self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
+
+        move = self.move_factory.init_move("Qe6-a6", self.game.player_turn)
+        self.assertFalse(move.make_move(self.game))
