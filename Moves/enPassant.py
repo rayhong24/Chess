@@ -28,22 +28,7 @@ class EnPassant(Move):
         )
 
     def make_move(self, game) -> bool:
-        if not self.check_valid(game):
-            return False
-
-        old_board = deepcopy(game.board)
-        self.set_new_board(game.board)
-        
-        if game.is_king_in_check(game.player_turn):
-            game.board = old_board
-            return False
-
-
-        game.enpassant_coords = None
-
-        game.switch_player_turn()
-
-        return True
+        super().make_move(game)
 
 
 
