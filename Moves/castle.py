@@ -1,3 +1,4 @@
+from copy import deepcopy
 from Moves.move import Move
 from enums import *
 
@@ -7,7 +8,7 @@ class Castle(Move):
         start_j = 4
 
         end_i = 7 if player_to_move == Colour.WHITE else 0
-        end_j = 6 if move_str == "O-O" else 2
+        end_j = start_j + 2 if move_str == "O-O" else start_j - 2
 
         super().__init__(
             player_to_move,
@@ -57,16 +58,11 @@ class Castle(Move):
 
         return False
 
-    def make_move(self, game) -> bool:
-        if not self.check_valid(game):
-            return False 
-        
+    def set_new_board(self, board) -> bool:
         dj = 1 if self.king_side else -1
 
         rook_i, rook_j = self.start_coords
         rook_j += dj
-
-        board = game.board
 
         # assumed to be valid because of check_valid() call
         while board.board[rook_i][rook_j] is None or\
@@ -74,7 +70,7 @@ class Castle(Move):
             rook_j += dj
 
         # Move king
-        game.board.move_piece(
+        board.move_piece(
             self.start_coords[0],
             self.start_coords[1],
             self.end_coords[0],
@@ -82,13 +78,30 @@ class Castle(Move):
         )
 
         # Move rook
-        game.board.move_piece(
+        board.move_piece(
             rook_i,
             rook_j,
             self.end_coords[0],
             self.end_coords[1]-dj
         )
 
+    def make_move(self, game) -> bool:
+        if not self.check_valid(game):
+            return False 
+        
+        dj = 1 if self.king_side else -1
+
+        old_board = deepcopy(game.board)
+        self.set_new_board(game.board)
+
+        # if castling through check
+        for j in range(self.start_coords[1], self.end_coords[1]+dj):
+            if game.is_square_in_check(self.start_coords[0], j, game.player_turn):
+                game.board = old_board
+                return False
+
         game.enpassant_coords = None
 
         game.switch_player_turn()
+
+        return True
