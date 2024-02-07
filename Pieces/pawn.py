@@ -58,7 +58,7 @@ class Pawn(Piece):
                 if i == 0 or i == 7:
                     append_promotion_move(move_str)
                 else:
-                    move = self.move_factory.init_move(move_str)
+                    move = self.move_factory.init_move(move_str, self.colour)
                     valid_moves.append(move)
         
         if self.is_inbounds(i, j_right):

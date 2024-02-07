@@ -25,6 +25,8 @@ class Board:
 
     # Input: string from a fenstring (i.e. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR)
     def add_fenstr_pieces(self, s: str) -> None:
+        self.white_pieces = set()
+        self.black_pieces = set()
         for i, row in enumerate(s.split('/')):
             j = 0
             for c in row:
@@ -116,3 +118,4 @@ class Board:
 
         self.board[i][j] = new_piece
 
+    # def is_square_in_check(self, i, j):

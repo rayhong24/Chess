@@ -1,3 +1,5 @@
+import copy
+
 import Pieces
 
 from enums import Colour
@@ -59,25 +61,33 @@ class Move:
         and piece_on_square.colour == self.player_to_move\
         and piece_on_square.get_representation().upper() == self.piece_str\
         and self in piece_on_square.get_moves(game)
-        
 
-    def make_move(self, game) -> bool:
-        if not self.check_valid(game):
-            return False
-
-        game.board.move_piece(
+    def set_new_board(self, board) -> bool:
+        board.move_piece(
             self.start_coords[0],
             self.start_coords[1],
             self.end_coords[0],
             self.end_coords[1]
         )
 
+    def make_move(self, game) -> bool:
+        if not self.check_valid(game):
+            return False
+
+        old_board = copy.deepcopy(game.board)
+        self.set_new_board(game.board)
+
+        if game.is_king_in_check(game.player_turn):
+            game.board = old_board
+            return False
+
+
         # enpassant
         if self.piece_str == 'P' and abs(self.end_coords[0]-self.start_coords[0]) == 2:
             game.enpassant_coords = (self.start_coords[0], self.end_coords[1])
         else:
             game.enpassant_coords = None
-
         game.switch_player_turn()
+
         return True
 

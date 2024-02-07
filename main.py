@@ -1,5 +1,3 @@
-import unittest
-
 from interface import Interface
 from game import Game
 from board import Board
