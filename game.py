@@ -35,6 +35,21 @@ class Game():
             self.enpassant_coords = None
         else:
             self.enpassant_coords = to_coords(fenstr_sections[3])
+
+    def get_player_pieces(self, colour):
+        return self.player_white if colour == Colour.WHITE else self.player_black
+
+    def get_valid_moves(self):
+        current_player_pieces = self.get_player_pieces(self.player_turn)
+
+        valid_moves = []
+
+        for piece in current_player_pieces:
+            valid_moves.extend(piece.get_moves(self))
+
+        return valid_moves
+
+
     
     # INPUT: move - string in long algebraic notation
     def make_move(self, move: Move) -> bool:
