@@ -13,15 +13,15 @@ class Board:
         self.white_pieces = set()
         self.black_pieces = set()
 
+
     def _add_piece(self, piece_str, i: int, j: int):
         piece = self.piece_factory.init_piece(piece_str, i, j)
         self.board[i][j] = piece
         
-        if piece.colour == Colour.WHITE:
-            self.white_pieces.add(piece)
-        else:
-            self.black_pieces.add(piece)
+        self.get_player_pieces(piece.colour).add(piece)
 
+    def get_player_pieces(self, colour):
+        return self.white_pieces if colour == Colour.WHITE else self.black_pieces
 
     # Input: string from a fenstring (i.e. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR)
     def add_fenstr_pieces(self, s: str) -> None:
@@ -86,15 +86,10 @@ class Board:
         return (0 <= i < 8) and (0 <= j < 8)
 
     def remove_piece_from_sets(self, piece):
-        if piece.colour == Colour.BLACK:
-            self.black_pieces.remove(piece)
-        else:
-            self.white_pieces.remove(piece)
+        self.get_player_pieces(piece.colour).remove(piece)
+
     def add_piece_to_sets(self, piece):
-        if piece.colour == Colour.BLACK:
-            self.black_pieces.add(piece)
-        else:
-            self.white_pieces.add(piece)
+        self.get_player_pieces(piece.colour).add(piece)
 
     def remove_piece(self, i, j):
         self.remove_piece_from_sets(self.board[i][j])
