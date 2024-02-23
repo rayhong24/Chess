@@ -8,8 +8,8 @@ from Moves.promotion import Promotion
 from Moves.enPassant import EnPassant
 
 class MoveFactory:
-    def init_move(self, move_str: str, player_to_move: Colour) -> Move:
-        initializer = self._get_move_initializer(move_str)
+    def init_move(self, move_str: str, player_to_move: Colour, game) -> Move:
+        initializer = self._get_move_initializer(move_str, game)
 
         return initializer(move_str, player_to_move)
 
@@ -23,12 +23,19 @@ class MoveFactory:
         return EnPassant(player_to_move, start, end)
 
 
-    def _get_move_initializer(self, move_str):
+    def _get_move_initializer(self, move_str, game):
         if move_str == "O-O" or move_str == "O-O-O":
             return self._init_castle
         elif "=" in move_str:
              return self._init_promotion
         else:
+            piece, start_coords, capture, end_coords = self._split_move_str(move_str)
+            
+            if piece == "P" and capture and game.board.board[end_coords[0]][end_coords[1]] is None:
+                return self.init_enPassant_from_str
+
+
+
             return self._init_normal
     
     def _split_move_str(self, move_str):
