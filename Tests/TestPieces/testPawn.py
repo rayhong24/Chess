@@ -12,8 +12,8 @@ class TestPawn(PiecesTestCases.TestPieces):
             pawn = self.game.board.board[6][i]
             file_label = File(i).name
             expected_moves = [
-                self.move_factory.init_move(f"{file_label}2-{file_label}3", Colour.WHITE),
-                self.move_factory.init_move(f"{file_label}2-{file_label}4", Colour.WHITE)
+                self.move_factory.init_move(f"{file_label}2-{file_label}3", Colour.WHITE, self.game),
+                self.move_factory.init_move(f"{file_label}2-{file_label}4", Colour.WHITE, self.game)
             ]
 
             self.check_moves(pawn, expected_moves)
@@ -23,7 +23,7 @@ class TestPawn(PiecesTestCases.TestPieces):
 
         pawn = self.game.board.board[4][4]
         expected_moves = [
-            self.move_factory.init_move("e4-e5", Colour.WHITE)
+            self.move_factory.init_move("e4-e5", Colour.WHITE, self.game)
         ]
 
         self.check_moves(pawn, expected_moves)
@@ -34,8 +34,8 @@ class TestPawn(PiecesTestCases.TestPieces):
 
         pawn = self.game.board.board[3][4]
         expected_moves = [
-            self.move_factory.init_move("e5-e6", Colour.WHITE),
-            self.move_factory.init_enPassant_from_str("e5xd6", Colour.WHITE)
+            self.move_factory.init_move("e5-e6", Colour.WHITE, self.game),
+            self.move_factory.init_move("e5xd6", Colour.WHITE, self.game),
         ]
 
         self.check_moves(pawn, expected_moves)
@@ -45,8 +45,8 @@ class TestPawn(PiecesTestCases.TestPieces):
 
         pawn = self.game.board.board[3][4]
         expected_moves = [
-            self.move_factory.init_move("e5-e6", Colour.WHITE),
-            self.move_factory.init_enPassant_from_str("e5xf6", Colour.WHITE)
+            self.move_factory.init_move("e5-e6", Colour.WHITE, self.game),
+            self.move_factory.init_move("e5xf6", Colour.WHITE, self.game),
         ]
 
         self.check_moves(pawn, expected_moves)
@@ -58,8 +58,8 @@ class TestPawn(PiecesTestCases.TestPieces):
 
         pawn = self.game.board.board[4][4]
         expected_moves = [
-            self.move_factory.init_move("e4-e3", Colour.BLACK),
-            self.move_factory.init_enPassant_from_str("e4xd3", Colour.BLACK)
+            self.move_factory.init_move("e4-e3", Colour.BLACK, self.game),
+            self.move_factory.init_move("e4xd3", Colour.BLACK, self.game),
         ]
 
         self.check_moves(pawn, expected_moves)
@@ -69,8 +69,8 @@ class TestPawn(PiecesTestCases.TestPieces):
 
         pawn = self.game.board.board[4][4]
         expected_moves = [
-            self.move_factory.init_move("e4-e3", Colour.BLACK),
-            self.move_factory.init_enPassant_from_str("e4xf3", Colour.BLACK)
+            self.move_factory.init_move("e4-e3", Colour.BLACK, self.game),
+            self.move_factory.init_move("e4xf3", Colour.BLACK, self.game),
         ]
 
         self.check_moves(pawn, expected_moves)
