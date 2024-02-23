@@ -11,8 +11,8 @@ class Game():
         self.board = Board()
 
         self.player_turn = Colour.WHITE
-        self.player_white = Player()
-        self.player_black = Player()
+        self.player_white = Player(Colour.WHITE)
+        self.player_black = Player(Colour.BLACK)
 
 
         self.setup_fenstr(fenstr)
@@ -35,12 +35,34 @@ class Game():
             self.enpassant_coords = None
         else:
             self.enpassant_coords = to_coords(fenstr_sections[3])
+
+
+    def get_valid_moves(self):
+        current_player_pieces = self.board.get_player_pieces(self.player_turn)
+
+        valid_moves = []
+
+        for piece in current_player_pieces:
+            valid_moves.extend(piece.get_moves(self))
+
+        return valid_moves
+
+    def get_player(self, colour):
+        return self.player_white if colour == colour.WHITE else self.player_black
+
+    def start_game(self):
+        while not self.ended:
+            current_player = self.get_player(self.player_turn)
+
+            # Assuming valid move is returned
+            chosen_move = current_player.choose_move(self)
+
+            chosen_move.make_move(self)
+
     
-    # INPUT: move - string in long algebraic notation
     def make_move(self, move: Move) -> bool:
         # Valid move
         if move.make_move(self.board):
-            self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
             return True
         else:
             return False
@@ -98,7 +120,3 @@ class Game():
         print(f"To move: {self.player_turn}")
         print(f"Castling rights: {self.get_castle_str()}")
         print("="*70)
-    
-
-
-
