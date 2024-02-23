@@ -1,9 +1,11 @@
+import interface
 from Moves.move import Move
 from Moves.moveFactory import MoveFactory
 from enums import *
 
 class Player():
     def __init__(self, colour: Colour) -> None:
+        self.interface = interface.Interface()
         self.move_factory = MoveFactory()
         self.colour = colour
 
@@ -21,8 +23,7 @@ class Player():
         chosen_move = None
 
         while chosen_move not in game.get_valid_moves():
-            game.display_game()
-            usr_input = input("Input a valid move (currently no enPassant) or exit to stop the game: ")
+            usr_input = self.interface.get_player_input(game)
 
             try:
                 chosen_move = self.move_factory.init_move(usr_input, self.colour)
