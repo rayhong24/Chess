@@ -3,26 +3,32 @@ from Moves.moveFactory import MoveFactory
 
 class Interface:
     def __init__(self):
-        self.game = Game()
         self.move_factory = MoveFactory()
 
+    def sanitize(self, input):
+        return input.strip()
+
     def start_regular(self):
-        while not self.game.ended:
-            self.game.display_game()
-            usr_input = input("Input a valid move (currently no error checking) or exit to stop the game: ")
+        greeting_string = f"Hello, what would you like to do? (help for options)\nYour Input: "
+        while True:
             
-            if usr_input == "exit":
-                self.game.ended = True
-            else:
-                try:
-                    move = self.move_factory.init_move(usr_input, self.game.player_turn)
+            usr_input = input(greeting_string)
 
-                    if not move.make_move(self.game):
-                        print("Invalid move. Try again")
+            usr_input = self.sanitize(usr_input)
+            
+            if usr_input == "help":
+                print("start - start a 2-player game")
+                print("exit - exit the program")
+                print()
 
-                except:
-                    print("Error")
-                    pass
+            elif usr_input == "start":
+                game = Game()
+
+                game.start_game()
+
+            elif usr_input == "exit":
+                return
+
 
 
     # TODO: Implement to UCI standards
