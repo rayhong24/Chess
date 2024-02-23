@@ -36,11 +36,9 @@ class Game():
         else:
             self.enpassant_coords = to_coords(fenstr_sections[3])
 
-    def get_player_pieces(self, colour):
-        return self.player_white if colour == Colour.WHITE else self.player_black
 
     def get_valid_moves(self):
-        current_player_pieces = self.get_player_pieces(self.player_turn)
+        current_player_pieces = self.board.get_player_pieces(self.player_turn)
 
         valid_moves = []
 
