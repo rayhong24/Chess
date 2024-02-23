@@ -1,4 +1,4 @@
-from game import Game
+import game
 from Moves.moveFactory import MoveFactory
 
 class Interface:
@@ -22,7 +22,7 @@ class Interface:
                 print()
 
             elif usr_input == "start":
-                game = Game()
+                game = game.Game()
 
                 game.start_game()
 
