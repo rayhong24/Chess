@@ -26,7 +26,7 @@ class Player():
             usr_input = self.interface.get_player_input(game)
 
             try:
-                chosen_move = self.move_factory.init_move(usr_input, self.colour, game)
+                chosen_move = self.move_factory.init_move_from_str(usr_input, self.colour, game)
 
             except:
                 print("Illegal move. Try again")

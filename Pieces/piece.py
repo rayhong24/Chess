@@ -16,18 +16,6 @@ class Piece:
     def get_representation(self) -> str:
         raise NotImplementedError
 
-
-    def get_move_str(self, start_i, start_j, new_i, new_j, capture):
-        piece_str = self.get_representation().upper()
-
-        if piece_str == 'P':
-            piece_str = ""
-
-        if capture:
-            return f"{piece_str}{File(start_j).name}{8-start_i}x{File(new_j).name}{8-new_i}"
-        else:
-            return f"{piece_str}{File(start_j).name}{8-start_i}-{File(new_j).name}{8-new_i}"
-
     def get_moves(self, game) -> [str]:
         raise NotImplementedError
     
