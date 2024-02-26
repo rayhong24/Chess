@@ -1,3 +1,5 @@
+import itertools
+
 from Pieces.piece import Piece
 from enums import Colour
 from coords import Coords
@@ -34,7 +36,7 @@ class Pawn(Piece):
 
         # checking forward moves
         moves_forward = 1 if self.has_moved else 2
-        for new_coords in self.coords.get_line(direction, 0):
+        for new_coords in itertools.islice(self.coords.get_line(direction, 0), moves_forward):
             square = game.board.get_square(new_coords)
             if square == None:
                 # For promotions
@@ -50,9 +52,6 @@ class Pawn(Piece):
                     )
                     valid_moves.append(move)
 
-            if moves_forward == 1:
-                break
-            moves_forward -= 1
         
         # check captures
         left_capture_coords = self.coords.get_neighbor(direction, -1)
