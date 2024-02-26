@@ -1,4 +1,4 @@
-import game
+import game as gm
 from Moves.moveFactory import MoveFactory
 
 class Interface:
@@ -22,7 +22,7 @@ class Interface:
                 print()
 
             elif usr_input == "start":
-                game = game.Game()
+                game = gm.Game()
 
                 game.start_game()
 
@@ -38,7 +38,7 @@ class Interface:
 
     def get_player_input(self, game):
         game.display_game()
-        usr_input = input("Input a valid move (currently no enPassant): ")
+        usr_input = input("Input a valid move: ")
 
         usr_input = self.sanitize(usr_input)
 

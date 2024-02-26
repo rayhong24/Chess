@@ -119,4 +119,5 @@ class Game():
         self.board.print_board()
         print(f"To move: {self.player_turn}")
         print(f"Castling rights: {self.get_castle_str()}")
+        print(f"EnPassant: {self.enpassant_coords}")
         print("="*70)
