@@ -21,6 +21,15 @@ class MoveFactory:
             end_coords
         )
 
+    def init_promotion(self, player_to_move, start_coords, capture, end_coords, promotion_piece_str):
+        return Promotion(
+            player_to_move,
+            start_coords,
+            capture,
+            end_coords,
+            promotion_piece_str
+        )
+
     def init_enPassant(self, player_to_move, start_coords, end_coords):
         return EnPassant(player_to_move, start_coords, end_coords)
 

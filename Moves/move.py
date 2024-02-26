@@ -4,6 +4,7 @@ import Pieces
 
 from enums import Colour
 from utils import *
+from coords import Coords
 
 class Move:
     def __init__(self, player_to_move, piece_str, start_coords, capture, end_coords) -> None:
@@ -83,9 +84,9 @@ class Move:
 
 
         # enpassant
-        if self.piece_str == 'P' and abs(self.end_coords[0]-self.start_coords[0]) == 2:
+        if self.piece_str == 'P' and abs(self.start_coords.rank-self.end_coords.rank) == 2:
             direction = -1 if self.player_to_move == Colour.WHITE else 1
-            game.enpassant_coords = (self.start_coords[0]+direction, self.end_coords[1])
+            game.enpassant_coords = self.start_coords.get_neighbor(direction, 0)
         else:
             game.enpassant_coords = None
         game.switch_player_turn()
