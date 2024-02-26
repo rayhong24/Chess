@@ -39,7 +39,7 @@ class MoveFactory:
         else:
             piece, start_coords, capture, end_coords = self._split_move_str(move_str)
             
-            if piece == "P" and capture and game.board.board[end_coords[0]][end_coords[1]] is None:
+            if piece == "P" and capture and game.board.get_square(end_coords) is None:
                 return self.init_enPassant_from_str
 
             return self._init_normal_from_str
