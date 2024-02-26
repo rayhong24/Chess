@@ -14,7 +14,7 @@ class Bishop(Piece):
         valid_moves = []
 
         for di, dj in [[-1, -1], [-1, 1], [1, -1], [1, 1]]:
-            for line_coords in self.coords.get_line((di, dj)):
+            for line_coords in self.coords.get_line(di, dj):
                 square = game.board.get_square(line_coords)
                 if square != None:
                     if square.colour != self.colour:
