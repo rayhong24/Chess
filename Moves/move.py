@@ -3,7 +3,6 @@ import copy
 import Pieces
 
 from enums import Colour
-from utils import *
 from coords import Coords
 
 class Move:
