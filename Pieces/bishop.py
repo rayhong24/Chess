@@ -1,9 +1,10 @@
 from Pieces.piece import Piece
 from enums import Colour
+from coords import Coords
 
 class Bishop(Piece):
-    def __init__(self, colour: Colour, row: int, column: int) -> None:
-        super().__init__(colour, row, column)
+    def __init__(self, colour: Colour, coords: Coords) -> None:
+        super().__init__(colour, coords)
 
     def get_representation(self) -> str:
         return 'b' if self.colour == Colour.BLACK else 'B'

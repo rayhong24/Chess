@@ -5,11 +5,11 @@ from game import Game
 from board import Board
 from Pieces.piece import Piece
 from Moves.moveFactory import MoveFactory
+from coords import Coords
 
 def main():
-    factory = MoveFactory()
-    m = factory.init_move("e92-e3", Colour.WHITE)
-    print(f"{m=}")
+    c = Coords(0, File(1))
+    print(c)
 
 
 

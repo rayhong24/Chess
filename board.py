@@ -1,6 +1,6 @@
 from strings import *
 from enums import *
-from utils import *
+from coords import Coords
 
 from Pieces.pieceFactory import PieceFactory
 
@@ -14,11 +14,17 @@ class Board:
         self.black_pieces = set()
 
 
-    def _add_piece(self, piece_str, i: int, j: int):
-        piece = self.piece_factory.init_piece(piece_str, i, j)
-        self.board[i][j] = piece
+    def _add_piece(self, piece_str, coords: Coords):
+        piece = self.piece_factory.init_piece(piece_str, coords)
+        self.set_square(piece, coords)
         
         self.get_player_pieces(piece.colour).add(piece)
+
+    def get_square(self, coords: Coords):
+        return self.board[coords.rank][coords.file.value]
+
+    def set_square(self, value, coords: Coords):
+        self.board[coords.rank][coords.file.value] = value
 
     def get_player_pieces(self, colour):
         return self.white_pieces if colour == Colour.WHITE else self.black_pieces
@@ -35,7 +41,7 @@ class Board:
                         self.board[i][j] = None
                         j += 1
                 else:
-                    self._add_piece(c, i, j)
+                    self._add_piece(c, Coords(i, File(j)))
                     j += 1
 
     # Input: string from a fenstring (ei. KQkq or -)

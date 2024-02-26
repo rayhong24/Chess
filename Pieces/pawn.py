@@ -1,14 +1,15 @@
 from Pieces.piece import Piece
 from enums import Colour
+from coords import Coords
 
 from Moves.move import Move
 
 class Pawn(Piece):
-    def __init__(self, colour: Colour, row: int, column: int) -> None:
-        super().__init__(colour, row, column)
+    def __init__(self, colour: Colour, coords: Coords) -> None:
+        super().__init__(colour, coords)
         self.has_moved = not (
-            (colour == Colour.WHITE and row == 6) or\
-            (colour == Colour.BLACK and row == 1)
+            (colour == Colour.WHITE and coords.rank == 6) or\
+            (colour == Colour.BLACK and coords.rank == 1)
         )
     
     def get_representation(self) -> str:
