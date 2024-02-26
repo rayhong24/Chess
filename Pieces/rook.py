@@ -14,19 +14,21 @@ class Rook(Piece):
         valid_moves = []
 
         for di, dj in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
-            i, j = self.row + di, self.column + dj
-
-            while self.is_inbounds(i, j) and game.board.board[i][j] == None:
-                move_str = self.get_move_str(self.row, self.column, i, j, False)
-                move = self.move_factory.init_move_from_str(move_str, self.colour, game)
+            for line_coords in self.coords.get_line(di, dj):
+                square = game.board.get_square(line_coords)
+                move = self.move_factory.init_normal_move(
+                    self.colour,
+                    'R',
+                    self.coords,
+                    square is not None,
+                    line_coords
+                )
+                if square is not None:
+                    if square.colour != self.colour:
+                        valid_moves.append(move)
+                    break
                 valid_moves.append(move)
-                i, j = i+di, j+dj
 
-            if self.is_inbounds(i, j) and game.board.board[i][j] != None and game.board.board[i][j].colour != self.colour:
-                is_capture = self.is_inbounds(i, j) and game.board.board[i][j] is not None
-                move_str = self.get_move_str(self.row, self.column, i, j, is_capture)
-                move = self.move_factory.init_move_from_str(move_str, self.colour, game)
-                valid_moves.append(move)
             
         return valid_moves
 

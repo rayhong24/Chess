@@ -3,7 +3,6 @@ import unittest
 from game import Game
 from Moves.moveFactory import MoveFactory
 from enums import *
-from utils import *
 
 class GameTestCases:
     class TestGameClass(unittest.TestCase):
