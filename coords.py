@@ -31,6 +31,15 @@ class Coords:
 
             i, j = i+dir[0], j+dir[1]
 
+    def get_surrounding(self):
+        for di, dj in [
+            [-1, -1], [-1, 1], [1, -1], [1, 1],
+            [-1, 0], [1, 0], [0, -1], [0, 1]
+        ]:
+            i, j = self.rank+di, self.file.value+dj
+            if self._is_inbounds(i, j):
+                yield Coords(i, File(j))
+
 
 
 
