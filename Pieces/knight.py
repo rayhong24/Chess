@@ -13,16 +13,16 @@ class Knight(Piece):
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
-        for di, dj in [
-            [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-            [1, -2], [1, 2], [2, -1], [2, 1]
-            ]:
-            i, j = self.row + di, self.column + dj
-
-            if self.is_inbounds(i, j) and (game.board.board[i][j] == None or game.board.board[i][j].colour != self.colour):
-                is_capture = game.board.board[i][j] is not None
-                move_str = self.get_move_str(self.row, self.column, i, j, is_capture)
-                move = self.move_factory.init_move(move_str, self.colour, game)
+        for jump_coords in self.coords.get_knight_jumps():
+            square = game.board.get_square(jump_coords)
+            if square == None or square.colour != self.colour:
+                move = self.move_factory.init_normal_move(
+                    self.colour,
+                    'N',
+                    self.coords,
+                    square is not None,
+                    jump_coords
+                )
                 valid_moves.append(move)
         
         return valid_moves

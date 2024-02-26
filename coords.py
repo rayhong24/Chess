@@ -40,6 +40,15 @@ class Coords:
             if self._is_inbounds(i, j):
                 yield Coords(i, File(j))
 
+    def get_knight_jumps(self):
+        for di, dj in [
+            [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+            [1, -2], [1, 2], [2, -1], [2, 1]
+        ]:
+            i, j = self.rank+di, self.file.value+dj
+
+            if self._is_inbounds(i, j):
+                yield Coords(i, File(j))
 
 
 
