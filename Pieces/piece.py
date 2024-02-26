@@ -3,14 +3,14 @@ from typing import Self
 from Moves.moveFactory import MoveFactory
 from enums import Colour
 from enums import File
+from coords import Coords
 from strings import *
 
 class Piece:
-    def __init__(self, colour: Colour, row: int, column: int) -> None:
+    def __init__(self, colour: Colour, coords: Coords) -> None:
         self.move_factory = MoveFactory()
         self.colour = colour
-        self.row = row
-        self.column = column
+        self.coords = coords
         self.has_moved = False
     
     def get_representation(self) -> str:
@@ -33,8 +33,7 @@ class Piece:
     def get_moves(self, game) -> [str]:
         raise NotImplementedError
     
-    def move(self, new_i: int, new_j: int) -> None:
-        self.row = new_i
-        self.column = new_j
+    def move(self, new_coords: Coords) -> None:
+        self.coords = new_coords
         self.has_moved = True
     

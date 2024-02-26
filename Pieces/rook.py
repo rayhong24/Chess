@@ -1,9 +1,10 @@
 from Pieces.piece import Piece
+from coords import Coords
 from enums import Colour
 
 class Rook(Piece):
-    def __init__(self, colour: Colour, row: int, column: int) -> None:
-        super().__init__(colour, row, column)
+    def __init__(self, colour: Colour, coords: Coords) -> None:
+        super().__init__(colour, coords)
 
     def get_representation(self) -> str:
         return 'r' if self.colour == Colour.BLACK else 'R'
