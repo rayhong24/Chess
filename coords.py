@@ -22,14 +22,17 @@ class Coords:
     def _is_inbounds(self, i: int, j: int):
         return 0<=i<=7 and 0<=j<=7
 
+    def get_neighbor(self, di, dj):
+        return
+
     # Generator for lazy evaluation
-    def get_line(self, dir: tuple[int, int]):
-        i, j = self.rank+dir[0], self.file.value+dir[1]
+    def get_line(self, di, dj):
+        i, j = self.rank+di, self.file.value+dj
 
         while self._is_inbounds(i, j):
             yield Coords(i, File(j))
 
-            i, j = i+dir[0], j+dir[1]
+            i, j = i+di, j+dj
 
     def get_surrounding(self):
         for di, dj in [
