@@ -22,8 +22,13 @@ class Coords:
     def _is_inbounds(self, i: int, j: int):
         return 0<=i<=7 and 0<=j<=7
 
+    # Does not have to be a direct neighbour
     def get_neighbor(self, di, dj):
-        return
+        if self._is_inbounds(self.rank+di, self.file.value+dj):
+            return Coords(self.rank+di, File(self.file.value+dj))
+
+        else:
+            return None
 
     # Generator for lazy evaluation
     def get_line(self, di, dj):
@@ -33,6 +38,7 @@ class Coords:
             yield Coords(i, File(j))
 
             i, j = i+di, j+dj
+
 
     def get_surrounding(self):
         for di, dj in [

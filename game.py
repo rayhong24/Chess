@@ -1,7 +1,7 @@
 from board import Board
 from player import Player
 from enums import *
-from utils import *
+from coords import Coords
 from Moves.move import Move
 
 
@@ -34,7 +34,7 @@ class Game():
         if fenstr_sections[3] == "-":
             self.enpassant_coords = None
         else:
-            self.enpassant_coords = to_coords(fenstr_sections[3])
+            self.enpassant_coords = Coords.init_from_str(fenstr_sections[3])
 
 
     def get_valid_moves(self):
