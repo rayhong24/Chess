@@ -1,4 +1,3 @@
-from utils import *
 from enums import *
 from coords import Coords
 
@@ -52,30 +51,30 @@ class MoveFactory:
 
             if len(start) == 3:
                 piece = start[0]
-                start_i, start_j = to_coords(start[1:])
+                start_coords = Coords.init_from_str(start[1:])
             else:
-                start_i, start_j = to_coords(start[:2])
+                start_coords = Coords.init_from_str(start[:2])
 
             capture = False
-            end_i, end_j = to_coords(end[:2])
+            end_coords = Coords.init_from_str(end[:2])
         elif "x" in move_str:
             start, end = move_str.split('x')
 
             if len(start) == 3:
                 piece = start[0]
-                start_i, start_j = to_coords(start[1:])
+                start_coords = Coords.init_from_str(start[1:])
             else:
-                start_i, start_j = to_coords(start[:2])
+                start_coords = Coords.init_from_str(start[:2])
 
             capture = True
-            end_i, end_j = to_coords(end[:2])
+            end_coords = Coords.init_from_str(end[:2])
         else:
             raise ValueError("Invalid move.")
 
         return (piece,
-            (start_i, start_j),
+            start_coords,
             capture,
-            (end_i, end_j)
+            end_coords
         )
     
     def _init_normal_from_str(self, move_str: str, player_to_move: Colour) -> Move:
