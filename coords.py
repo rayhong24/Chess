@@ -4,7 +4,14 @@ class Coords:
     def __init__(self, rank: int, file: File):
         self.rank = rank
         self.file = file
+
+    def init_from_str(self, s: str):
+        self.rank, self.file = 8-int(s[1]), File[s[0]].value
     
+    def __eq__(self, other):
+        if not isinstance(other, Coords):
+            return False
+        return self.rank == other.rank and self.file == other.file
 
     def __str__(self) -> str:
         return "{}{}".format(
@@ -12,15 +19,17 @@ class Coords:
             self.rank+1
         )
 
-    def _is_inbounds(self, rank: int, file: File):
-        return 1<=rank<=8 and 1<=file.value<=8
+    def _is_inbounds(self, i: int, j: int):
+        return 0<=i<=7 and 0<=j<=7
 
     # Generator for lazy evaluation
     def get_line(self, dir: tuple[int, int]):
-        new_rank, new_file = self.rank+dir[0], File(self.file.value+dir[1])
+        i, j = self.rank+dir[0], self.file.value+dir[1]
 
-        while self._is_inbounds(new_rank, new_file):
-            yield Coords(new_rank, new_file)
+        while self._is_inbounds(i, j):
+            yield Coords(i, File(j))
+
+            i, j = i+dir[0], j+dir[1]
 
 
 

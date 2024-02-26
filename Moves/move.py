@@ -45,9 +45,9 @@ class Move:
         capture_str = "x" if self.capture else "-"
         s = "{}{}{}{}".format(
             piece_str,
-            coords_to_square(self.start_coords[0], self.start_coords[1]),
+            self.start_coords,
             capture_str,
-            coords_to_square(self.end_coords[0], self.end_coords[1])
+            self.end_coords
         )
 
         return s

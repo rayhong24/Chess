@@ -18,12 +18,23 @@ class Bishop(Piece):
                 square = game.board.get_square(line_coords)
                 if square != None:
                     if square.colour != self.colour:
-                        move_str = self.get_move_str(self.row, self.column, i, j, True)
-                        move = self.move_factory.init_move(move_str, self.colour, game)
+                        move = self.move_factory.init_normal_move(
+                            self.colour,
+                            'B',
+                            self.coords,
+                            True,
+                            line_coords
+                        )
                         valid_moves.append(move)
                     break
-                move_str = self.get_move_str(self.row, self.column, i, j, False)
-                move = self.move_factory.init_move(move_str, self.colour, game)
+
+                move = self.move_factory.init_normal_move(
+                    self.colour,
+                    'B',
+                    self.coords,
+                    False,
+                    line_coords
+                )
                 valid_moves.append(move)
 
         return valid_moves
