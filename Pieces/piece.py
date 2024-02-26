@@ -16,8 +16,6 @@ class Piece:
     def get_representation(self) -> str:
         raise NotImplementedError
 
-    def is_inbounds(self, i, j):
-        return 0<=i<=7 and 0<=j<=7
 
     def get_move_str(self, start_i, start_j, new_i, new_j, capture):
         piece_str = self.get_representation().upper()
