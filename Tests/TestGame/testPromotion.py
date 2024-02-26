@@ -20,7 +20,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_move(Colour.WHITE)
         self.check_castling_rights("-")
 
-        move = self.move_factory.init_move("b7-b8=B", self.game.player_turn)
+        move = self.move_factory.init_move("b7-b8=B", self.game.player_turn, self.game)
         move.make_move(self.game)
 
         b = [
