@@ -55,28 +55,28 @@ class testGameFunctions(GameTestCases.TestGameClass):
             ]
         expected_moves = [
             # Pawn moves
-            self.move_factory.init_move("a2-a3", Colour.WHITE),
-            self.move_factory.init_move("a2-a4", Colour.WHITE),
-            self.move_factory.init_move("b2-b3", Colour.WHITE),
-            self.move_factory.init_move("b2-b4", Colour.WHITE),
-            self.move_factory.init_move("c2-c3", Colour.WHITE),
-            self.move_factory.init_move("c2-c4", Colour.WHITE),
-            self.move_factory.init_move("d2-d3", Colour.WHITE),
-            self.move_factory.init_move("d2-d4", Colour.WHITE),
-            self.move_factory.init_move("e2-e3", Colour.WHITE),
-            self.move_factory.init_move("e2-e4", Colour.WHITE),
-            self.move_factory.init_move("f2-f3", Colour.WHITE),
-            self.move_factory.init_move("f2-f4", Colour.WHITE),
-            self.move_factory.init_move("g2-g3", Colour.WHITE),
-            self.move_factory.init_move("g2-g4", Colour.WHITE),
-            self.move_factory.init_move("h2-h3", Colour.WHITE),
-            self.move_factory.init_move("h2-h4", Colour.WHITE),
+            self.move_factory.init_move("a2-a3", Colour.WHITE, self.game),
+            self.move_factory.init_move("a2-a4", Colour.WHITE, self.game),
+            self.move_factory.init_move("b2-b3", Colour.WHITE, self.game),
+            self.move_factory.init_move("b2-b4", Colour.WHITE, self.game),
+            self.move_factory.init_move("c2-c3", Colour.WHITE, self.game),
+            self.move_factory.init_move("c2-c4", Colour.WHITE, self.game),
+            self.move_factory.init_move("d2-d3", Colour.WHITE, self.game),
+            self.move_factory.init_move("d2-d4", Colour.WHITE, self.game),
+            self.move_factory.init_move("e2-e3", Colour.WHITE, self.game),
+            self.move_factory.init_move("e2-e4", Colour.WHITE, self.game),
+            self.move_factory.init_move("f2-f3", Colour.WHITE, self.game),
+            self.move_factory.init_move("f2-f4", Colour.WHITE, self.game),
+            self.move_factory.init_move("g2-g3", Colour.WHITE, self.game),
+            self.move_factory.init_move("g2-g4", Colour.WHITE, self.game),
+            self.move_factory.init_move("h2-h3", Colour.WHITE, self.game),
+            self.move_factory.init_move("h2-h4", Colour.WHITE, self.game),
 
             # Knight moves
-            self.move_factory.init_move("Nb1-a3", Colour.WHITE),
-            self.move_factory.init_move("Nb1-c3", Colour.WHITE),
-            self.move_factory.init_move("Ng1-f3", Colour.WHITE),
-            self.move_factory.init_move("Ng1-h3", Colour.WHITE),
+            self.move_factory.init_move("Nb1-a3", Colour.WHITE, self.game),
+            self.move_factory.init_move("Nb1-c3", Colour.WHITE, self.game),
+            self.move_factory.init_move("Ng1-f3", Colour.WHITE, self.game),
+            self.move_factory.init_move("Ng1-h3", Colour.WHITE, self.game),
         ]
 
         self.check_board_equal(b)

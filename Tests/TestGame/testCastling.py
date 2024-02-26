@@ -21,7 +21,7 @@ class TestCastling(GameTestCases.TestGameClass):
         # Might need to fix the castling rights fenstring check
         self.check_castling_rights("Kk")
 
-        move = self.move_factory.init_move("O-O", self.game.player_turn)
+        move = self.move_factory.init_move("O-O", self.game.player_turn, self.game)
         move.make_move(self.game)
 
         b = [
@@ -56,7 +56,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("k")
 
-        move = self.move_factory.init_move("O-O", Colour.BLACK)
+        move = self.move_factory.init_move("O-O", Colour.BLACK, self.game)
         self.assertFalse(move.make_move(self.game))
 
         self.check_board_equal(b)
@@ -81,7 +81,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("k")
 
-        move = self.move_factory.init_move("O-O", Colour.BLACK)
+        move = self.move_factory.init_move("O-O", Colour.BLACK, self.game)
         self.assertFalse(move.make_move(self.game))
 
         self.check_board_equal(b)
@@ -106,7 +106,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_move(Colour.BLACK)
         self.check_castling_rights("k")
 
-        move = self.move_factory.init_move("O-O", Colour.BLACK)
+        move = self.move_factory.init_move("O-O", Colour.BLACK, self.game)
         self.assertFalse(move.make_move(self.game))
 
         self.check_board_equal(b)
