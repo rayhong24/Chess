@@ -5,8 +5,8 @@ class Coords:
         self.rank = rank
         self.file = file
 
-    def init_from_str(self, s: str):
-        self.rank, self.file = 8-int(s[1]), File[s[0]].value
+    def init_from_str(s: str):
+        return Coords(8-int(s[1]), File[s[0]])
     
     def __eq__(self, other):
         if not isinstance(other, Coords):
