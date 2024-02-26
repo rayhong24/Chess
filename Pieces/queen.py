@@ -19,25 +19,17 @@ class Queen(Piece):
             ]:
             for line_coords in self.coords.get_line(di, dj):
                 square = game.board.get_square(line_coords)
-                if square != None:
-                    if square.colour != self.colour:
-                        move = self.move_factory.init_normal_move(
-                            self.colour,
-                            'Q',
-                            self.coords,
-                            True,
-                            line_coords
-                        )
-                        valid_moves.append(move)
-                    break
-
                 move = self.move_factory.init_normal_move(
                     self.colour,
                     'Q',
                     self.coords,
-                    False,
+                    square is not None,
                     line_coords
                 )
+                if square is not None:
+                    if square.colour != self.colour:
+                        valid_moves.append(move)
+                    break
                 valid_moves.append(move)
         
         return valid_moves
