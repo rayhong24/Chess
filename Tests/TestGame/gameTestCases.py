@@ -15,8 +15,7 @@ class GameTestCases:
                 for j in range(8):
                     with self.subTest(i=i, j=j):
                         piece = self.game.board.board[i][j]
-                        self.assertEqual(self.game.board.get_square_representation(piece), b[i][j],\
-                                        f"Incorrect board set-up on ({coords_to_square(i, j)})")
+                        self.assertEqual(self.game.board.get_square_representation(piece), b[i][j])
 
         def check_move(self, expected_turn):
             self.assertEqual(self.game.player_turn, expected_turn, 'incorrect player turn')

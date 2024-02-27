@@ -54,7 +54,7 @@ class Move:
 
 
     def check_valid(self, game) -> bool:
-        piece_on_square = game.board.board[self.start_coords[0]][self.start_coords[1]] 
+        piece_on_square = game.board.get_square(self.start_coords)
 
         return game.player_turn == self.player_to_move\
         and piece_on_square is not None\
@@ -64,10 +64,8 @@ class Move:
 
     def set_new_board(self, board) -> bool:
         board.move_piece(
-            self.start_coords[0],
-            self.start_coords[1],
-            self.end_coords[0],
-            self.end_coords[1]
+            self.start_coords,
+            self.end_coords
         )
 
     def make_move(self, game) -> bool:
@@ -85,7 +83,7 @@ class Move:
         # enpassant
         if self.piece_str == 'P' and abs(self.start_coords.rank-self.end_coords.rank) == 2:
             direction = -1 if self.player_to_move == Colour.WHITE else 1
-            game.enpassant_coords = self.start_coords.get_neighbor(direction, 0)
+            game.enpassant_coords = self.start_coords.get_neighbour(direction, 0)
         else:
             game.enpassant_coords = None
         game.switch_player_turn()

@@ -78,14 +78,14 @@ class Game():
             for j in range(8):
                 square = self.board.board[i][j]
                 if square is not None and square.get_representation() == king_repr:
-                    return self.is_square_in_check(i, j, colour)
+                    return self.is_square_in_check(Coords(i, File(j)), colour)
 
-    def is_square_in_check(self, i, j, colour):
+    def is_square_in_check(self, coords,colour):
         opponent_pieces = self.board.black_pieces if colour == Colour.WHITE else self.board.white_pieces
 
         for piece in opponent_pieces:
             for move in piece.get_moves(self):
-                if move.end_coords == (i, j):
+                if move.end_coords == coords:
                     return True
         
         return False

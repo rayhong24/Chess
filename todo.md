@@ -3,6 +3,7 @@
 - Add a public check_valid_move method in the Move class.
     - Currently, move checking when using the interface iterates through all possible moves from the player and checking if the inputted move is in that set.
         - Inefficient and unneeded
+- Change implementation of checking for check. Does a similar thing as the check_valid_move at the moment.
 - Remove get_representation() method from piece class. Use built-in repr or str methods instead.
 - Implement the interface (following UCI)
 - Make test errors clearer
