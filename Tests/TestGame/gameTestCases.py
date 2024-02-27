@@ -3,6 +3,7 @@ import unittest
 from game import Game
 from Moves.moveFactory import MoveFactory
 from enums import *
+from coords import Coords
 
 class GameTestCases:
     class TestGameClass(unittest.TestCase):
@@ -11,11 +12,10 @@ class GameTestCases:
             self.move_factory = MoveFactory()
 
         def check_board_equal(self, b):
-            for i in range(8):
-                for j in range(8):
-                    with self.subTest(i=i, j=j):
-                        piece = self.game.board.board[i][j]
-                        self.assertEqual(self.game.board.get_square_representation(piece), b[i][j])
+            for coords in Coords.get_all_coords():
+                with self.subTest(coords=coords):
+                    square = self.game.board.get_square(coords)
+                    self.assertEqual(self.game.board.get_square_representation(square), b[coords.rank][coords.file.value])
 
         def check_move(self, expected_turn):
             self.assertEqual(self.game.player_turn, expected_turn, 'incorrect player turn')

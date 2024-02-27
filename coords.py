@@ -7,6 +7,11 @@ class Coords:
 
     def init_from_str(s: str):
         return Coords(8-int(s[1]), File[s[0]])
+
+    def get_all_coords():
+        for i in range(8):
+            for j in range(8):
+                yield Coords(i, File(j))
     
     def __eq__(self, other):
         if not isinstance(other, Coords):
