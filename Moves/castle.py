@@ -31,10 +31,9 @@ class Castle(Move):
         return self.king_side == other.king_side and self.player_to_move == other.player_to_move
 
     def __repr__(self):
-        repr_str = "{}{}{}".format(
-            self.__class__.__name__,
+        repr_str = "{}{}".format(
             self.player_to_move,
-            self.king_side   
+            "O-O" if self.king_side else "O-O-O"
         )
         return repr_str
 
