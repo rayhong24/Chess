@@ -23,7 +23,7 @@ class Coords:
         return 0<=i<=7 and 0<=j<=7
 
     # Does not have to be a direct neighbour
-    def get_neighbor(self, di, dj):
+    def get_neighbour(self, di, dj):
         if self._is_inbounds(self.rank+di, self.file.value+dj):
             return Coords(self.rank+di, File(self.file.value+dj))
 

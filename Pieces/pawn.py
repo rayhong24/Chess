@@ -54,8 +54,8 @@ class Pawn(Piece):
 
         
         # check captures
-        left_capture_coords = self.coords.get_neighbor(direction, -1)
-        right_capture_coords = self.coords.get_neighbor(direction, 1)
+        left_capture_coords = self.coords.get_neighbour(direction, -1)
+        right_capture_coords = self.coords.get_neighbour(direction, 1)
         if left_capture_coords:
             if left_capture_coords == game.enpassant_coords:
                 enpassant_move = self.move_factory.init_enPassant(

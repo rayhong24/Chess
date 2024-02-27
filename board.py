@@ -101,13 +101,17 @@ class Board:
         self.remove_piece_from_sets(self.board[i][j])
         self.board[i][j] = None
 
-    def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
-        if self.board[orig_i][orig_j] is not None:
-            self.board[orig_i][orig_j].move(new_i, new_j)
+    def move_piece(self, start_coords: Coords, end_coords: Coords):
+        start_square = self.get_square(start_coords)
+        end_square = self.get_square(end_coords)
+        if start_square is not None:
+            start_square.move(end_coords)
 
-        if self.board[new_i][new_j] != None:
-            self.remove_piece_from_sets(self.board[new_i][new_j])
-        self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
+        if end_square != None:
+            self.remove_piece_from_sets(end_square)
+        
+        self.set_square(None, start_coords)
+        self.set_square(start_square, end_coords)
 
     # assumes promotion is valid
     def promote_piece(self, i, j, piece_str):
@@ -119,4 +123,3 @@ class Board:
 
         self.board[i][j] = new_piece
 
-    # def is_square_in_check(self, i, j):
