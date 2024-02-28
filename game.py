@@ -1,7 +1,7 @@
 from board import Board
 from player import Player
 from enums import *
-from utils import *
+from coords import Coords
 from Moves.move import Move
 
 
@@ -34,7 +34,7 @@ class Game():
         if fenstr_sections[3] == "-":
             self.enpassant_coords = None
         else:
-            self.enpassant_coords = to_coords(fenstr_sections[3])
+            self.enpassant_coords = Coords.init_from_str(fenstr_sections[3])
 
 
     def get_valid_moves(self):
@@ -78,14 +78,14 @@ class Game():
             for j in range(8):
                 square = self.board.board[i][j]
                 if square is not None and square.get_representation() == king_repr:
-                    return self.is_square_in_check(i, j, colour)
+                    return self.is_square_in_check(Coords.init_from_indices(i, j), colour)
 
-    def is_square_in_check(self, i, j, colour):
+    def is_square_in_check(self, coords,colour):
         opponent_pieces = self.board.black_pieces if colour == Colour.WHITE else self.board.white_pieces
 
         for piece in opponent_pieces:
             for move in piece.get_moves(self):
-                if move.end_coords == (i, j):
+                if move.end_coords == coords:
                     return True
         
         return False

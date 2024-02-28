@@ -36,18 +36,11 @@ class Promotion(Move):
         super().set_new_board(board)
 
         board.promote_piece(
-            self.end_coords[0],
-            self.end_coords[1],
+            self.end_coords,
             self.promotion_piece_str   
         )
 
     def make_move(self, game) -> bool:
         super().make_move(game)
-
-
-
-
-
-        
 
         

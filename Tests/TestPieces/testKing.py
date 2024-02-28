@@ -1,5 +1,6 @@
 from Tests.TestPieces.pieceTestCases import PiecesTestCases
 from enums import *
+from coords import Coords
 
 class testKing(PiecesTestCases.TestPieces):
     def setUp(self):
@@ -18,14 +19,14 @@ class testKing(PiecesTestCases.TestPieces):
         piece = self.game.board.board[4][4]
 
         expected_moves = [
-            self.move_factory.init_move("Ke4-d5", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-e5", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-f5", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-d4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-f4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-d3", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-e3", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke4-f3", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-d5", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-e5", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-f5", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-d4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-f4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-d3", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-e3", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke4-f3", Colour.WHITE, self.game),
         ]
 
         self.check_moves(piece, expected_moves)
@@ -37,10 +38,10 @@ class testKing(PiecesTestCases.TestPieces):
         piece = self.game.board.board[7][4]
 
         expected_moves = [
-            self.move_factory.init_move("O-O", Colour.WHITE, self.game),
-            self.move_factory.init_move("O-O-O", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke1-d1", Colour.WHITE, self.game),
-            self.move_factory.init_move("Ke1-f1", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("O-O", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("O-O-O", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke1-d1", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Ke1-f1", Colour.WHITE, self.game),
         ]
 
 
@@ -50,13 +51,13 @@ class testKing(PiecesTestCases.TestPieces):
         self.game.setup_fenstr("r3k2r/3ppp2/8/8/8/8/8/8 b KQkq - 0 1")
 
         # Black king
-        piece = self.game.board.board[0][4]
+        piece = self.game.board.get_square(Coords(8, File['e']))
 
         expected_moves = [
-            self.move_factory.init_move("O-O", Colour.BLACK, self.game),
-            self.move_factory.init_move("O-O-O", Colour.BLACK, self.game),
-            self.move_factory.init_move("Ke8-d8", Colour.BLACK, self.game),
-            self.move_factory.init_move("Ke8-f8", Colour.BLACK, self.game),
+            self.move_factory.init_move_from_str("O-O", Colour.BLACK, self.game),
+            self.move_factory.init_move_from_str("O-O-O", Colour.BLACK, self.game),
+            self.move_factory.init_move_from_str("Ke8-d8", Colour.BLACK, self.game),
+            self.move_factory.init_move_from_str("Ke8-f8", Colour.BLACK, self.game),
         ]
 
         self.check_moves(piece, expected_moves)
