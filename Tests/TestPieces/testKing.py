@@ -1,5 +1,6 @@
 from Tests.TestPieces.pieceTestCases import PiecesTestCases
 from enums import *
+from coords import Coords
 
 class testKing(PiecesTestCases.TestPieces):
     def setUp(self):
@@ -50,7 +51,7 @@ class testKing(PiecesTestCases.TestPieces):
         self.game.setup_fenstr("r3k2r/3ppp2/8/8/8/8/8/8 b KQkq - 0 1")
 
         # Black king
-        piece = self.game.board.board[0][4]
+        piece = self.game.board.get_square(Coords(8, File['e']))
 
         expected_moves = [
             self.move_factory.init_move_from_str("O-O", Colour.BLACK, self.game),

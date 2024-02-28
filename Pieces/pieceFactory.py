@@ -28,5 +28,3 @@ class PieceFactory:
         }
 
         return piece_dict[piece_str.upper()]
-
-        

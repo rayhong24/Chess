@@ -21,10 +21,10 @@ class Board:
         self.get_player_pieces(piece.colour).add(piece)
 
     def get_square(self, coords: Coords):
-        return self.board[coords.rank][coords.file.value]
+        return self.board[8-coords.rank][coords.file.value]
 
     def set_square(self, value, coords: Coords):
-        self.board[coords.rank][coords.file.value] = value
+        self.board[8-coords.rank][coords.file.value] = value
 
     def get_player_pieces(self, colour):
         return self.white_pieces if colour == Colour.WHITE else self.black_pieces
@@ -41,7 +41,7 @@ class Board:
                         self.board[i][j] = None
                         j += 1
                 else:
-                    self._add_piece(c, Coords(i, File(j)))
+                    self._add_piece(c, Coords.init_from_indices(i, j))
                     j += 1
 
     # Input: string from a fenstring (ei. KQkq or -)
@@ -114,12 +114,11 @@ class Board:
         self.set_square(start_square, end_coords)
 
     # assumes promotion is valid
-    def promote_piece(self, i, j, piece_str):
-        colour = self.board[i][j].colour
+    def promote_piece(self, coords, piece_str):
+        colour = self.get_square(coords).colour
 
         piece_str = piece_str.upper() if colour == Colour.WHITE else piece_str.lower()
 
-        new_piece = self.piece_factory.init_piece(piece_str, i, j)
+        new_piece = self.piece_factory.init_piece(piece_str, coords)
 
-        self.board[i][j] = new_piece
-
+        self.set_square(new_piece, coords)

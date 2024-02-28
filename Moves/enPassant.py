@@ -14,7 +14,10 @@ class EnPassant(Move):
         return super().__hash__()
 
     def __repr__(self):
-        return super().__repr__()
+        return "enp{}{}".format(
+            self.player_to_move,
+            super().__str__()
+        )
 
     def check_valid(self, game) -> bool:
         return super().check_valid(game)
@@ -23,7 +26,7 @@ class EnPassant(Move):
         super().set_new_board(board)
 
         board.remove_piece(
-            self.start_coords[0],
+            8-self.start_coords[0],
             self.end_coords[1],
         )
 

@@ -78,7 +78,7 @@ class Game():
             for j in range(8):
                 square = self.board.board[i][j]
                 if square is not None and square.get_representation() == king_repr:
-                    return self.is_square_in_check(Coords(i, File(j)), colour)
+                    return self.is_square_in_check(Coords.init_from_indices(i, j), colour)
 
     def is_square_in_check(self, coords,colour):
         opponent_pieces = self.board.black_pieces if colour == Colour.WHITE else self.board.white_pieces

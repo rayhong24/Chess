@@ -17,7 +17,7 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_moves(self, game) -> [str]:
+    def get_moves(self, game):
         def append_promotion_moves(end_coords, capture):
             for piece in "QRBN":
                 move = self.move_factory.init_promotion(
@@ -26,13 +26,13 @@ class Pawn(Piece):
                     capture,
                     end_coords,
                     piece
-                    )
+                )
                 valid_moves.append(move)
 
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
-        direction = -1 if self.colour == Colour.WHITE else 1
+        direction = 1 if self.colour == Colour.WHITE else -1
 
         # checking forward moves
         moves_forward = 1 if self.has_moved else 2
@@ -40,7 +40,7 @@ class Pawn(Piece):
             square = game.board.get_square(new_coords)
             if square == None:
                 # For promotions
-                if self.coords.rank == 0 or self.coords.rank == 7:
+                if self.coords.rank == 1 or self.coords.rank == 8:
                     append_promotion_moves(new_coords, False)
                 else:
                     move = self.move_factory.init_normal_move(
@@ -67,7 +67,7 @@ class Pawn(Piece):
             square_to_check_left = game.board.get_square(left_capture_coords)
             if square_to_check_left is not None and square_to_check_left.colour != self.colour:
                 # For promotions
-                if self.coords.rank == 0 or self.coords.rank == 7:
+                if self.coords.rank == 1 or self.coords.rank == 8:
                     append_promotion_moves(left_capture_coords, True)
                 else:
                     move = self.move_factory.init_normal_move(
@@ -90,7 +90,7 @@ class Pawn(Piece):
             square_to_check_right = game.board.get_square(right_capture_coords)
             if  square_to_check_right is not None and square_to_check_right.colour != self.colour:
                 # For promotions
-                if self.coords.rank == 0 or self.coords.rank == 7:
+                if self.coords.rank == 1 or self.coords.rank == 8:
                     append_promotion_moves(right_capture_coords, True)
                 else:
                     move = self.move_factory.init_normal_move(
