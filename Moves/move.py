@@ -77,7 +77,7 @@ class Move:
 
         # enpassant
         if self.piece_str == 'P' and abs(self.start_coords.rank-self.end_coords.rank) == 2:
-            direction = -1 if self.player_to_move == Colour.WHITE else 1
+            direction = 1 if self.player_to_move == Colour.WHITE else -1
             game.enpassant_coords = self.start_coords.get_neighbour(direction, 0)
         else:
             game.enpassant_coords = None

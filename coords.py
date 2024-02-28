@@ -5,13 +5,16 @@ class Coords:
         self.rank = rank
         self.file = file
 
+    def init_from_indices(i, j):
+        return Coords(8-i, File(j))
+
     def init_from_str(s: str):
-        return Coords(8-int(s[1]), File[s[0]])
+        return Coords(int(s[1]), File[s[0]])
 
     def get_all_coords():
         for i in range(8):
             for j in range(8):
-                yield Coords(i, File(j))
+                yield Coords.init_from_indices(i, File(j))
     
     def __eq__(self, other):
         if not isinstance(other, Coords):
@@ -21,16 +24,16 @@ class Coords:
     def __str__(self) -> str:
         return "{}{}".format(
             self.file.name,
-            self.rank+1
+            self.rank
         )
 
     def _is_inbounds(self, i: int, j: int):
-        return 0<=i<=7 and 0<=j<=7
+        return 1<=i<=8 and 0<=j<=7
 
     # Does not have to be a direct neighbour
-    def get_neighbour(self, di, dj):
-        if self._is_inbounds(self.rank+di, self.file.value+dj):
-            return Coords(self.rank+di, File(self.file.value+dj))
+    def get_neighbour(self, rank_diff, file_diff):
+        if self._is_inbounds(self.rank+rank_diff, self.file.value+file_diff):
+            return Coords(self.rank+rank_diff, File(self.file.value+file_diff))
 
         else:
             return None
