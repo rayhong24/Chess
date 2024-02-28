@@ -1,6 +1,7 @@
 from copy import deepcopy
 from Moves.move import Move
 from enums import *
+from coords import Coords
 
 class Castle(Move):
     def __init__(self, move_str, player_to_move) -> None:
@@ -13,9 +14,9 @@ class Castle(Move):
         super().__init__(
             player_to_move,
             'K',
-            (start_i, start_j),
+            Coords.init_from_indices(start_i, start_j),
             False,
-            (end_i, end_j)
+            Coords.init_from_indices(end_i, end_j)
         )
 
         self.king_side = move_str == "O-O"
@@ -30,10 +31,9 @@ class Castle(Move):
         return self.king_side == other.king_side and self.player_to_move == other.player_to_move
 
     def __repr__(self):
-        repr_str = "{}{}{}".format(
-            self.__class__.__name__,
+        repr_str = "{}{}".format(
             self.player_to_move,
-            self.king_side   
+            "O-O" if self.king_side else "O-O-O"
         )
         return repr_str
 
@@ -46,43 +46,34 @@ class Castle(Move):
 
         dj = 1 if self.king_side else -1
 
-        i, j = self.start_coords
-        j += dj
-
-        board = game.board
-
-        while board.is_inbounds(i, j):
-            if board.board[i][j] is not None:
-                return board.board[i][j].get_representation().upper() == 'R'
-            j += dj
+        for coords in self.start_coords.get_line(0, dj):
+            square = game.board.get_square(coords)
+            if square is not None:
+                return square.get_representation().upper() == 'R'
 
         return False
 
     def set_new_board(self, board) -> bool:
         dj = 1 if self.king_side else -1
 
-        rook_i, rook_j = self.start_coords
-        rook_j += dj
+        rook_coords = None
 
         # assumed to be valid because of check_valid() call
-        while board.board[rook_i][rook_j] is None or\
-        board.board[rook_i][rook_j].get_representation().upper() != 'R':
-            rook_j += dj
+        for coords in self.start_coords.get_line(0, dj):
+            if board.get_square(coords) is not None:
+                rook_coords = coords
+                break
 
         # Move king
         board.move_piece(
-            self.start_coords[0],
-            self.start_coords[1],
-            self.end_coords[0],
-            self.end_coords[1]
+            self.start_coords,
+            self.end_coords
         )
 
         # Move rook
         board.move_piece(
-            rook_i,
-            rook_j,
-            self.end_coords[0],
-            self.end_coords[1]-dj
+            rook_coords,
+            self.end_coords.get_neighbour(0, -dj)
         )
 
     def make_move(self, game) -> bool:
@@ -95,10 +86,17 @@ class Castle(Move):
         self.set_new_board(game.board)
 
         # if castling through check
-        for j in range(self.start_coords[1], self.end_coords[1]+dj):
-            if game.is_square_in_check(self.start_coords[0], j, game.player_turn):
+        # should try to move logic into check_valid()
+        if game.is_square_in_check(self.start_coords, game.player_turn):
+            game.board = old_board
+            return False
+        for coords in self.start_coords.get_line(0, dj):
+            if game.is_square_in_check(coords, game.player_turn):
                 game.board = old_board
                 return False
+
+            if coords == self.end_coords:
+                break
 
         game.enpassant_coords = None
 

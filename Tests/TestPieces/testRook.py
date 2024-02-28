@@ -21,23 +21,23 @@ class testRook(PiecesTestCases.TestPieces):
         rook = self.game.board.board[4][4]
         expected_moves = [
             # Up
-            self.move_factory.init_move("Re4-e5", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-e6", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-e7", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-e8", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e5", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e6", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e7", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e8", Colour.WHITE, self.game),
             # Down 
-            self.move_factory.init_move("Re4-e3", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-e2", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-e1", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e3", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e2", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-e1", Colour.WHITE, self.game),
             # Left
-            self.move_factory.init_move("Re4-d4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-c4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-b4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-a4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-d4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-c4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-b4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-a4", Colour.WHITE, self.game),
             # Right
-            self.move_factory.init_move("Re4-f4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-g4", Colour.WHITE, self.game),
-            self.move_factory.init_move("Re4-h4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-f4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-g4", Colour.WHITE, self.game),
+            self.move_factory.init_move_from_str("Re4-h4", Colour.WHITE, self.game),
         ]
 
         self.check_moves(rook, expected_moves)

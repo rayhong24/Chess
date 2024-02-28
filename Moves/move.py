@@ -3,7 +3,7 @@ import copy
 import Pieces
 
 from enums import Colour
-from utils import *
+from coords import Coords
 
 class Move:
     def __init__(self, player_to_move, piece_str, start_coords, capture, end_coords) -> None:
@@ -28,13 +28,8 @@ class Move:
         and self.end_coords == other.end_coords
 
     def __repr__(self):
-        repr_str = "{}{}{}{}{}{}{}".format(
-            self.__class__.__name__,
+        repr_str = "{}{}".format(
             self.player_to_move,
-            self.piece_str,
-            self.start_coords,
-            self.capture,
-            self.end_coords,
             self.__str__()
         )
 
@@ -45,16 +40,16 @@ class Move:
         capture_str = "x" if self.capture else "-"
         s = "{}{}{}{}".format(
             piece_str,
-            coords_to_square(self.start_coords[0], self.start_coords[1]),
+            self.start_coords,
             capture_str,
-            coords_to_square(self.end_coords[0], self.end_coords[1])
+            self.end_coords
         )
 
         return s
 
 
     def check_valid(self, game) -> bool:
-        piece_on_square = game.board.board[self.start_coords[0]][self.start_coords[1]] 
+        piece_on_square = game.board.get_square(self.start_coords)
 
         return game.player_turn == self.player_to_move\
         and piece_on_square is not None\
@@ -64,10 +59,8 @@ class Move:
 
     def set_new_board(self, board) -> bool:
         board.move_piece(
-            self.start_coords[0],
-            self.start_coords[1],
-            self.end_coords[0],
-            self.end_coords[1]
+            self.start_coords,
+            self.end_coords
         )
 
     def make_move(self, game) -> bool:
@@ -83,9 +76,9 @@ class Move:
 
 
         # enpassant
-        if self.piece_str == 'P' and abs(self.end_coords[0]-self.start_coords[0]) == 2:
-            direction = -1 if self.player_to_move == Colour.WHITE else 1
-            game.enpassant_coords = (self.start_coords[0]+direction, self.end_coords[1])
+        if self.piece_str == 'P' and abs(self.start_coords.rank-self.end_coords.rank) == 2:
+            direction = 1 if self.player_to_move == Colour.WHITE else -1
+            game.enpassant_coords = self.start_coords.get_neighbour(direction, 0)
         else:
             game.enpassant_coords = None
         game.switch_player_turn()

@@ -7,14 +7,15 @@ from Pieces.knight import Knight
 from Pieces.bishop import Bishop
 from Pieces.queen import Queen
 from Pieces.king import King
+from coords import Coords
 
 class PieceFactory:
-    def init_piece(self, piece_str, i, j) -> Piece:
+    def init_piece(self, piece_str, coords: Coords) -> Piece:
         initializer = self._get_piece_initializer(piece_str)
 
         colour = Colour.WHITE if piece_str.isupper() else Colour.BLACK
 
-        return initializer(colour, i, j)
+        return initializer(colour, coords)
 
     def _get_piece_initializer(self, piece_str):
         piece_dict = {
@@ -27,5 +28,3 @@ class PieceFactory:
         }
 
         return piece_dict[piece_str.upper()]
-
-        

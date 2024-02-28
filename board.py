@@ -1,6 +1,6 @@
 from strings import *
 from enums import *
-from utils import *
+from coords import Coords
 
 from Pieces.pieceFactory import PieceFactory
 
@@ -14,11 +14,17 @@ class Board:
         self.black_pieces = set()
 
 
-    def _add_piece(self, piece_str, i: int, j: int):
-        piece = self.piece_factory.init_piece(piece_str, i, j)
-        self.board[i][j] = piece
+    def _add_piece(self, piece_str, coords: Coords):
+        piece = self.piece_factory.init_piece(piece_str, coords)
+        self.set_square(piece, coords)
         
         self.get_player_pieces(piece.colour).add(piece)
+
+    def get_square(self, coords: Coords):
+        return self.board[8-coords.rank][coords.file.value]
+
+    def set_square(self, value, coords: Coords):
+        self.board[8-coords.rank][coords.file.value] = value
 
     def get_player_pieces(self, colour):
         return self.white_pieces if colour == Colour.WHITE else self.black_pieces
@@ -35,7 +41,7 @@ class Board:
                         self.board[i][j] = None
                         j += 1
                 else:
-                    self._add_piece(c, i, j)
+                    self._add_piece(c, Coords.init_from_indices(i, j))
                     j += 1
 
     # Input: string from a fenstring (ei. KQkq or -)
@@ -95,22 +101,24 @@ class Board:
         self.remove_piece_from_sets(self.board[i][j])
         self.board[i][j] = None
 
-    def move_piece(self, orig_i: int, orig_j: int, new_i: int, new_j: int):
-        if self.board[orig_i][orig_j] is not None:
-            self.board[orig_i][orig_j].move(new_i, new_j)
+    def move_piece(self, start_coords: Coords, end_coords: Coords):
+        start_square = self.get_square(start_coords)
+        end_square = self.get_square(end_coords)
+        if start_square is not None:
+            start_square.move(end_coords)
 
-        if self.board[new_i][new_j] != None:
-            self.remove_piece_from_sets(self.board[new_i][new_j])
-        self.board[orig_i][orig_j], self.board[new_i][new_j] = None, self.board[orig_i][orig_j]
+        if end_square != None:
+            self.remove_piece_from_sets(end_square)
+        
+        self.set_square(None, start_coords)
+        self.set_square(start_square, end_coords)
 
     # assumes promotion is valid
-    def promote_piece(self, i, j, piece_str):
-        colour = self.board[i][j].colour
+    def promote_piece(self, coords, piece_str):
+        colour = self.get_square(coords).colour
 
         piece_str = piece_str.upper() if colour == Colour.WHITE else piece_str.lower()
 
-        new_piece = self.piece_factory.init_piece(piece_str, i, j)
+        new_piece = self.piece_factory.init_piece(piece_str, coords)
 
-        self.board[i][j] = new_piece
-
-    # def is_square_in_check(self, i, j):
+        self.set_square(new_piece, coords)
