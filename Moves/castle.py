@@ -14,9 +14,9 @@ class Castle(Move):
         super().__init__(
             player_to_move,
             'K',
-            Coords(start_i, File(start_j)),
+            Coords.init_from_indices(start_i, start_j),
             False,
-            Coords(end_i, File(end_j))
+            Coords.init_from_indices(end_i, end_j)
         )
 
         self.king_side = move_str == "O-O"

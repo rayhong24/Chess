@@ -15,7 +15,7 @@ class GameTestCases:
             for coords in Coords.get_all_coords():
                 with self.subTest(coords=coords):
                     square = self.game.board.get_square(coords)
-                    self.assertEqual(self.game.board.get_square_representation(square), b[coords.rank][coords.file.value])
+                    self.assertEqual(self.game.board.get_square_representation(square), b[8-coords.rank][coords.file.value])
 
         def check_move(self, expected_turn):
             self.assertEqual(self.game.player_turn, expected_turn, 'incorrect player turn')
