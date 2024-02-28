@@ -40,7 +40,7 @@ class Pawn(Piece):
             square = game.board.get_square(new_coords)
             if square == None:
                 # For promotions
-                if self.coords.rank == 1 or self.coords.rank == 8:
+                if new_coords.rank == 1 or new_coords.rank == 8:
                     append_promotion_moves(new_coords, False)
                 else:
                     move = self.move_factory.init_normal_move(
@@ -67,7 +67,7 @@ class Pawn(Piece):
             square_to_check_left = game.board.get_square(left_capture_coords)
             if square_to_check_left is not None and square_to_check_left.colour != self.colour:
                 # For promotions
-                if self.coords.rank == 1 or self.coords.rank == 8:
+                if left_capture_coords.rank == 1 or left_capture_coords.rank == 8:
                     append_promotion_moves(left_capture_coords, True)
                 else:
                     move = self.move_factory.init_normal_move(
@@ -90,7 +90,7 @@ class Pawn(Piece):
             square_to_check_right = game.board.get_square(right_capture_coords)
             if  square_to_check_right is not None and square_to_check_right.colour != self.colour:
                 # For promotions
-                if self.coords.rank == 1 or self.coords.rank == 8:
+                if right_capture_coords.coords.rank == 1 or right_capture_coords.rank == 8:
                     append_promotion_moves(right_capture_coords, True)
                 else:
                     move = self.move_factory.init_normal_move(
