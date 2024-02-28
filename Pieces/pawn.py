@@ -10,8 +10,8 @@ class Pawn(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
         super().__init__(colour, coords)
         self.has_moved = not (
-            (colour == Colour.WHITE and coords.rank == 6) or\
-            (colour == Colour.BLACK and coords.rank == 1)
+            (colour == Colour.WHITE and coords.rank == 2) or\
+            (colour == Colour.BLACK and coords.rank == 7)
         )
     
     def get_representation(self) -> str:
