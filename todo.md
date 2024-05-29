@@ -1,5 +1,4 @@
 # TODO
-- Implement coords class
 - Add a public check_valid_move method in the Move class.
     - Currently, move checking when using the interface iterates through all possible moves from the player and checking if the inputted move is in that set.
         - Inefficient and unneeded
