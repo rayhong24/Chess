@@ -8,6 +8,12 @@ class Interface:
     def sanitize(self, input):
         return input.strip()
 
+    def add_dash(self, input):
+        if not input[2] == 'x':
+            input = input[:2] + '-' + input[2:]
+
+        return input
+
     def start_regular(self):
         greeting_string = f"Hello, what would you like to do? (help for options)\nYour Input: "
         while True:
@@ -41,6 +47,7 @@ class Interface:
         usr_input = input("Input a valid move: ")
 
         usr_input = self.sanitize(usr_input)
+        usr_input = self.add_dash(usr_input)
 
         return usr_input
 
