@@ -5,6 +5,12 @@ from coords import Coords
 
 class Castle(Move):
     def __init__(self, move_str, player_to_move) -> None:
+        # UCI notation for castling
+        if move_str == "e1-g1" or move_str == "e8-g8":
+            move_str = "O-O"
+        elif move_str == "e1-c1" or move_str == "e8-c8":
+            move_str = "O-O-O"
+
         start_i = 7 if player_to_move == Colour.WHITE else 0
         start_j = 4
 
