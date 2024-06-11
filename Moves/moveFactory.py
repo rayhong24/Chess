@@ -41,7 +41,9 @@ class MoveFactory:
 
 
     def _get_move_initializer(self, move_str, game):
-        if move_str == "O-O" or move_str == "O-O-O":
+        if move_str == "O-O" or move_str == "O-O-O"\
+        or move_str == "e1-g1" or  move_str == "e1-c1"\
+        or move_str == "e8-g8" or move_str == "e8-c8":
             return self._init_castle_from_str
         elif "=" in move_str:
              return self._init_promotion_from_str
