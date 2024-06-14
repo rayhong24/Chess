@@ -9,8 +9,20 @@ class Interface:
         return input.strip()
 
     def add_dash(self, input):
-        if not input[2] == 'x':
-            input = input[:2] + '-' + input[2:]
+        if input == "O-O" or input == "O-O-O":
+            return input
+
+        ind_after_num = 2 if input[1].isdigit() else 3
+        if input[ind_after_num] != 'x' and input[ind_after_num] != "-":
+            input = input[:ind_after_num] + '-' + input[ind_after_num:]
+
+        return input
+
+    def change_to_castle_notation(self, input):
+        if input == "e1-g1" or input == "e8-g8":
+            input =  "O-O"
+        elif input == "e1-c1" or input == "e8-c8":
+            input = "O-O-O"
 
         return input
 
@@ -48,6 +60,7 @@ class Interface:
 
         usr_input = self.sanitize(usr_input)
         usr_input = self.add_dash(usr_input)
+        usr_input = self.change_to_castle_notation(usr_input)
 
         return usr_input
 

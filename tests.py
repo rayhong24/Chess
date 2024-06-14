@@ -16,7 +16,16 @@ def main():
 
     print(f"\nTesting dir: {game_dir}")
     runner.run(game_suite)
+
+    other_tests_dir = "Tests"
+    other_tests_loader = unittest.TestLoader()
+    other_tests_suite = other_tests_loader.discover(other_tests_dir)
+
+    print(f"\nTesting dir: {other_tests_dir}")
+    runner.run(other_tests_suite)
     return
+    
+
 
 if __name__ == "__main__":
     main()
