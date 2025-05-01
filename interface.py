@@ -25,6 +25,9 @@ class Interface:
                 game = gm.Game()
 
                 game.start_game()
+            
+            elif usr_input == "uci":
+                self.start_uci()
 
             elif usr_input == "exit":
                 return
