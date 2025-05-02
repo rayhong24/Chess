@@ -74,3 +74,12 @@ class TestPawn(PiecesTestCases.TestPieces):
         ]
 
         self.check_moves(pawn, expected_moves)
+
+    def test_blocked_white(self):
+        self.game.setup_fenstr("8/8/8/8/8/N7/P7/8 w - - 0 1")
+        pawn = self.game.board.board[6][0]
+
+        expected_moves = []
+
+        self.check_moves(pawn, expected_moves)
+

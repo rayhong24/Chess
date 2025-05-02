@@ -1,7 +1,3 @@
-import copy
-
-import Pieces
-
 from enums import Colour
 from coords import Coords
 
