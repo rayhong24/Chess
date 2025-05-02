@@ -37,7 +37,7 @@ class Move:
 
     def __str__(self):
         piece_str = "" if self.piece_str == 'P' else self.piece_str
-        capture_str = "x" if self.capture else "-"
+        capture_str = "x" if self.capture else ""
         s = "{}{}{}{}".format(
             piece_str,
             self.start_coords,
