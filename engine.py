@@ -10,9 +10,10 @@ class Engine():
     def set_position(self, fenstr, moves):
         self.game.setup_fenstr(fenstr)
 
-        # for move_str in moves:
-        #     move = self.move_factory.init_move_from_str(move_str, self.game.player_turn, self.game)
-        #     self.game.make_move(move)
+        for move_str in moves:
+            # print(move_str)
+            move = self.move_factory.init_move_from_str(move_str, self.game.player_turn, self.game)
+            move.make_move(self.game)
 
     def go(self):
         moves = self.game.get_valid_moves()

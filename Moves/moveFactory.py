@@ -66,10 +66,11 @@ class MoveFactory:
         start_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
         curr_ind += 2
 
-
         if move_str[curr_ind] == 'x':
             capture = True
             curr_ind += 1
+        else:
+            capture = False
         
         end_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
 
@@ -81,6 +82,8 @@ class MoveFactory:
     
     def _init_normal_from_str(self, move_str: str, player_to_move: Colour) -> Move:
         piece, start_coords, capture, end_coords = self._split_move_str(move_str)
+
+        print(piece, start_coords, capture, end_coords)
 
         return Move(
             player_to_move,
