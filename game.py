@@ -57,15 +57,14 @@ class Game():
             # Assuming valid move is returned
             chosen_move = current_player.choose_move(self)
 
-            chosen_move.make_move(self)
+            self.make_move(chosen_move)
 
     
     def make_move(self, move: Move) -> bool:
         # Valid move
-        if move.make_move(self.board):
-            return True
-        else:
-            return False
+        self.board.move_piece(move.start_coords, move.end_coords)
+
+        self.switch_player_turn()
 
     def switch_player_turn(self):
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK

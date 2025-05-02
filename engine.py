@@ -12,8 +12,8 @@ class Engine():
 
         for move_str in moves:
             # print(move_str)
-            move = self.move_factory.init_move_from_str(move_str, self.game.player_turn, self.game)
-            move.make_move(self.game)
+            move = self.move_factory.init_long_algebraic(move_str, self.game.player_turn)
+            self.game.make_move(move)
 
     def go(self):
         moves = self.game.get_valid_moves()
