@@ -12,10 +12,10 @@ class MoveFactory:
 
         return initializer(move_str, player_to_move)
 
-    def init_long_algebraic(self, move_str: str, player_to_move: Colour, game) -> Move:
+    def init_long_algebraic(self, move_str: str, player_to_move: Colour) -> Move:
         return Move(
             player_to_move,
-            "P",
+            None,
             Coords.init_from_str(move_str[:2]),
             False,
             Coords.init_from_str(move_str[2:4])
@@ -50,11 +50,6 @@ class MoveFactory:
 
 
     def _get_move_initializer(self, move_str, game):
-        # Long algebraic chess notation
-        # if len(move_str) == 4:
-            
-
-
         # Normal chess notation
         if move_str == "O-O" or move_str == "O-O-O":
             return self._init_castle_from_str

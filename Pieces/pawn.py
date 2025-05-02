@@ -51,6 +51,8 @@ class Pawn(Piece):
                         new_coords
                     )
                     valid_moves.append(move)
+            else:
+                break
 
         
         # check captures

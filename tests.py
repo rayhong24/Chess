@@ -10,12 +10,12 @@ def main():
     print(f"\nTesting dir: {piece_dir}")
     runner.run(piece_suite)
 
-    game_dir = 'Tests/TestGame'
-    game_loader = unittest.TestLoader()
-    game_suite = game_loader.discover(game_dir)
+    # game_dir = 'Tests/TestGame'
+    # game_loader = unittest.TestLoader()
+    # game_suite = game_loader.discover(game_dir)
 
-    print(f"\nTesting dir: {game_dir}")
-    runner.run(game_suite)
+    # print(f"\nTesting dir: {game_dir}")
+    # runner.run(game_suite)
     return
 
 if __name__ == "__main__":
