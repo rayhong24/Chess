@@ -21,7 +21,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_castling_rights("-")
 
         move = self.move_factory.init_move_from_str("b7-b8=B", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','B','','','','','',''],\

@@ -21,7 +21,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("KQkq")
 
         move = self.move_factory.init_move_from_str("e2-e4", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','n','b','q','k','b','n','r'],\
                 ['p','p','p','p','p','p','p','p'],\
@@ -37,7 +37,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("KQkq")
 
         move = self.move_factory.init_move_from_str("e7-e5", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','n','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -53,7 +53,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("KQkq")
 
         move = self.move_factory.init_move_from_str("Ng1-f3", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','n','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -70,7 +70,7 @@ class TestGames(GameTestCases.TestGameClass):
 
 
         move = self.move_factory.init_move_from_str("Nb8-c6", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -86,7 +86,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("KQkq")
 
         move = self.move_factory.init_move_from_str("Bf1-c4", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','k','b','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -102,7 +102,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("KQkq")
 
         move = self.move_factory.init_move_from_str("Bf8-c5", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','k','','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -118,7 +118,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("KQkq")
 
         move = self.move_factory.init_move_from_str("O-O", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','k','','n','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -134,7 +134,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("kq")
 
         move = self.move_factory.init_move_from_str("Ng8-f6", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','k','','','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -150,7 +150,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("kq")
 
         move = self.move_factory.init_move_from_str("Nb1-c3", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','k','','','r'],\
                 ['p','p','p','p','','p','p','p'],\
@@ -166,7 +166,7 @@ class TestGames(GameTestCases.TestGameClass):
         self.check_castling_rights("kq")
 
         move = self.move_factory.init_move_from_str("O-O", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
         b = [
                 ['r','','b','q','','r','k',''],\
                 ['p','p','p','p','','p','p','p'],\

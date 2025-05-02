@@ -17,7 +17,6 @@ class Interface:
         game.display_game()
         usr_input = input("Input a valid move: ")
 
-        usr_input = self.sanitize(usr_input)
 
         return usr_input
 
