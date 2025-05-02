@@ -83,8 +83,6 @@ class MoveFactory:
     def _init_normal_from_str(self, move_str: str, player_to_move: Colour) -> Move:
         piece, start_coords, capture, end_coords = self._split_move_str(move_str)
 
-        print(piece, start_coords, capture, end_coords)
-
         return Move(
             player_to_move,
             piece,
