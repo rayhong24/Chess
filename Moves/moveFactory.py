@@ -12,6 +12,15 @@ class MoveFactory:
 
         return initializer(move_str, player_to_move)
 
+    def init_long_algebraic(self, move_str: str, player_to_move: Colour) -> Move:
+        return Move(
+            player_to_move,
+            None,
+            Coords.init_from_str(move_str[:2]),
+            False,
+            Coords.init_from_str(move_str[2:4])
+        )
+
     def init_normal_move(self, player_to_move, piece_str, start_coords, capture, end_coords):
         return Move(
             player_to_move,
@@ -41,6 +50,7 @@ class MoveFactory:
 
 
     def _get_move_initializer(self, move_str, game):
+        # Normal chess notation
         if move_str == "O-O" or move_str == "O-O-O":
             return self._init_castle_from_str
         elif "=" in move_str:
@@ -71,6 +81,7 @@ class MoveFactory:
             curr_ind += 1
         else:
             capture = False
+            curr_ind += 1
         
         end_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
 

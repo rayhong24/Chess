@@ -1,7 +1,3 @@
-import copy
-
-import Pieces
-
 from enums import Colour
 from coords import Coords
 
@@ -37,7 +33,7 @@ class Move:
 
     def __str__(self):
         piece_str = "" if self.piece_str == 'P' else self.piece_str
-        capture_str = "x" if self.capture else ""
+        capture_str = "x" if self.capture else "-"
         s = "{}{}{}{}".format(
             piece_str,
             self.start_coords,
@@ -63,25 +59,5 @@ class Move:
             self.end_coords
         )
 
-    def make_move(self, game) -> bool:
-        if not self.check_valid(game):
-            return False
-
-        old_board = copy.deepcopy(game.board)
-        self.set_new_board(game.board)
-
-        if game.is_king_in_check(game.player_turn):
-            game.board = old_board
-            return False
-
-
-        # enpassant
-        if self.piece_str == 'P' and abs(self.start_coords.rank-self.end_coords.rank) == 2:
-            direction = 1 if self.player_to_move == Colour.WHITE else -1
-            game.enpassant_coords = self.start_coords.get_neighbour(direction, 0)
-        else:
-            game.enpassant_coords = None
-        game.switch_player_turn()
-
-        return True
-
+    def long_algebraic(self) -> str:
+        return f"{self.start_coords}{self.end_coords}"

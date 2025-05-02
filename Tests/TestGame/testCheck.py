@@ -22,7 +22,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.WHITE))
 
         move = self.move_factory.init_move_from_str("e7-e5", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -60,7 +60,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
 
         move = self.move_factory.init_move_from_str("e2-e4", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -98,7 +98,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.WHITE))
 
         move = self.move_factory.init_move_from_str("Ra8-a4", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -136,7 +136,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
 
         move = self.move_factory.init_move_from_str("Ra1-a4", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -174,7 +174,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.WHITE))
 
         move = self.move_factory.init_move_from_str("Nb8-c6", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -212,7 +212,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
 
         move = self.move_factory.init_move_from_str("Nb1-c3", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -250,7 +250,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.WHITE))
 
         move = self.move_factory.init_move_from_str("Bc8-b7", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -288,7 +288,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
 
         move = self.move_factory.init_move_from_str("Bc1-b2", self.game.player_turn)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -326,7 +326,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.WHITE))
 
         move = self.move_factory.init_move_from_str("Qc8-e6", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -364,7 +364,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
 
         move = self.move_factory.init_move_from_str("Qc1-d2", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','','','',''],\
@@ -402,7 +402,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.assertFalse(self.game.is_king_in_check(Colour.BLACK))
 
         move = self.move_factory.init_move_from_str("Qe6-a6", self.game.player_turn, self.game)
-        self.assertFalse(move.make_move(self.game))
+        self.assertFalse(self.game.make_move(move))
 
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
@@ -429,7 +429,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.check_castling_rights("-")
 
         move = self.move_factory.init_move_from_str("e4xd3", Colour.WHITE, self.game)
-        self.assertFalse(move.make_move(self.game))
+        self.assertFalse(self.game.make_move(move))
 
         self.check_board_equal(b)
         self.check_move(Colour.WHITE)
@@ -454,7 +454,7 @@ class TestCheck(GameTestCases.TestGameClass):
         self.check_castling_rights("-")
 
         move = self.move_factory.init_move_from_str("e7-d8=Q", Colour.WHITE, self.game)
-        self.assertFalse(move.make_move(self.game))
+        self.assertFalse(self.game.make_move(move))
 
         self.check_board_equal(b)
         self.check_move(Colour.WHITE)

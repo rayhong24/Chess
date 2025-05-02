@@ -22,7 +22,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_castling_rights("Kk")
 
         move = self.move_factory.init_move_from_str("O-O", self.game.player_turn, self.game)
-        move.make_move(self.game)
+        self.game.make_move(move)
 
         b = [
                 ['','','','','k','','','r'],\
@@ -57,7 +57,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_castling_rights("k")
 
         move = self.move_factory.init_move_from_str("O-O", Colour.BLACK, self.game)
-        self.assertFalse(move.make_move(self.game))
+        self.assertFalse(self.game.make_move(move))
 
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
@@ -82,7 +82,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_castling_rights("k")
 
         move = self.move_factory.init_move_from_str("O-O", Colour.BLACK, self.game)
-        self.assertFalse(move.make_move(self.game))
+        self.assertFalse(self.game.make_move(move))
 
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
@@ -107,7 +107,7 @@ class TestCastling(GameTestCases.TestGameClass):
         self.check_castling_rights("k")
 
         move = self.move_factory.init_move_from_str("O-O", Colour.BLACK, self.game)
-        self.assertFalse(move.make_move(self.game))
+        self.assertFalse(self.game.make_move(move))
 
         self.check_board_equal(b)
         self.check_move(Colour.BLACK)
