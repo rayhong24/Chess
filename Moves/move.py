@@ -43,21 +43,5 @@ class Move:
 
         return s
 
-
-    def check_valid(self, game) -> bool:
-        piece_on_square = game.board.get_square(self.start_coords)
-
-        return game.player_turn == self.player_to_move\
-        and piece_on_square is not None\
-        and piece_on_square.colour == self.player_to_move\
-        and piece_on_square.get_representation().upper() == self.piece_str\
-        and self in piece_on_square.get_moves(game)
-
-    def set_new_board(self, board) -> bool:
-        board.move_piece(
-            self.start_coords,
-            self.end_coords
-        )
-
     def long_algebraic(self) -> str:
         return f"{self.start_coords}{self.end_coords}"

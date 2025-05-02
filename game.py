@@ -38,12 +38,11 @@ class Game():
 
 
     def get_valid_moves(self):
-        current_player_pieces = self.board.get_player_pieces(self.player_turn)
 
         valid_moves = []
 
-        for piece in current_player_pieces:
-            valid_moves.extend(piece.get_moves(self))
+        # for piece in current_player_pieces:
+            # valid_moves.extend(piece.get_moves(self))
 
         return valid_moves
 
