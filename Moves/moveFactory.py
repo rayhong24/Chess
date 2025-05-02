@@ -54,31 +54,25 @@ class MoveFactory:
             return self._init_normal_from_str
     
     def _split_move_str(self, move_str):
+        #TODO add error checking
         piece = 'P'
-        if "-" in move_str:
-            start, end = move_str.split('-')
 
-            if len(start) == 3:
-                piece = start[0]
-                start_coords = Coords.init_from_str(start[1:])
-            else:
-                start_coords = Coords.init_from_str(start[:2])
+        curr_ind = 0
 
-            capture = False
-            end_coords = Coords.init_from_str(end[:2])
-        elif "x" in move_str:
-            start, end = move_str.split('x')
+        if move_str[curr_ind].isupper():
+            piece = move_str[curr_ind]
+            curr_ind += 1
 
-            if len(start) == 3:
-                piece = start[0]
-                start_coords = Coords.init_from_str(start[1:])
-            else:
-                start_coords = Coords.init_from_str(start[:2])
+        start_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
+        curr_ind += 2
 
+        if move_str[curr_ind] == 'x':
             capture = True
-            end_coords = Coords.init_from_str(end[:2])
+            curr_ind += 1
         else:
-            raise ValueError("Invalid move.")
+            capture = False
+        
+        end_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
 
         return (piece,
             start_coords,
