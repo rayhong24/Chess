@@ -9,30 +9,14 @@ class Board:
         self.piece_factory = PieceFactory()
         self.board = [[None]*8 for _ in range(8)]
 
-        # piece sets will probably be moved to player class later
-        self.white_pieces = set()
-        self.black_pieces = set()
-
-
-    def _add_piece(self, piece_str, coords: Coords):
-        piece = self.piece_factory.init_piece(piece_str, coords)
-        self.set_square(piece, coords)
-        
-        self.get_player_pieces(piece.colour).add(piece)
-
     def get_square(self, coords: Coords):
         return self.board[8-coords.rank][coords.file.value]
 
     def set_square(self, value, coords: Coords):
         self.board[8-coords.rank][coords.file.value] = value
 
-    def get_player_pieces(self, colour):
-        return self.white_pieces if colour == Colour.WHITE else self.black_pieces
-
     # Input: string from a fenstring (i.e. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR)
     def add_fenstr_pieces(self, s: str) -> None:
-        self.white_pieces = set()
-        self.black_pieces = set()
         for i, row in enumerate(s.split('/')):
             j = 0
             for c in row:
@@ -41,7 +25,6 @@ class Board:
                         self.board[i][j] = None
                         j += 1
                 else:
-                    self._add_piece(c, Coords.init_from_indices(i, j))
                     j += 1
 
     # Input: string from a fenstring (ei. KQkq or -)
@@ -91,14 +74,8 @@ class Board:
     def is_inbounds(self, i: int, j: int) -> bool:
         return (0 <= i < 8) and (0 <= j < 8)
 
-    def remove_piece_from_sets(self, piece):
-        self.get_player_pieces(piece.colour).remove(piece)
-
-    def add_piece_to_sets(self, piece):
-        self.get_player_pieces(piece.colour).add(piece)
 
     def remove_piece(self, i, j):
-        self.remove_piece_from_sets(self.board[i][j])
         self.board[i][j] = None
 
     def move_piece(self, start_coords: Coords, end_coords: Coords):
@@ -106,9 +83,6 @@ class Board:
         end_square = self.get_square(end_coords)
         if start_square is not None:
             start_square.move(end_coords)
-
-        if end_square != None:
-            self.remove_piece_from_sets(end_square)
         
         self.set_square(None, start_coords)
         self.set_square(start_square, end_coords)
