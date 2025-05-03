@@ -21,13 +21,14 @@ class MoveFactory:
             Coords.init_from_str(move_str[2:4])
         )
 
-    def init_normal_move(self, player_to_move, piece_str, start_coords, capture, end_coords):
+    def init_normal_move(self, player_to_move, piece_str, start_coords, capture, end_coords, promotion=None):
         return Move(
             player_to_move,
             piece_str,
             start_coords, 
             capture,
-            end_coords
+            end_coords,
+            promotion
         )
 
     def init_promotion(self, player_to_move, start_coords, capture, end_coords, promotion_piece_str):
