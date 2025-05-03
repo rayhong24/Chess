@@ -26,18 +26,15 @@ class Move:
         and self.end_coords == other.end_coords
 
     def __repr__(self):
-        repr_str = "{}{}".format(
-            self.player_to_move,
+        repr_str = "{}".format(
             self.__str__()
         )
 
         return repr_str
 
     def __str__(self):
-
         capture_str = "x" if self.capture else "-"
-        s = "{}{}{}{}".format(
-            self.piece_type,
+        s = "{}{}{}".format(
             self.start_coords,
             capture_str,
             self.end_coords

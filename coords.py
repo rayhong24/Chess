@@ -2,6 +2,7 @@ from enums import *
 
 class Coords:
     def __init__(self, rank: int, file: File):
+        assert(type(file) == File)
         self.rank = rank
         self.file = file
 
