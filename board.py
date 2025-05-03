@@ -1,4 +1,4 @@
-import Pieces
+from Pieces.piece import Piece
 
 from strings import *
 from enums import *
@@ -11,7 +11,7 @@ class Board:
         self._piece_factory = PieceFactory()
         self._board = [[None]*8 for _ in range(8)]
 
-    def get_square(self, coords: Coords) -> Pieces:
+    def get_square(self, coords: Coords) -> Piece:
         return self._board[8-coords.rank][coords.file.value]
 
     def set_square(self, value, coords: Coords):
@@ -27,6 +27,7 @@ class Board:
                         self._board[i][j] = None
                         j += 1
                 else:
+                    self._board[i][j] = self._piece_factory.init_piece(c, Coords(i, j))
                     j += 1
 
 
@@ -42,8 +43,24 @@ class Board:
         print()
         print(f"  {['{:^3}'.format(File(i).name) for i in range(8)]}")
 
-    def _is_inbounds(self, i: int, j: int) -> bool:
-        return (0 <= i < 8) and (0 <= j < 8)
+    def get_moves(self, player: Colour, enpassant_coords: Coords):
+        moves = []
+
+        for coords in self._all_squares_iterator():
+            piece = self.get_square(coords)
+
+            if piece.colour == player:
+                moves.extend()
+
+
+
+    def _all_squares_iterator(self) -> list[Coords]:
+        coords = []
+        for i in range(len(self._board)):
+            for j in range(len(self._board[0])):
+                coords.append(Coords(i, j))
+
+        return coords
 
     def _remove_piece(self, i, j):
         self.board[i][j] = None
