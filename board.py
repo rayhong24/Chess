@@ -27,7 +27,7 @@ class Board:
                         self._board[i][j] = None
                         j += 1
                 else:
-                    self._board[i][j] = self._piece_factory.init_piece(c, Coords(i, j))
+                    self._board[i][j] = self._piece_factory.init_piece(c, Coords(8-i, File(j)))
                     j += 1
 
 
@@ -49,16 +49,18 @@ class Board:
         for coords in self._all_squares_iterator():
             piece = self.get_square(coords)
 
-            if piece.colour == player:
-                moves.extend()
+            if piece and piece.colour == player:
+                moves.extend(piece.get_candidate_moves(coords))
+
+        return moves 
 
 
 
     def _all_squares_iterator(self) -> list[Coords]:
         coords = []
-        for i in range(len(self._board)):
+        for i in range(1,len(self._board)+1):
             for j in range(len(self._board[0])):
-                coords.append(Coords(i, j))
+                coords.append(Coords(i, File(j)))
 
         return coords
 

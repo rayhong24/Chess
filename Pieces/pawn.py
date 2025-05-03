@@ -24,8 +24,9 @@ class Pawn(Piece):
 
         # checking forward moves
         moves_forward = 1 if self.has_moved else 2
-        for dist in range(moves_forward):
-            new_coords = Coords.get_neighbour(direction*dist, 0)
+        print(f"{moves_forward=}, {self.has_moved=}")
+        for dist in range(1,moves_forward+1):
+            new_coords = curr_coords.get_neighbour(direction*dist, 0)
             if new_coords:
                 move = self.move_factory.init_normal_move(
                     self.colour,
@@ -40,8 +41,8 @@ class Pawn(Piece):
 
         
         # check captures
-        left_capture_coords = self.coords.get_neighbour(direction, -1)
-        right_capture_coords = self.coords.get_neighbour(direction, 1)
+        left_capture_coords = curr_coords.get_neighbour(direction, -1)
+        right_capture_coords = curr_coords.get_neighbour(direction, 1)
         if left_capture_coords:
             move = self.move_factory.init_normal_move(
                 self.colour,
