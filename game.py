@@ -11,9 +11,10 @@ class Game():
         self.board = Board()
 
         self.player_turn = Colour.WHITE
-        self.player_white = Player(Colour.WHITE)
-        self.player_black = Player(Colour.BLACK)
 
+        # Not implemented/ used
+        # self.player_white = Player(Colour.WHITE)
+        # self.player_black = Player(Colour.BLACK)
 
         self.setup_fenstr(fenstr)
 
@@ -25,7 +26,7 @@ class Game():
         fenstr_sections = fenstr.split(' ')
 
         # Adds pieces to board
-        self.board.add_fenstr_pieces(fenstr_sections[0])
+        self.board.set_fenstr(fenstr_sections[0])
         # Sets the turn
         self.player_turn = Colour.WHITE if fenstr_sections[1] == 'w' else Colour.BLACK
         # Sets castling rights
