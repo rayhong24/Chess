@@ -6,8 +6,9 @@ from Moves.move import Move
 
 
 class Game():
-    startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    def __init__(self, fenstr=None):
+    startpos_fenstr = "8/pppppppp/8/8/8/8/PPPPPPPP/8 w KQkq - 0 1"
+    # startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
         self.player_turn = Colour.WHITE
@@ -16,11 +17,11 @@ class Game():
         # self.player_white = Player(Colour.WHITE)
         # self.player_black = Player(Colour.BLACK)
 
-        self.setup_fenstr(fenstr)
+        self.setup_fenstr()
 
         self.ended = False
 
-    def setup_fenstr(self, fenstr: str=None) -> None:
+    def setup_fenstr(self, fenstr: str=startpos_fenstr) -> None:
         if not fenstr:
             fenstr = self.startpos_fenstr
         fenstr_sections = fenstr.split(' ')
@@ -30,7 +31,8 @@ class Game():
         # Sets the turn
         self.player_turn = Colour.WHITE if fenstr_sections[1] == 'w' else Colour.BLACK
         # Sets castling rights
-        self.board.set_castling_rights(fenstr_sections[2])
+        # TODO Reimplement functionality
+        # self.board.set_castling_rights(fenstr_sections[2])
         # Sets enpassant_coords
         if fenstr_sections[3] == "-":
             self.enpassant_coords = None
@@ -39,7 +41,7 @@ class Game():
 
 
     def get_valid_moves(self):
-        valid_moves = []
+        valid_moves = self.board.get_moves(self.player_turn, self.enpassant_coords)
 
         # for piece in current_player_pieces:
             # valid_moves.extend(piece.get_moves(self))
@@ -48,8 +50,6 @@ class Game():
 
     def get_player(self, colour):
         return self.player_white if colour == colour.WHITE else self.player_black
-
-
     
     def make_move(self, move: Move) -> bool:
         # Valid move
@@ -82,7 +82,8 @@ class Game():
 
 
     # # TODO: Refactor
-    # def get_castle_str(self) -> str:
+    def get_castle_str(self) -> str:
+        return "Not implemented"
     #     out = ""
 
     #     # TODO: Fix if no piece on hardcoded squares like (self.board.board[7][7] == None)
