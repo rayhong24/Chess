@@ -13,8 +13,7 @@ class MoveCandidate():
 
 
     def __str__(self):
-        s = "{} {} {} {}".format(
-            self.capture,
+        s = "{} {} {}".format(
             self._row_diff,
             self._col_diff,
             self._dist

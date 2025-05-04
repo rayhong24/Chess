@@ -2,6 +2,8 @@ from Pieces.piece import Piece
 from enums import Colour
 from coords import Coords
 
+from Pieces.moveCandidate import MoveCandidate
+
 class Bishop(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
         super().__init__(colour, coords)
@@ -9,26 +11,14 @@ class Bishop(Piece):
     def get_representation(self) -> str:
         return 'b' if self.colour == Colour.BLACK else 'B'
 
-    def get_moves(self, game) -> [str]:
+    def get_candidate_moves(self) -> [str]:
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 
         for di, dj in [[-1, -1], [-1, 1], [1, -1], [1, 1]]:
-            for line_coords in self.coords.get_line(di, dj):
-                square = game.board.get_square(line_coords)
-                move = self.move_factory.init_normal_move(
-                    self.colour,
-                    'B',
-                    self.coords,
-                    square is not None,
-                    line_coords
-                )
-                if square is not None:
-                    if square.colour != self.colour:
-                        valid_moves.append(move)
-                    break
-                valid_moves.append(move)
-
+            valid_moves.append(
+                MoveCandidate(di, dj, 8)
+            )
 
         return valid_moves
             
