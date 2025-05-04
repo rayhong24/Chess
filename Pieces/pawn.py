@@ -17,33 +17,39 @@ class Pawn(Piece):
         return 'p' if self.colour == Colour.BLACK else 'P'
 
     def get_candidate_moves(self):
+        moves = []
+
+
         direction = 1 if self.colour == Colour.WHITE else -1
 
         # checking forward moves
         moves_forward = 1 if self.has_moved else 2
 
         move = MoveCandidate(
-            False,
             direction,
             0,
             moves_forward
         )
-        yield(move)
 
+        moves.append(move)
 
         # check captures
         move = MoveCandidate(
-            True,
             direction,
             -1,
-            1
+            1,
+            True,
+            True,
         )
-        yield(move)
+        moves.append(move)
 
         move = MoveCandidate(
-            True,
             direction,
             1,
-            1
+            1,
+            True,
+            True,
         )
-        yield(move)
+        moves.append(move)
+
+        return moves
