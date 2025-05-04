@@ -50,7 +50,7 @@ class Board:
             piece = self.get_square(coords)
 
             if piece and piece.colour == player:
-                moves.extend(piece.get_candidate_moves(coords))
+                moves.extend(piece.get_candidate_moves())
 
         return moves 
 

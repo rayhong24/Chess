@@ -1,11 +1,8 @@
 from Pieces.piece import Piece
-import Pieces.bishop
-import Pieces.queen
-import Pieces.rook
 from enums import Colour
 from coords import Coords
 
-from Moves.move import Move
+from Pieces.moveCandidate import MoveCandidate
 
 class Pawn(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
@@ -19,45 +16,34 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_candidate_moves(self, curr_coords: Coords):
+    def get_candidate_moves(self):
         direction = 1 if self.colour == Colour.WHITE else -1
 
         # checking forward moves
         moves_forward = 1 if self.has_moved else 2
-        print(f"{moves_forward=}, {self.has_moved=}")
-        for dist in range(1,moves_forward+1):
-            new_coords = curr_coords.get_neighbour(direction*dist, 0)
-            if new_coords:
-                move = self.move_factory.init_normal_move(
-                    self.colour,
-                    type(self),
-                    curr_coords,
-                    False,
-                    new_coords
-                )
-                yield(move)
-            else:
-                break
 
-        
+        move = MoveCandidate(
+            False,
+            direction,
+            0,
+            moves_forward
+        )
+        yield(move)
+
+
         # check captures
-        left_capture_coords = curr_coords.get_neighbour(direction, -1)
-        right_capture_coords = curr_coords.get_neighbour(direction, 1)
-        if left_capture_coords:
-            move = self.move_factory.init_normal_move(
-                self.colour,
-                type(self),
-                curr_coords,
-                True,
-                left_capture_coords
-            )
-            yield(move)
-        if right_capture_coords:
-            move = self.move_factory.init_normal_move(
-                self.colour,
-                type(self),
-                curr_coords,
-                True,
-                right_capture_coords
-            )
-            yield(move)
+        move = MoveCandidate(
+            True,
+            direction,
+            -1,
+            1
+        )
+        yield(move)
+
+        move = MoveCandidate(
+            True,
+            direction,
+            1,
+            1
+        )
+        yield(move)
