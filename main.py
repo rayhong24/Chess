@@ -3,10 +3,14 @@ from uci import Uci
 from engine import Engine
 from game import Game
 
+from Moves.moveFactory import MoveFactory
+
 
 def main():
     greeting_string = f"Hello, what would you like to do? (help for options)\nYour Input: "
-    game = None
+    game = Game()
+
+    mf = MoveFactory()
     while True:
         usr_input = input(greeting_string)
 
@@ -17,14 +21,16 @@ def main():
 
             elif usr_input == "moves":
                 print(game.get_valid_moves())
+
+            else:
+                move = mf.init_move_from_str(usr_input, game.player_turn, game)
+                game.make_move(move)
+
         
         if usr_input == "help":
             print("start - start a 2-player game")
             print("exit - exit the program")
             print()
-
-        elif usr_input == "start":
-            game = Game()
 
         elif usr_input == "uci":
             interface = Uci()
