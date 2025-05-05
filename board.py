@@ -4,6 +4,8 @@ from strings import *
 from enums import *
 from coords import Coords
 
+from Moves.move import Move
+
 from Pieces.pieceFactory import PieceFactory
 
 class Board:
@@ -50,7 +52,23 @@ class Board:
             piece = self.get_square(coords)
 
             if piece and piece.colour == player:
-                moves.extend(piece.get_candidate_moves())
+                candidate_moves = piece.get_candidate_moves()
+
+                for candidate in candidate_moves:
+                    for end_coords in candidate.generate_coords(coords):
+                        if self.get_square(end_coords) == None:
+                            if candidate.capture_forced:
+                                break
+                            moves.append(Move(player, coords, False, end_coords, False))
+
+                        else:
+                            blocking_piece = self.get_square(end_coords)
+                            if candidate.capture_allowed and blocking_piece.colour != player:
+                                moves.append(Move(player, coords, True, end_coords, False))
+                            break
+
+
+                # moves.extend(piece.get_candidate_moves())
 
         return moves 
 

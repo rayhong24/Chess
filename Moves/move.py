@@ -2,17 +2,18 @@ from enums import Colour
 # from Pieces.piece import Piece
 
 class Move:
-    def __init__(self, player_to_move, capture) -> None:
+    def __init__(self, player_to_move, start_coords, capture, end_coords, promotion) -> None:
         self.player_to_move: Colour = player_to_move
 
         self.capture = capture
 
         # self.piece_type: Piece = piece
 
-        # self.capture = capture
-        # self.end_coords = end_coords
+        self.start_coords = start_coords
+        self.capture = capture
+        self.end_coords = end_coords
 
-        # self.promotion = promotion
+        self.promotion = promotion
     
     def __hash__(self) -> int:
         return hash(repr(self))
@@ -20,11 +21,11 @@ class Move:
     def __eq__(self, other) -> bool:
         if not isinstance(other, Move):
             return False
-        return self.player_to_move == other.player_to_move
+        return self.player_to_move == other.player_to_move\
+        and self.start_coords == other.start_coords\
+        and self.capture == other.capture\
+        and self.end_coords == other.end_coords
         # and self.piece_type == other.piece_type
-        # and self.start_coords == other.start_coords\
-        # and self.capture == other.capture\
-        # and self.end_coords == other.end_coords
 
     def __repr__(self):
         repr_str = "{}".format(
@@ -37,12 +38,12 @@ class Move:
         s = "{}".format(
             self.player_to_move
         )
-        # capture_str = "x" if self.capture else "-"
-        # s = "{}{}{}".format(
-        #     self.start_coords,
-        #     capture_str,
-        #     self.end_coords
-        # )
+        capture_str = "x" if self.capture else "-"
+        s = "{}{}{}".format(
+            self.start_coords,
+            capture_str,
+            self.end_coords
+        )
 
         return s
 

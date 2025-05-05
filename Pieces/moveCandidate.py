@@ -1,5 +1,6 @@
+from coords import Coords
 class MoveCandidate():
-    def __init__(self, row_diff, col_diff, dist=1, capture_allowed = False, capture_forced = False):
+    def __init__(self, row_diff, col_diff, dist=1, capture_allowed = True, capture_forced = False):
         self._row_diff: int = row_diff
         self._col_diff: int = col_diff
 
@@ -20,3 +21,14 @@ class MoveCandidate():
         )
 
         return s
+
+    def generate_coords(self, start_coords: Coords):
+        curr_coords = start_coords
+        for _ in range(self._dist):
+            if not curr_coords.diff_inbounds(self._row_diff, self._col_diff):
+                return
+            curr_coords = curr_coords.get_neighbour(self._row_diff, self._col_diff)
+            yield(curr_coords)
+
+
+            
