@@ -6,7 +6,7 @@ from Moves.move import Move
 
 
 class Game():
-    startpos_fenstr = "b7/pppppppp/8/8/8/8/PPPPPPPP/B7 w KQkq - 0 1"
+    startpos_fenstr = "b7/pppppppp/8/8/8/8/P1PPPPPP/B7 w KQkq - 0 1"
     # startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
@@ -17,7 +17,7 @@ class Game():
         # self.player_white = Player(Colour.WHITE)
         # self.player_black = Player(Colour.BLACK)
 
-        self.setup_fenstr()
+        self.setup_fenstr(fenstr)
 
         self.ended = False
 
