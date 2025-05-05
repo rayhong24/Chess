@@ -6,8 +6,7 @@ from Moves.move import Move
 
 
 class Game():
-    startpos_fenstr = "b7/pppppppp/8/8/8/8/P111PPPP/BNRQK3 w KQkq - 0 1"
-    # startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
@@ -43,9 +42,6 @@ class Game():
     def get_valid_moves(self):
         valid_moves = self.board.get_moves(self.player_turn, self.enpassant_coords)
 
-        # for piece in current_player_pieces:
-            # valid_moves.extend(piece.get_moves(self))
-
         return valid_moves
 
     def get_player(self, colour):
@@ -53,7 +49,7 @@ class Game():
     
     def make_move(self, move: Move) -> bool:
         # Valid move
-        self.board.move_piece(move.start_coords, move.end_coords)
+        self.board.make_move(move)
 
         self.switch_player_turn()
 
