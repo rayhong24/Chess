@@ -6,7 +6,7 @@ from Moves.move import Move
 
 
 class Game():
-    startpos_fenstr = "b7/pppppppp/8/8/8/8/P1PPPPPP/BN6 w KQkq - 0 1"
+    startpos_fenstr = "b7/pppppppp/8/8/8/8/P11PPPPP/BNR5 w KQkq - 0 1"
     # startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
