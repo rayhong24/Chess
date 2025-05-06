@@ -11,7 +11,7 @@ class Rook(Piece):
     def get_representation(self) -> str:
         return 'r' if self.colour == Colour.BLACK else 'R'
 
-    def get_candidate_moves(self) -> [str]:
+    def get_candidate_moves(self, coords: Coords):
         # list of tuples of new coordinates the piece can go
         candidates = []
 
