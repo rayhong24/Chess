@@ -1,8 +1,10 @@
-from engine import Engine
+import Engines
+import Engines.minimax
+
 
 class Uci():
     def __init__(self):
-        self.engine = Engine()
+        self.engine = Engines.minimax.Minimax()
         self.debug_mode = False
         self.running = False
 

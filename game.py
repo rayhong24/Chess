@@ -10,6 +10,7 @@ class Game():
     # startpos_fenstr = "rnbqkbnr/pp1p1ppp/P7/4p3/4P3/8/1PPp1PPP/RNBQKBNR w KQkq - 0 6"
     # startpos_fenstr = "rnbqkb1r/pppppppp/8/3nP3/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3"
     # startpos_fenstr = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
+    startpos_fenstr = "r1bqk1nr/pppp1Qpp/2n5/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
@@ -61,6 +62,11 @@ class Game():
     def switch_player_turn(self):
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
 
+    def is_checkmate(self):
+        in_check = self.board.is_player_in_check(self.player_turn)
+        moves = self.get_valid_moves()
+
+        return in_check and len(moves) == 0 
 
     # def is_king_in_check(self, colour: Colour):
     #     king_repr = 'K' if colour == Colour.WHITE else 'k'

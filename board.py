@@ -78,31 +78,22 @@ class Board:
         return moves
 
 
-
-
     # Assumes the move is valid for now
     def make_move(self, move: Move):
         piece = self.get_square(move.start_coords)
         self.set_square(None, move.start_coords)
         self.set_square(piece, move.end_coords)
 
-        
 
-    def is_player_left_in_check(self, move: Move):
+    def is_player_in_check(self, player: Colour):
         player_in_check = False
-
-        # Temporarily make move
-        moved_piece = self.get_square(move.start_coords)
-        end_square_piece = self.get_square(move.end_coords)
-        self.set_square(None, move.start_coords)
-        self.set_square(moved_piece, move.end_coords)
 
         # Find the player King
         king_coords = None
         for coords in self._all_squares_iterator():
             piece = self.get_square(coords)
 
-            if piece and type(piece) == King and piece.colour == move.player_to_move:
+            if piece and type(piece) == King and piece.colour == player:
                 king_coords = coords
                 break
         else:
@@ -114,12 +105,24 @@ class Board:
         for coords in self._all_squares_iterator():
             piece = self.get_square(coords)
 
-            if piece and piece.colour != move.player_to_move:
+            if piece and piece.colour != player:
                 for enemy_moves in self.get_piece_moves(piece, coords):
                     if enemy_moves.end_coords == king_coords:
                         player_in_check = True
                         break
 
+        return player_in_check
+
+        
+
+    def is_player_left_in_check(self, move: Move):
+        # Temporarily make move
+        moved_piece = self.get_square(move.start_coords)
+        end_square_piece = self.get_square(move.end_coords)
+        self.set_square(None, move.start_coords)
+        self.set_square(moved_piece, move.end_coords)
+
+        player_in_check = self.is_player_in_check(move.player_to_move)
         
         # Undo the move
         self.set_square(moved_piece, move.start_coords)
@@ -139,8 +142,6 @@ class Board:
         return pieces
 
 
-
-
     def _all_squares_iterator(self) -> list[Coords]:
         coords = []
         for i in range(1,len(self._board)+1):
@@ -148,6 +149,3 @@ class Board:
                 coords.append(Coords(i, File(j)))
 
         return coords
-
-    def _remove_piece(self, i, j):
-        self.board[i][j] = None
