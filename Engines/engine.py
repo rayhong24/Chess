@@ -26,8 +26,11 @@ class Engine():
     def print_game_state(self):
         self.game.display_game()
 
-        moves = self.game.get_valid_moves()
 
+        eval = self.game.evaluate_state()
+        print(f"{eval=}")
+
+        moves = self.game.get_valid_moves()
         print(f"{moves=}")
         is_checkmate = self.game.is_checkmate()
         print(f"{is_checkmate}")

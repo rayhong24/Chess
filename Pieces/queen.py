@@ -6,6 +6,7 @@ from coords import Coords
 class Queen(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
         super().__init__(colour, coords)
+        self.value = 9
 
     def get_representation(self) -> str:
         return 'q' if self.colour == Colour.BLACK else 'Q'

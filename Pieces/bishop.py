@@ -8,6 +8,8 @@ class Bishop(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
         super().__init__(colour, coords)
 
+        self.value = 3
+
     def get_representation(self) -> str:
         return 'b' if self.colour == Colour.BLACK else 'B'
 
