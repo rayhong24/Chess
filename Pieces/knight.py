@@ -1,4 +1,6 @@
 from Pieces.piece import Piece
+
+from Pieces.moveCandidate import MoveCandidate
 from enums import Colour
 from coords import Coords
 
@@ -9,20 +11,15 @@ class Knight(Piece):
     def get_representation(self) -> str:
         return 'n' if self.colour == Colour.BLACK else 'N'
 
-    def get_moves(self, game) -> [str]:
+    def get_candidate_moves(self, coords: Coords):
         # list of tuples of new coordinates the piece can go
-        valid_moves = []
+        candidate_moves = []
 
-        for jump_coords in self.coords.get_knight_jumps():
-            square = game.board.get_square(jump_coords)
-            if square == None or square.colour != self.colour:
-                move = self.move_factory.init_normal_move(
-                    self.colour,
-                    'N',
-                    self.coords,
-                    square is not None,
-                    jump_coords
-                )
-                valid_moves.append(move)
+        for di, dj in [
+            [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+            [1, -2], [1, 2], [2, -1], [2, 1]
+        ]:
+            candidate = MoveCandidate(di, dj)
+            candidate_moves.append(candidate)
         
-        return valid_moves
+        return candidate_moves
