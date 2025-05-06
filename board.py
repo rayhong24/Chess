@@ -86,23 +86,24 @@ class Board:
         self.set_square(None, move.start_coords)
         self.set_square(piece, move.end_coords)
 
-    def undo_move(self, move: Move):
-        piece = self.get_square(move.end_coords)
-        self.set_square(None, move.end_coords)
-        self.set_square(piece, move.start_coords)
-
         
 
     def is_player_left_in_check(self, move: Move):
         player_in_check = False
-        self.make_move(move)
+
+        # Temporarily make move
+        moved_piece = self.get_square(move.start_coords)
+        end_square_piece = self.get_square(move.end_coords)
+        self.set_square(None, move.start_coords)
+        self.set_square(moved_piece, move.end_coords)
+
         # Find the player King
         king_coords = None
         for coords in self._all_squares_iterator():
             piece = self.get_square(coords)
 
             if piece and type(piece) == King and piece.colour == move.player_to_move:
-                king_coords == coords
+                king_coords = coords
                 break
         else:
             print("Error: No king found")
@@ -114,13 +115,15 @@ class Board:
             piece = self.get_square(coords)
 
             if piece and piece.colour != move.player_to_move:
-                for move in self.get_piece_moves(piece, coords):
-                    if move.end_coords == king_coords:
+                for enemy_moves in self.get_piece_moves(piece, coords):
+                    if enemy_moves.end_coords == king_coords:
                         player_in_check = True
                         break
 
         
-        self.undo_move(move)
+        # Undo the move
+        self.set_square(moved_piece, move.start_coords)
+        self.set_square(end_square_piece, move.end_coords)
 
         return player_in_check
             

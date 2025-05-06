@@ -19,7 +19,14 @@ class Engine():
         moves = self.game.get_valid_moves()
 
         return choice(moves)
-        
+
+    def print_game_state(self):
+        self.game.display_game()
+
+        moves = self.game.get_valid_moves()
+
+        print(f"{moves=}")
+
     
 
 

@@ -24,7 +24,9 @@ class Pawn(Piece):
         move = MoveCandidate(
             direction,
             0,
-            moves_forward
+            moves_forward,
+            False,
+            False
         )
 
         moves.append(move)
