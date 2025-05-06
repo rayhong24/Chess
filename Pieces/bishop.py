@@ -11,7 +11,7 @@ class Bishop(Piece):
     def get_representation(self) -> str:
         return 'b' if self.colour == Colour.BLACK else 'B'
 
-    def get_candidate_moves(self) -> [str]:
+    def get_candidate_moves(self, coords: Coords):
         # list of tuples of new coordinates the piece can go
         valid_moves = []
 

@@ -16,6 +16,6 @@ class Piece:
         raise NotImplementedError
 
     # generator for possible coordinates moves
-    def get_candidate_moves(self, Coords):
+    def get_candidate_moves(self, coords):
         raise NotImplementedError
     

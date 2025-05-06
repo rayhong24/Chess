@@ -60,7 +60,7 @@ class Board:
     def get_piece_moves(self, piece, coords):
         moves = []
 
-        candidate_moves = piece.get_candidate_moves()
+        candidate_moves = piece.get_candidate_moves(coords)
 
         for candidate in candidate_moves:
             for end_coords in candidate.generate_coords(coords):

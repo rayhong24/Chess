@@ -10,7 +10,7 @@ class Queen(Piece):
     def get_representation(self) -> str:
         return 'q' if self.colour == Colour.BLACK else 'Q'
 
-    def get_candidate_moves(self) -> [str]:
+    def get_candidate_moves(self, coords: Coords):
         # list of tuples of new coordinates the piece can go
         candidates = []
 

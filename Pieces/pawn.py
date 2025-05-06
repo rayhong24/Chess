@@ -12,14 +12,16 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_candidate_moves(self, ):
+    def get_candidate_moves(self, coords: Coords):
         moves = []
 
 
         direction = 1 if self.colour == Colour.WHITE else -1
 
         # checking forward moves
-        moves_forward = 1
+        moves_forward = 2 if \
+            (coords.rank == 2 and self.colour == Colour.WHITE) \
+            or (coords.rank == 7 and self.colour == Colour.BLACK) else 1
 
         move = MoveCandidate(
             direction,

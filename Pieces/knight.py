@@ -11,7 +11,7 @@ class Knight(Piece):
     def get_representation(self) -> str:
         return 'n' if self.colour == Colour.BLACK else 'N'
 
-    def get_candidate_moves(self):
+    def get_candidate_moves(self, coords: Coords):
         # list of tuples of new coordinates the piece can go
         candidate_moves = []
 
