@@ -115,7 +115,6 @@ class Board:
                 break
         else:
             print("Error: No king found")
-            exit()
 
 
         # Check if 
