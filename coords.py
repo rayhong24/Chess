@@ -6,6 +6,9 @@ class Coords:
         self.rank = rank
         self.file = file
 
+    def init_from_str(s: str):
+        return Coords(int(s[1]), File[s[0]])
+
     def __eq__(self, other):
         if not isinstance(other, Coords):
             return False
@@ -16,6 +19,7 @@ class Coords:
             self.file.name,
             self.rank
         )
+
 
     def diff_inbounds(self, di: int, dj: int):
         return 1<=self.rank + di<=8 and 0<=self.file.value + dj<=7

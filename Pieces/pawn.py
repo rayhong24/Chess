@@ -7,10 +7,6 @@ from Pieces.moveCandidate import MoveCandidate
 class Pawn(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
         super().__init__(colour, coords)
-        self.has_moved = not (
-            (colour == Colour.WHITE and coords.rank == 2) or\
-            (colour == Colour.BLACK and coords.rank == 7)
-        )
     
     #TODO Change to __str__ or __repr__
     def get_representation(self) -> str:
@@ -23,7 +19,7 @@ class Pawn(Piece):
         direction = 1 if self.colour == Colour.WHITE else -1
 
         # checking forward moves
-        moves_forward = 1 if self.has_moved else 2
+        moves_forward = 1
 
         move = MoveCandidate(
             direction,

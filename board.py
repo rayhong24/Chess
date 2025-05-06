@@ -1,4 +1,5 @@
 from Pieces.piece import Piece
+from Pieces.king import King
 
 from strings import *
 from enums import *
@@ -52,22 +53,32 @@ class Board:
             piece = self.get_square(coords)
 
             if piece and piece.colour == player:
-                candidate_moves = piece.get_candidate_moves()
-
-                for candidate in candidate_moves:
-                    for end_coords in candidate.generate_coords(coords):
-                        if self.get_square(end_coords) == None:
-                            if candidate.capture_forced:
-                                break
-                            moves.append(Move(player, coords, False, end_coords, False))
-
-                        else:
-                            blocking_piece = self.get_square(end_coords)
-                            if candidate.capture_allowed and blocking_piece.colour != player:
-                                moves.append(Move(player, coords, True, end_coords, False))
-                            break
+                moves.extend(self.get_piece_moves(piece, coords))
 
         return moves 
+
+    def get_piece_moves(self, piece, coords):
+        moves = []
+
+        candidate_moves = piece.get_candidate_moves()
+
+        for candidate in candidate_moves:
+            for end_coords in candidate.generate_coords(coords):
+                if self.get_square(end_coords) == None:
+                    if candidate.capture_forced:
+                        break
+                    moves.append(Move(piece.colour, coords, False, end_coords, False))
+
+                else:
+                    blocking_piece = self.get_square(end_coords)
+                    if candidate.capture_allowed and blocking_piece.colour != piece.colour:
+                        moves.append(Move(piece.colour, coords, True, end_coords, False))
+                    break
+
+        return moves
+
+
+
 
     # Assumes the move is valid for now
     def make_move(self, move: Move):
@@ -75,14 +86,43 @@ class Board:
         self.set_square(None, move.start_coords)
         self.set_square(piece, move.end_coords)
 
+    def undo_move(self, move: Move):
+        piece = self.get_square(move.end_coords)
+        self.set_square(None, move.end_coords)
+        self.set_square(piece, move.start_coords)
+
         
 
-    def is_player_in_check(self, player: Colour):
-        return False
-        # for coords in self._all_squares_iterator():
-        #     piece = self.get_square(coords)
+    def is_player_left_in_check(self, move: Move):
+        player_in_check = False
+        self.make_move(move)
+        # Find the player King
+        king_coords = None
+        for coords in self._all_squares_iterator():
+            piece = self.get_square(coords)
 
-        #     if piece and piece
+            if piece and type(piece) == King and piece.colour == move.player_to_move:
+                king_coords == coords
+                break
+        else:
+            print("Error: No king found")
+            exit()
+
+
+        # Check if 
+        for coords in self._all_squares_iterator():
+            piece = self.get_square(coords)
+
+            if piece and piece.colour != move.player_to_move:
+                for move in self.get_piece_moves(piece, coords):
+                    if move.end_coords == king_coords:
+                        player_in_check = True
+                        break
+
+        
+        self.undo_move(move)
+
+        return player_in_check
             
         
     def _get_all_player_pieces(self, player: Colour):

@@ -35,13 +35,8 @@ class Move:
         return repr_str
 
     def __str__(self):
-        s = "{}".format(
-            self.player_to_move
-        )
-        capture_str = "x" if self.capture else "-"
-        s = "{}{}{}".format(
+        s = "{}{}".format(
             self.start_coords,
-            capture_str,
             self.end_coords
         )
 

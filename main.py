@@ -23,7 +23,7 @@ def main():
                 print(game.get_valid_moves())
 
             else:
-                move = mf.init_move_from_str(usr_input, game.player_turn, game)
+                move = mf.init_long_algebraic(usr_input, game.player_turn)
                 game.make_move(move)
 
         

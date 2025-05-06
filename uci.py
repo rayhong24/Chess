@@ -64,7 +64,7 @@ class Uci():
         elif tokens[0] == "go":
             engine_move = self.engine.go()
 
-            print(f"bestmove {engine_move.long_algebraic()}")
+            print(f"bestmove {engine_move}")
             
         elif tokens[0] == "stop":
             pass
