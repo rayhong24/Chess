@@ -15,10 +15,10 @@ class MoveFactory:
     def init_long_algebraic(self, move_str: str, player_to_move: Colour) -> Move:
         return Move(
             player_to_move,
-            None,
             Coords.init_from_str(move_str[:2]),
             False,
-            Coords.init_from_str(move_str[2:4])
+            Coords.init_from_str(move_str[2:4]),
+            False,
         )
 
     def init_normal_move(self, player_to_move, piece_str, start_coords, capture, end_coords, promotion=None):
