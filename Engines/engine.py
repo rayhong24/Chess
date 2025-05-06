@@ -18,7 +18,10 @@ class Engine():
     def go(self):
         moves = self.game.get_valid_moves()
 
-        return choice(moves)
+        if len(moves) > 0:
+            return choice(moves)
+
+        return []
 
     def print_game_state(self):
         self.game.display_game()
@@ -26,6 +29,8 @@ class Engine():
         moves = self.game.get_valid_moves()
 
         print(f"{moves=}")
+        is_checkmate = self.game.is_checkmate()
+        print(f"{is_checkmate}")
 
     
 
