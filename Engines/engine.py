@@ -27,7 +27,7 @@ class Engine():
         self.game.display_game()
 
 
-        eval = self.game.evaluate_state()
+        eval = self.game.evaluate_state(0)
         print(f"{eval=}")
 
         moves = self.game.get_valid_moves()
