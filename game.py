@@ -11,6 +11,7 @@ class Game():
     # startpos_fenstr = "rnb1k1nr/pppp1ppp/5q2/2b1p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 5 4"
 
     # startpos_fenstr = "r4rk1/pp4p1/n1p4p/2bNpb2/5pn1/7N/PPPPPqPP/1RBQKB1R w K - 0 15"
+    # startpos_fenstr = "2r3k1/Q4pp1/8/1P1q3p/3P3b/2P4P/4r3/1NK3R1 w - - 0 32"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
