@@ -12,7 +12,7 @@ class Pawn(Piece):
     def get_representation(self) -> str:
         return 'p' if self.colour == Colour.BLACK else 'P'
 
-    def get_candidate_moves(self):
+    def get_candidate_moves(self, ):
         moves = []
 
 
