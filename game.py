@@ -7,6 +7,9 @@ from Moves.move import Move
 
 class Game():
     startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    # startpos_fenstr = "rnbqkbnr/pp1p1ppp/P7/4p3/4P3/8/1PPp1PPP/RNBQKBNR w KQkq - 0 6"
+    # startpos_fenstr = "rnbqkb1r/pppppppp/8/3nP3/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3"
+    # startpos_fenstr = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
@@ -42,7 +45,9 @@ class Game():
     def get_valid_moves(self):
         valid_moves = self.board.get_moves(self.player_turn, self.enpassant_coords)
 
-        return valid_moves
+        filtered_moves = list(filter(lambda m: not self.board.is_player_left_in_check(m), valid_moves))
+
+        return filtered_moves
 
     def get_player(self, colour):
         return self.player_white if colour == colour.WHITE else self.player_black

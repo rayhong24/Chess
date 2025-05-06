@@ -65,6 +65,7 @@ class Uci():
             engine_move = self.engine.go()
 
             print(f"bestmove {engine_move}")
+            self.engine.print_game_state()
             
         elif tokens[0] == "stop":
             pass
@@ -72,6 +73,9 @@ class Uci():
             pass
         elif tokens[0] == "quit":
             self.running = False
+
+        elif tokens[0] == "print":
+            self.engine.print_game_state()
 
 
 
