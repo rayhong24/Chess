@@ -2,9 +2,6 @@ from enums import *
 from coords import Coords
 
 from Moves.move import Move
-from Moves.castle import Castle
-from Moves.promotion import Promotion
-from Moves.enPassant import EnPassant
 
 class MoveFactory:
     def init_move_from_str(self, move_str: str, player_to_move: Colour, game) -> Move:
@@ -31,23 +28,23 @@ class MoveFactory:
             promotion
         )
 
-    def init_promotion(self, player_to_move, start_coords, capture, end_coords, promotion_piece_str):
-        return Promotion(
-            player_to_move,
-            start_coords,
-            capture,
-            end_coords,
-            promotion_piece_str
-        )
+    # def init_promotion(self, player_to_move, start_coords, capture, end_coords, promotion_piece_str):
+    #     return Promotion(
+    #         player_to_move,
+    #         start_coords,
+    #         capture,
+    #         end_coords,
+    #         promotion_piece_str
+    #     )
 
-    def init_enPassant(self, player_to_move, start_coords, end_coords):
-        return EnPassant(player_to_move, start_coords, end_coords)
+    # def init_enPassant(self, player_to_move, start_coords, end_coords):
+    #     return EnPassant(player_to_move, start_coords, end_coords)
 
-    def init_enPassant_from_str(self, move_str, player_to_move):
-        coords = move_str.split("x")
-        start = Coords.init_from_str(coords[0])
-        end = Coords.init_from_str(coords[1])
-        return EnPassant(player_to_move, start, end)
+    # def init_enPassant_from_str(self, move_str, player_to_move):
+    #     coords = move_str.split("x")
+    #     start = Coords.init_from_str(coords[0])
+    #     end = Coords.init_from_str(coords[1])
+    #     return EnPassant(player_to_move, start, end)
 
 
     def _get_move_initializer(self, move_str, game):

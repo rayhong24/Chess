@@ -64,6 +64,12 @@ class Game():
 
         return in_check and len(moves) == 0 
 
+    def evaluate_state(self):
+        if self.is_checkmate():
+            return 1000 if self.player_turn == Colour.BLACK else -1000
+
+        return self.board.eval_piece_diff()
+
 
     def get_castle_str(self) -> str:
         return "Not implemented"
