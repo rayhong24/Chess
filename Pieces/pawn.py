@@ -7,6 +7,9 @@ from Pieces.moveCandidate import MoveCandidate
 class Pawn(Piece):
     def __init__(self, colour: Colour, coords: Coords) -> None:
         super().__init__(colour, coords)
+
+        self.value = 1
+
     
     #TODO Change to __str__ or __repr__
     def get_representation(self) -> str:

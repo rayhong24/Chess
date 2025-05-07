@@ -11,6 +11,8 @@ class Piece:
         self.move_factory = MoveFactory()
         self.colour = colour
         self.has_moved = False
+
+        self.value = 0
     
     def get_representation(self) -> str:
         raise NotImplementedError

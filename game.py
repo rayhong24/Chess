@@ -7,10 +7,11 @@ from Moves.move import Move
 
 class Game():
     startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    # startpos_fenstr = "rnbqkbnr/pp1p1ppp/P7/4p3/4P3/8/1PPp1PPP/RNBQKBNR w KQkq - 0 6"
-    # startpos_fenstr = "rnbqkb1r/pppppppp/8/3nP3/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3"
-    # startpos_fenstr = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
-    startpos_fenstr = "r1bqk1nr/pppp1Qpp/2n5/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+    # startpos_fenstr = "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 4 4"
+    # startpos_fenstr = "rnb1k1nr/pppp1ppp/5q2/2b1p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 5 4"
+
+    # startpos_fenstr = "r4rk1/pp4p1/n1p4p/2bNpb2/5pn1/7N/PPPPPqPP/1RBQKB1R w K - 0 15"
+    # startpos_fenstr = "2r3k1/Q4pp1/8/1P1q3p/3P3b/2P4P/4r3/1NK3R1 w - - 0 32"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
@@ -59,6 +60,11 @@ class Game():
 
         self.switch_player_turn()
 
+    def undo_move(self) -> bool:
+        self.board.undo_last_move()
+
+        self.switch_player_turn()
+
     def switch_player_turn(self):
         self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
 
@@ -68,49 +74,48 @@ class Game():
 
         return in_check and len(moves) == 0 
 
-    # def is_king_in_check(self, colour: Colour):
-    #     king_repr = 'K' if colour == Colour.WHITE else 'k'
-
-    #     for i in range(8):
-    #         for j in range(8):
-    #             square = self.board.board[i][j]
-    #             if square is not None and square.get_representation() == king_repr:
-    #                 return self.is_square_in_check(Coords.init_from_indices(i, j), colour)
-
-    # def is_square_in_check(self, coords,colour):
-    #     opponent_pieces = self.board.black_pieces if colour == Colour.WHITE else self.board.white_pieces
-
-    #     for piece in opponent_pieces:
-    #         for move in piece.get_moves(self):
-    #             if move.end_coords == coords:
-    #                 return True
+    def evaluate_state(self, depth=2, alpha=-1000, beta=1000):
+        # Termination check
+        if self.is_checkmate():
+            return 1000 if self.player_turn == Colour.BLACK else -1000
+        elif depth == 0:
+            return self.board.eval_piece_diff()
         
-    #     return False
+
+        # Recurse the tree
+        if self.player_turn == Colour.WHITE:
+            value = -1000
+
+            for move in self.get_valid_moves():
+                self.make_move(move)
+                value = max(value, self.evaluate_state(depth-1))
+                self.undo_move()
+
+                if value >= beta:
+                    break
+
+                alpha = max(alpha, value)
+
+            return value
+
+        else:
+            value = 1000
+
+            for move in self.get_valid_moves():
+                self.make_move(move)
+                value = min(value, self.evaluate_state(depth-1))
+                self.undo_move()
+
+                if value <= alpha:
+                    break
+
+                beta = min(beta, value)
+
+            return value
 
 
-    # # TODO: Refactor
     def get_castle_str(self) -> str:
         return "Not implemented"
-    #     out = ""
-
-    #     # TODO: Fix if no piece on hardcoded squares like (self.board.board[7][7] == None)
-    #     if self.board.board[7][7] and self.board.board[7][7].has_moved == False and\
-    #     self.board.board[7][4] and self.board.board[7][4].has_moved == False:
-    #         out += "K"
-    #     if self.board.board[7][0] and self.board.board[7][0].has_moved == False and\
-    #     self.board.board[7][4] and self.board.board[7][4].has_moved == False:
-    #         out += "Q"
-    #     if self.board.board[0][7] and self.board.board[0][7].has_moved == False and\
-    #     self.board.board[0][4] and self.board.board[0][4].has_moved == False:
-    #         out += "k"
-    #     if self.board.board[0][0] and self.board.board[0][0].has_moved == False and\
-    #     self.board.board[0][4] and self.board.board[0][4].has_moved == False:
-    #         out += "q"
-
-    #     if out == "":
-    #         return "-"
-    #     else:
-    #         return out
 
     def display_game(self) -> None:
         print("="*70)
