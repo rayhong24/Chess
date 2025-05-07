@@ -13,6 +13,8 @@ class Move:
         self.capture = capture
         self.end_coords = end_coords
 
+        self.end_piece = None
+
         self.promotion = promotion
     
     def __hash__(self) -> int:
