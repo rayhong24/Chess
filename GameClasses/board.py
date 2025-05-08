@@ -82,17 +82,6 @@ class Board:
 
 
     # def make_move(self, move: Move):
-    #     piece = self.get_square(move.start_coords)
-    #     end_piece = self.get_square(move.end_coords)
-
-    #     move.end_piece = end_piece
-    #     move.has_piece_moved_before = piece.has_moved
-
-    #     self._previous_moves.append(move)
-
-    #     piece.has_moved = True
-    #     self.set_square(None, move.start_coords)
-    #     self.set_square(piece, move.end_coords)
 
     #     if type(piece) == King and \
     #         abs(move.start_coords.file.value - move.end_coords.file.value) == 2:
