@@ -1,4 +1,5 @@
 from enums import Colour
+from GameClasses.board import Board
 # from Pieces.piece import Piece
 
 class Move:
@@ -42,6 +43,9 @@ class Move:
         )
 
         return s
+
+    def apply(self, board: Board):
+        return
 
     # def long_algebraic(self) -> str:
     #     return f"{self.start_coords}{self.end_coords}"

@@ -1,7 +1,7 @@
 from enums import *
 from coords import Coords
 
-from board import Board
+from GameClasses.board import Board
 
 from Moves.move import Move
 from Moves.castle import Castle
