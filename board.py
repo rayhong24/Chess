@@ -78,6 +78,11 @@ class Board:
 
         return moves
 
+    # def make_castle_move(self, move):
+    #     if move.end_coords == Coords.init_from_str("f1"):
+            
+
+
 
     # Assumes the move is valid for now
     def make_move(self, move: Move):
@@ -85,11 +90,18 @@ class Board:
         end_piece = self.get_square(move.end_coords)
 
         move.end_piece = end_piece
+        move.has_piece_moved_before = piece.has_moved
 
         self._previous_moves.append(move)
 
+        piece.has_moved = True
         self.set_square(None, move.start_coords)
         self.set_square(piece, move.end_coords)
+
+        if type(piece) == King and \
+            abs(move.start_coords.file.value - move.end_coords.file.value) == 2:
+            self.make_castle_move(move)
+
 
     def undo_last_move(self):
         if len(self._previous_moves) == 0:
@@ -98,6 +110,7 @@ class Board:
         last_move = self._previous_moves.pop()
 
         piece = self.get_square(last_move.end_coords)
+        piece.has_moved = last_move.has_piece_moved_before
 
         self.set_square(piece, last_move.start_coords)
         self.set_square(last_move.end_piece, last_move.end_coords)
