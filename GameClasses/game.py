@@ -42,12 +42,16 @@ class Game():
 
     def make_move(self, move: Move) -> bool:
         # Valid move
-        self.board.make_move(move)
+        move.apply(self.board)
+
+        self.move_history.append(move)
 
         self.switch_player_turn()
 
     def undo_move(self) -> bool:
-        self.board.undo_last_move()
+        last_move = self.move_history.pop()
+
+        last_move.undo(self.board)
 
         self.switch_player_turn()
 

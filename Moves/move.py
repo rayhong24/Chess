@@ -45,7 +45,24 @@ class Move:
         return s
 
     def apply(self, board: Board):
+        piece = board.get_square(self.start_coords)
+        end_piece = board.get_square(self.end_coords)
+
+        # Used for undo
+        self.end_piece = end_piece
+        self.has_piece_moved_before = piece.has_moved
+
+        piece.has_moved = True
+        board.set_square(None, self.start_coords)
+        board.set_square(piece, self.end_coords)
         return
+
+    def undo(self, board: Board):
+        piece = self.get_square(self.end_coords)
+
+        board.set_square(piece, self.start_coords)
+        board.set_square(self.end_piece, self.end_coords)
+
 
     # def long_algebraic(self) -> str:
     #     return f"{self.start_coords}{self.end_coords}"
