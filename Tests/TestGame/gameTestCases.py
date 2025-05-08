@@ -1,6 +1,6 @@
 import unittest
 
-from game import Game
+from GameClasses.game import Game
 from Moves.moveFactory import MoveFactory
 from enums import *
 from coords import Coords

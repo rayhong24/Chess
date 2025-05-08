@@ -1,7 +1,7 @@
 import unittest
 
 from enums import *
-from game import Game
+from GameClasses.game import Game
 from coords import Coords
 from Moves.moveFactory import MoveFactory
 from Pieces.piece import Piece 
