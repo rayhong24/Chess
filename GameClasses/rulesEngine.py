@@ -8,17 +8,15 @@ from enums import Colour
 
 from Pieces.king import King
 
-class moveValidator():
+class rulesEngine():
     def __init__(self):
         self.move_generator = MoveGenerator()
 
     def get_valid_moves(self, game: Game):
         pseudo_moves = self.move_generator.generate_pseudo_legal_moves(game.board, game.state.to_move)
 
-        print(f"{pseudo_moves=}")
         valid_moves = list(filter(lambda m: not self.does_leave_player_in_check(game, m), pseudo_moves))
 
-        print(f"{valid_moves=}")
         return valid_moves
 
 
@@ -48,6 +46,12 @@ class moveValidator():
                         break
 
         return player_in_check
+
+    def is_checkmate(self, game: Game):
+        in_check = self.is_in_check(game.board, game.state.to_move)
+        moves = self.get_valid_moves(game)
+
+        return in_check and len(moves) == 0
 
     def does_leave_player_in_check(self, game: Game, move: Move):
         game.make_move(move)
