@@ -15,6 +15,7 @@ class Minimax(Engine):
         self.alpha = -1001
         self.beta = 1001
 
+        move_evals = []
         best_move = None
         best_eval = -1001 if self.game.state.to_move == Colour.WHITE else 1001
 
@@ -30,6 +31,8 @@ class Minimax(Engine):
             eval = self.minimax()
             self.game.undo_move()
 
+            move_evals.append((move, eval))
+
             if self.game.state.to_move == Colour.WHITE and eval > best_eval:
                 best_move = move
                 best_eval = eval
@@ -38,6 +41,8 @@ class Minimax(Engine):
                 best_move = move
                 best_eval = eval           
 
+        move_evals.sort(key=lambda x: x[1])
+        print(f"{move_evals=}")
 
         return best_move
 
@@ -45,7 +50,7 @@ class Minimax(Engine):
 
     def minimax(self, depth=1):
         if self.rules_engine.is_checkmate(self.game):
-            return 1000 if self.player_turn == Colour.BLACK else -1000
+            return 1000 if self.game.state.to_move == Colour.BLACK else -1000
         elif depth == 0:
             return self.state_heuristic()
 
