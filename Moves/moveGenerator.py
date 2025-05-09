@@ -16,8 +16,6 @@ class MoveGenerator():
             if piece and piece.colour == player:
                 moves.extend(self.get_piece_moves(board, piece, coords))
 
-
-
         return moves 
 
     def get_piece_moves(self, board: Board, piece: Piece, coords: Coords):

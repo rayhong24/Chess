@@ -13,8 +13,12 @@ class GameState:
     en_passant_target: Optional[Coords]
 
     def update(self, move: Move, board: Board):
-        to_moves = Colour.WHITE if move.player_to_move == Colour.BLACK else Colour.BLACK
+        self.to_move = Colour.WHITE if move.player_to_move == Colour.BLACK else Colour.BLACK
         return
+
+    def undo(self):
+        self.to_move = Colour.WHITE if self.to_move == Colour.BLACK else Colour.BLACK
+
 
 
 
