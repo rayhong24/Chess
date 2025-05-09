@@ -13,7 +13,8 @@ class GameState:
     en_passant_target: Optional[Coords]
 
     def update(self, move: Move, board: Board):
-        self.to_move = 1-move.player_to_move
+        # self.to_move = 1-move.player_to_move
+        return
 
 
 

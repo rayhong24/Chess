@@ -46,18 +46,16 @@ class Game():
 
         self.move_history.append(move)
 
-        self.switch_player_turn()
+        self.state.update(move, self.board)
+
+        # self.switch_player_turn()
 
     def undo_move(self) -> bool:
         last_move = self.move_history.pop()
 
         last_move.undo(self.board)
 
-        self.switch_player_turn()
-
-    def switch_player_turn(self):
-        self.player_turn = Colour.WHITE if self.player_turn == Colour.BLACK else Colour.BLACK
-
+        self.state.undo(last_move, self.board)
 
     def display_game(self) -> None:
         print("="*70)

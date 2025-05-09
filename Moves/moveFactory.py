@@ -13,18 +13,17 @@ class MoveFactory:
 
         return initializer(move_str, player_to_move)
 
-    def init_long_algebraic(self, move_str: str, game) -> Move:
+    def init_long_algebraic(self, move_str: str, to_move) -> Move:
         promotion = None
 
         if len(move_str) == 5:
             promotion = move_str[4]
 
         return Move(
-            game.player_turn,
+            to_move,
             Coords.init_from_str(move_str[:2]),
             False,
             Coords.init_from_str(move_str[2:4]),
-            promotion,
         )
 
     # def init_castle(self, s):

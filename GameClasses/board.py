@@ -76,20 +76,7 @@ class Board:
 
     #     return moves
 
-    # def make_castle_move(self, move):
-    #     if move.end_coords == Coords.init_from_str("f1"):
-            
 
-
-    # def make_move(self, move: Move):
-
-    #     if type(piece) == King and \
-    #         abs(move.start_coords.file.value - move.end_coords.file.value) == 2:
-    #         self.make_castle_move(move)
-
-
-    def undo_last_move(self, move):
-        return
 
     def is_player_in_check(self, player: Colour):
         player_in_check = False
