@@ -25,6 +25,7 @@ class Minimax(Engine):
             random.shuffle(moves)
 
         for move in moves:
+
             self.game.make_move(move)
             eval = self.minimax()
             self.game.undo_move()
@@ -33,9 +34,10 @@ class Minimax(Engine):
                 best_move = move
                 best_eval = eval
 
-            elif self.game.state == Colour.BLACK and eval < best_eval:
+            elif self.game.state.to_move == Colour.BLACK and eval < best_eval:
                 best_move = move
                 best_eval = eval           
+
 
         return best_move
 
