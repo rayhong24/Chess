@@ -45,45 +45,13 @@ class Board:
         print()
         print(f"  {['{:^3}'.format(File(i).name) for i in range(8)]}")
 
-    # def get_moves(self, gamestate):
-    #     moves = []
-
-    #     for coords in self._all_squares_iterator():
-    #         piece = self.get_square(coords)
-
-    #         if piece and piece.colour == player:
-    #             moves.extend(self.get_piece_moves(piece, coords))
-
-    #     return moves 
-
-    # def get_piece_moves(self, piece, coords):
-    #     moves = []
-
-    #     candidate_moves = piece.get_candidate_moves(coords)
-
-    #     for candidate in candidate_moves:
-    #         for end_coords in candidate.generate_coords(coords):
-    #             if self.get_square(end_coords) == None:
-    #                 if candidate.capture_forced:
-    #                     break
-    #                 moves.append(Move(piece.colour, coords, False, end_coords, False))
-
-    #             else:
-    #                 blocking_piece = self.get_square(end_coords)
-    #                 if candidate.capture_allowed and blocking_piece.colour != piece.colour:
-    #                     moves.append(Move(piece.colour, coords, True, end_coords, False))
-    #                 break
-
-    #     return moves
-
-
 
     def is_player_in_check(self, player: Colour):
         player_in_check = False
 
         # Find the player King
         king_coords = None
-        for coords in self._all_squares_iterator():
+        for coords in self.all_squares_iterator():
             piece = self.get_square(coords)
 
             if piece and type(piece) == King and piece.colour == player:
@@ -94,7 +62,7 @@ class Board:
 
 
         # Check if 
-        for coords in self._all_squares_iterator():
+        for coords in self.all_squares_iterator():
             piece = self.get_square(coords)
 
             if piece and piece.colour != player:
@@ -105,16 +73,6 @@ class Board:
 
         return player_in_check
 
-    # def is_player_left_in_check(self, move: Move):
-    #     # Temporarily make move
-    #     self.make_move(move)
-
-    #     player_in_check = self.is_player_in_check(move.player_to_move)
-        
-    #     # Undo the move
-    #     self.undo_last_move()
-
-    #     return player_in_check
             
         
     # def _get_all_player_pieces(self, player: Colour):
@@ -130,7 +88,7 @@ class Board:
     def eval_piece_diff(self):
         val = 0
 
-        for coords in self._all_squares_iterator():
+        for coords in self.all_squares_iterator():
             piece = self.get_square(coords)
 
             if piece is not None:
@@ -141,7 +99,7 @@ class Board:
         return val
 
 
-    def _all_squares_iterator(self) -> list[Coords]:
+    def all_squares_iterator(self) -> list[Coords]:
         coords = []
         for i in range(1,len(self._board)+1):
             for j in range(len(self._board[0])):
