@@ -29,6 +29,7 @@ class Minimax(Engine):
             eval = self.minimax()
             self.game.undo_move()
 
+
             if self.game.state.to_move == Colour.WHITE and eval > best_eval:
                 best_move = move
                 best_eval = eval
@@ -67,7 +68,7 @@ class Minimax(Engine):
             
             for move in self.rules_engine.get_valid_moves(self.game):
                 self.game.make_move(move)
-                value = max(value, self.minimax(depth-1))
+                value = min(value, self.minimax(depth-1))
                 self.game.undo_move()
 
                 if value <= self.alpha:

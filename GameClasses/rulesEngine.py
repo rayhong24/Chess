@@ -45,6 +45,7 @@ class rulesEngine():
                         player_in_check = True
                         break
 
+
         return player_in_check
 
     def is_checkmate(self, game: Game):
