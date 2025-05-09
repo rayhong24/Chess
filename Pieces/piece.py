@@ -1,6 +1,5 @@
 from typing import Self
 
-from Moves.moveFactory import MoveFactory
 from enums import Colour
 from enums import File
 from coords import Coords
@@ -8,7 +7,6 @@ from strings import *
 
 class Piece:
     def __init__(self, colour: Colour, coords: Coords) -> None:
-        self.move_factory = MoveFactory()
         self.colour = colour
         self.has_moved = False
 
