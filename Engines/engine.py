@@ -18,7 +18,7 @@ class Engine():
             self.game.make_move(move)
 
     def go(self):
-        moves = self.move_generator.get_all_moves(self.game)
+        moves = self.move_generator.generate_pseudo_legal_moves(self.game.board, self.game.state.to_move)
 
         if len(moves) > 0:
             return choice(moves)
@@ -28,7 +28,7 @@ class Engine():
     def print_game_state(self):
         self.game.display_game()
 
-        moves = self.move_generator.get_all_moves(self.game)
+        moves = self.move_generator.generate_pseudo_legal_moves(self.game.board, self.game.state.to_move)
 
         print(f"{moves=}")
     
