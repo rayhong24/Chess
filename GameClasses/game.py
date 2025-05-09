@@ -48,8 +48,6 @@ class Game():
 
         self.state.update(move, self.board)
 
-        # self.switch_player_turn()
-
     def undo_move(self) -> bool:
         last_move = self.move_history.pop()
 

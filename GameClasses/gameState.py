@@ -13,7 +13,7 @@ class GameState:
     en_passant_target: Optional[Coords]
 
     def update(self, move: Move, board: Board):
-        # self.to_move = 1-move.player_to_move
+        to_moves = Colour.WHITE if move.player_to_move == Colour.BLACK else Colour.BLACK
         return
 
 
