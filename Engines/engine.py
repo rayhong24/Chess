@@ -14,7 +14,7 @@ class Engine():
 
         for move_str in moves:
             # print(move_str)
-            move = self.move_factory.init_long_algebraic(move_str, self.game.player_turn)
+            move = self.move_factory.init_long_algebraic(move_str, self.game.state.to_move)
             self.game.make_move(move)
 
     def go(self):
