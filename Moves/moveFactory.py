@@ -1,7 +1,11 @@
 from enums import *
 from coords import Coords
 
+from GameClasses.board import Board
+
 from Moves.move import Move
+from Moves.castle import Castle
+from Moves.promotion import Promotion
 
 class MoveFactory:
     def init_move_from_str(self, move_str: str, player_to_move: Colour, game) -> Move:
@@ -9,14 +13,21 @@ class MoveFactory:
 
         return initializer(move_str, player_to_move)
 
-    def init_long_algebraic(self, move_str: str, player_to_move: Colour) -> Move:
+    def init_long_algebraic(self, move_str: str, to_move) -> Move:
+        promotion = None
+
+        if len(move_str) == 5:
+            promotion = move_str[4]
+
         return Move(
-            player_to_move,
+            to_move,
             Coords.init_from_str(move_str[:2]),
             False,
             Coords.init_from_str(move_str[2:4]),
-            False,
         )
+
+    # def init_castle(self, s):
+        
 
     def init_normal_move(self, player_to_move, piece_str, start_coords, capture, end_coords, promotion=None):
         return Move(
@@ -48,6 +59,8 @@ class MoveFactory:
 
 
     def _get_move_initializer(self, move_str, game):
+
+
         # Normal chess notation
         if move_str == "O-O" or move_str == "O-O-O":
             return self._init_castle_from_str

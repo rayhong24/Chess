@@ -1,6 +1,6 @@
-from Engines.engine import Engine
-
 import random
+
+from Engines.engine import Engine
 
 from enums import Colour
 
@@ -8,30 +8,86 @@ class Minimax(Engine):
     def __init__(self):
         super().__init__()
 
+        self.alpha = -1000
+        self.beta = 1000
+
     def go(self):
+        self.alpha = -1001
+        self.beta = 1001
+
         best_move = None
-        best_eval = -1001 if self.game.player_turn == Colour.WHITE else 1001
+        best_eval = -1001 if self.game.state.to_move == Colour.WHITE else 1001
 
-        to_move = self.game.player_turn
 
-        valid_moves = self.game.get_valid_moves()
+        moves = self.rules_engine.get_valid_moves(self.game)
 
-        if valid_moves:
-            random.shuffle(valid_moves)
+        if moves:
+            random.shuffle(moves)
 
-        for move in valid_moves:
+        for move in moves:
             self.game.make_move(move)
-            resulting_eval = self.game.evaluate_state(1)
+            eval = self.minimax()
             self.game.undo_move()
 
-            if to_move == Colour.WHITE and resulting_eval > best_eval:
+            if self.game.state.to_move == Colour.WHITE and eval > best_eval:
                 best_move = move
-                best_eval = resulting_eval
+                best_eval = eval
 
-            elif to_move == Colour.BLACK and resulting_eval < best_eval:
+            elif self.game.state == Colour.BLACK and eval < best_eval:
                 best_move = move
-                best_eval = resulting_eval
+                best_eval = eval           
 
-        
         return best_move
+
+
+
+    def minimax(self, depth=1):
+        if self.rules_engine.is_checkmate(self.game):
+            return 1000 if self.player_turn == Colour.BLACK else -1000
+        elif depth == 0:
+            return self.state_heuristic()
+
+        if self.game.state.to_move == Colour.WHITE:
+            value = -1000
+
+            for move in self.rules_engine.get_valid_moves(self.game):
+                self.game.make_move(move)
+                value = max(value, self.minimax(depth-1))
+                self.game.undo_move()
+
+                if value >= self.beta:
+                    break
+
+                self.beta = min(self.beta, value)
+
+            return value
+
+        else:
+            value = 1000
+            
+            for move in self.rules_engine.get_valid_moves(self.game):
+                self.game.make_move(move)
+                value = max(value, self.minimax(depth-1))
+                self.game.undo_move()
+
+                if value <= self.alpha:
+                    break
+
+                self.beta = min(self.beta, value)
+
+            return value
+        
+    def state_heuristic(self):
+        value = 0
+
+        for coords in self.game.board.all_squares_iterator():
+            piece = self.game.board.get_square(coords)
+
+            if piece:
+                mult = 1 if piece.colour == Colour.WHITE else -1
+                value += piece.value*mult
+
+        return value
+
+
 
