@@ -14,7 +14,7 @@ class Castle(Move):
 
         rook.has_moved = True
         board.set_square(None, self.rook_start_coords)
-        board.set_square(rook, self.rook_start_coords)
+        board.set_square(rook, self.rook_end_coords)
 
     def undo(self, board: Board):
         super().undo(board)

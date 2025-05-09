@@ -1,24 +1,23 @@
 from enums import *
 from coords import Coords
 
-from GameClasses.board import Board
+from GameClasses.game import Game
+
+from Pieces.piece import Piece
+from Pieces.king import King
+from Pieces.pawn import Pawn
 
 from Moves.move import Move
 from Moves.castle import Castle
-from Moves.promotion import Promotion
 
 class MoveFactory:
-    def init_move_from_str(self, move_str: str, player_to_move: Colour, game) -> Move:
+    def init_move_from_str(self, move_str: str, game: Game) -> Move:
         initializer = self._get_move_initializer(move_str, game)
 
-        return initializer(move_str, player_to_move)
+        return initializer(move_str, game.state.to_move)
 
-    def init_long_algebraic(self, move_str: str, to_move) -> Move:
-        promotion = None
 
-        if len(move_str) == 5:
-            promotion = move_str[4]
-
+    def _init_normal(self, move_str: str, to_move) -> Move:
         return Move(
             to_move,
             Coords.init_from_str(move_str[:2]),
@@ -26,109 +25,60 @@ class MoveFactory:
             Coords.init_from_str(move_str[2:4]),
         )
 
-    # def init_castle(self, s):
-        
+    def _init_castle(self, move_str: str, player_to_move: Colour):
+        start_coords, capture, end_coords = self._split_move_information(move_str)
 
-    def init_normal_move(self, player_to_move, piece_str, start_coords, capture, end_coords, promotion=None):
-        return Move(
-            player_to_move,
-            piece_str,
-            start_coords, 
-            capture,
-            end_coords,
-            promotion
-        )
+        if move_str == "e1g1":
+            rook_start = Coords.init_from_str("h1")
+            rook_end = Coords.init_from_str("f1")
+        elif move_str == "e1c1":
+            rook_start = Coords.init_from_str("a1")
+            rook_end = Coords.init_from_str("d1")
+        elif move_str == "e8g8":
+            rook_start = Coords.init_from_str("h8")
+            rook_end = Coords.init_from_str("f8")
+        elif move_str == "e8c8":
+            rook_start = Coords.init_from_str("a8")
+            rook_end = Coords.init_from_str("d8")
 
-    # def init_promotion(self, player_to_move, start_coords, capture, end_coords, promotion_piece_str):
-    #     return Promotion(
-    #         player_to_move,
-    #         start_coords,
-    #         capture,
-    #         end_coords,
-    #         promotion_piece_str
-    #     )
-
-    # def init_enPassant(self, player_to_move, start_coords, end_coords):
-    #     return EnPassant(player_to_move, start_coords, end_coords)
-
-    # def init_enPassant_from_str(self, move_str, player_to_move):
-    #     coords = move_str.split("x")
-    #     start = Coords.init_from_str(coords[0])
-    #     end = Coords.init_from_str(coords[1])
-    #     return EnPassant(player_to_move, start, end)
-
-
-    def _get_move_initializer(self, move_str, game):
-
-
-        # Normal chess notation
-        if move_str == "O-O" or move_str == "O-O-O":
-            return self._init_castle_from_str
-        elif "=" in move_str:
-             return self._init_promotion_from_str
-        else:
-            piece, start_coords, capture, end_coords = self._split_move_str(move_str)
-            
-            if piece == "P" and capture and game.board.get_square(end_coords) is None:
-                return self.init_enPassant_from_str
-
-            return self._init_normal_from_str
-    
-    def _split_move_str(self, move_str):
-        #TODO add error checking
-        piece = 'P'
-
-        curr_ind = 0
-
-        if move_str[curr_ind].isupper():
-            piece = move_str[curr_ind]
-            curr_ind += 1
-
-        start_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
-        curr_ind += 2
-
-        if move_str[curr_ind] == 'x':
-            capture = True
-            curr_ind += 1
-        else:
-            capture = False
-            curr_ind += 1
-        
-        end_coords = Coords.init_from_str(move_str[curr_ind:curr_ind+2])
-
-        return (piece,
-            start_coords,
-            capture,
-            end_coords
-        )
-    
-    def _init_normal_from_str(self, move_str: str, player_to_move: Colour) -> Move:
-        piece, start_coords, capture, end_coords = self._split_move_str(move_str)
-
-        return Move(
-            player_to_move,
-            piece,
-            start_coords,
-            capture,
-            end_coords
-        )
-
-
-    def _init_castle_from_str(self, move_str: str, player_to_move: Colour) -> Move:
         return Castle(
-            move_str,
-            player_to_move,
-        )
-
-    def _init_promotion_from_str(self, move_str: str, player_to_move: Colour) -> Move:
-        move, promotion_piece = move_str.split('=')
-        _, start_coords, capture, end_coords = self._split_move_str(move)
-
-        return Promotion(
-            player_to_move,
+            player_to_move, 
             start_coords,
-            capture,
+            False,
             end_coords,
-            promotion_piece
+            rook_start,
+            rook_end
         )
 
+    def _init_promotion(self, move_str: str, player_to_move: Colour):
+        return ()
+
+    def _get_move_initializer(self, move_str: str, game: Game):
+        castle_strs = ["e1g1", "e1c1", "e8g8", "e8c8"]
+
+        if len(move_str) == 5:
+            return self._init_promotion
+
+        start_coords = Coords.init_from_str(move_str[:2])
+
+        piece = game.board.get_square(start_coords)
+
+        if type(piece) == King and move_str in castle_strs:
+            return self._init_castle
+        
+        else:
+            return self._init_normal
+
+        
+
+    def _split_move_information(self, move_str: str):
+        return (Coords.init_from_str(move_str[:2]), 
+                False, 
+                Coords.init_from_str(move_str[2:4]))
+
+
+
+
+
+
+    

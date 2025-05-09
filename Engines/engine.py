@@ -13,8 +13,7 @@ class Engine():
         self.game.setup_fenstr(fenstr)
 
         for move_str in moves:
-            # print(move_str)
-            move = self.move_factory.init_long_algebraic(move_str, self.game.state.to_move)
+            move = self.move_factory.init_move_from_str(move_str, self.game)
             self.game.make_move(move)
 
     def go(self):
