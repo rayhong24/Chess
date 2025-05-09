@@ -1,13 +1,13 @@
 from random import choice
 from GameClasses.game import Game
 from Moves.moveFactory import MoveFactory
-from Moves.moveValidator import moveValidator
+from GameClasses.rulesEngine import rulesEngine
 
 class Engine():
     def __init__(self):
         self.game = Game()
         self.move_factory = MoveFactory()
-        self.move_validator = moveValidator()
+        self.rules_engine = rulesEngine()
 
     def set_position(self, fenstr, moves):
         self.game.setup_fenstr(fenstr)
@@ -18,7 +18,7 @@ class Engine():
             self.game.make_move(move)
 
     def go(self):
-        moves = self.move_validator.get_valid_moves(self.game)
+        moves = self.rules_engine.get_valid_moves(self.game)
 
         if len(moves) > 0:
             return choice(moves)
@@ -28,7 +28,7 @@ class Engine():
     def print_game_state(self):
         self.game.display_game()
 
-        moves = self.move_validator.get_valid_moves(self.game)
+        moves = self.rules_engine.get_valid_moves(self.game)
 
         print(f"{moves=}")
     
