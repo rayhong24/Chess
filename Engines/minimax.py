@@ -29,7 +29,6 @@ class Minimax(Engine):
             eval = self.minimax()
             self.game.undo_move()
 
-
             if self.game.state.to_move == Colour.WHITE and eval > best_eval:
                 best_move = move
                 best_eval = eval
