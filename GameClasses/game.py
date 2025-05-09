@@ -8,6 +8,9 @@ from Moves.move import Move
 
 class Game():
     startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    startpos_fenstr = "rnb1kbnr/pppp1ppp/8/4p3/P3P3/8/1PPP1qPP/RNBQKBNR w KQkq - 0 4"
+    startpos_fenstr = "rnb1kbnr/pppp1ppp/8/4p3/3PP3/4B3/PPP2qPP/RN1QKBNR w KQkq - 0 4"
+
 
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
@@ -53,7 +56,7 @@ class Game():
 
         last_move.undo(self.board)
 
-        self.state.undo(last_move, self.board)
+        self.state.undo()
 
     def display_game(self) -> None:
         print("="*70)

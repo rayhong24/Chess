@@ -58,7 +58,7 @@ class Move:
         return
 
     def undo(self, board: Board):
-        piece = self.get_square(self.end_coords)
+        piece = board.get_square(self.end_coords)
 
         board.set_square(piece, self.start_coords)
         board.set_square(self.end_piece, self.end_coords)

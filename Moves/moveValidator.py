@@ -1,6 +1,9 @@
 from Moves.moveGenerator import MoveGenerator
+from Moves.move import Move
 
 from GameClasses.board import Board
+from GameClasses.game import Game
+
 from enums import Colour
 
 from Pieces.king import King
@@ -8,6 +11,16 @@ from Pieces.king import King
 class moveValidator():
     def __init__(self):
         self.move_generator = MoveGenerator()
+
+    def get_valid_moves(self, game: Game):
+        pseudo_moves = self.move_generator.generate_pseudo_legal_moves(game.board, game.state.to_move)
+
+        print(f"{pseudo_moves=}")
+        valid_moves = list(filter(lambda m: not self.does_leave_player_in_check(game, m), pseudo_moves))
+
+        print(f"{valid_moves=}")
+        return valid_moves
+
 
     def is_in_check(self, board: Board, player: Colour):
         player_in_check = False
@@ -35,5 +48,14 @@ class moveValidator():
                         break
 
         return player_in_check
+
+    def does_leave_player_in_check(self, game: Game, move: Move):
+        game.make_move(move)
+
+        out = self.is_in_check(game.board, move.player_to_move)
+        game.undo_move()
+
+        return out
+        
 
 
