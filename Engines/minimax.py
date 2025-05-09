@@ -8,13 +8,7 @@ class Minimax(Engine):
     def __init__(self):
         super().__init__()
 
-        self.alpha = -1000
-        self.beta = 1000
-
     def go(self):
-        self.alpha = -1001
-        self.beta = 1001
-
         move_evals = []
         best_move = None
         best_eval = -1001 if self.game.state.to_move == Colour.WHITE else 1001
@@ -22,11 +16,10 @@ class Minimax(Engine):
 
         moves = self.rules_engine.get_valid_moves(self.game)
 
-        if moves:
-            random.shuffle(moves)
+        # if moves:
+        #     random.shuffle(moves)
 
         for move in moves:
-
             self.game.make_move(move)
             eval = self.minimax()
             self.game.undo_move()
@@ -48,11 +41,12 @@ class Minimax(Engine):
 
 
 
-    def minimax(self, depth=1):
+    def minimax(self, depth=1, alpha=-1001, beta=1001):
         if self.rules_engine.is_checkmate(self.game):
             return 1000 if self.game.state.to_move == Colour.BLACK else -1000
         elif depth == 0:
             return self.state_heuristic()
+
 
         if self.game.state.to_move == Colour.WHITE:
             value = -1000
@@ -62,10 +56,10 @@ class Minimax(Engine):
                 value = max(value, self.minimax(depth-1))
                 self.game.undo_move()
 
-                if value >= self.beta:
+                if value >= beta:
                     break
 
-                self.beta = min(self.beta, value)
+                alpha = max(alpha, value)
 
             return value
 
@@ -77,10 +71,10 @@ class Minimax(Engine):
                 value = min(value, self.minimax(depth-1))
                 self.game.undo_move()
 
-                if value <= self.alpha:
+                if value <= alpha:
                     break
 
-                self.beta = min(self.beta, value)
+                beta = min(beta, value)
 
             return value
         
