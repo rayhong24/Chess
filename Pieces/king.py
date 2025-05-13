@@ -19,9 +19,15 @@ class King(Piece):
             [-1, 0], [1, 0], [0, -1], [0, 1]
             ]:
 
+            # Normal
             candidate = MoveCandidate(di, dj, 1)
             candidates.append(candidate)
-        
+
+            # Castling
+            if (str(coords) == "e1" or str(coords) == "e8") and dj == 0:
+                castle_cand = MoveCandidate(di*2, dj, 1, False, False)
+                candidates.append(castle_cand)
+
         return candidates
     # def get_moves(self, game) -> [str]:
     #     # list of tuples of new coordinates the piece can go
