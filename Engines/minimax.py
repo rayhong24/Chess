@@ -16,8 +16,8 @@ class Minimax(Engine):
 
         moves = self.rules_engine.get_valid_moves(self.game)
 
-        # if moves:
-        #     random.shuffle(moves)
+        if moves:
+            random.shuffle(moves)
 
         for move in moves:
             self.game.make_move(move)
