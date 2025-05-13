@@ -24,8 +24,8 @@ class King(Piece):
             candidates.append(candidate)
 
             # Castling
-            if (str(coords) == "e1" or str(coords) == "e8") and dj == 0:
-                castle_cand = MoveCandidate(di*2, dj, 1, False, False)
+            if (str(coords) == "e1" or str(coords) == "e8") and di == 0:
+                castle_cand = MoveCandidate(di, dj*2, 1, False, False)
                 candidates.append(castle_cand)
 
         return candidates

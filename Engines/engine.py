@@ -31,6 +31,8 @@ class Engine():
 
         print(f"{moves=}")
     
+    def undo(self):
+        self.game.undo_move()
 
 
 
