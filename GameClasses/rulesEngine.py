@@ -61,6 +61,28 @@ class rulesEngine():
         game.undo_move()
 
         return out
+
+    def is_castle_and_castle_valid(self, game: Game, move: Move):
+        move_to_castle_rights = {"e1g1": "K", 
+                                 "e1c1": "Q",
+                                 "e8g8": "k",
+                                 "e8c8": "q"}
+
+        if move in move_to_castle_rights:
+            return move_to_castle_rights[str(move)] in game.state.castling_rights
+
+        else:
+            return True
+
+
+        
+
+
+
+
+
+
+
         
 
 
