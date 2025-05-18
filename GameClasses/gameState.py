@@ -25,9 +25,9 @@ class GameState:
 
         rook_coords_to_castle = {"a1": "Q", "h1": "K", "a8": "q", "h8": "k"}
 
-        for rook_coord, castle_str in rook_coords_to_castle.keys():
+        for rook_coord, castle_str in rook_coords_to_castle.items():
             if str(move.start_coords) == rook_coord or str(move.end_coords) == rook_coord:
-                self.castling_rights.replace(castle_str, "")
+                self.castling_rights = self.castling_rights.replace(castle_str, "")
 
         if str(move.start_coords) == "e1":
             self.castling_rights.replace("K", "")
