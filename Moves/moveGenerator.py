@@ -21,6 +21,7 @@ class MoveGenerator():
     def get_piece_moves(self, board: Board, piece: Piece, coords: Coords):
         moves = []
 
+
         candidate_moves = piece.get_candidate_moves(coords)
 
         for candidate in candidate_moves:

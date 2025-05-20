@@ -77,6 +77,9 @@ class Uci():
         elif tokens[0] == "print":
             self.engine.print_game_state()
 
+        elif tokens[0] == "undo":
+            self.engine.undo()
+
 
 
 

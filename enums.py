@@ -13,3 +13,6 @@ class File(Enum):
 class Colour(Enum):
     BLACK = 0
     WHITE = 1
+
+    def other(self):
+        return Colour.BLACK if self == Colour.WHITE else Colour.WHITE
