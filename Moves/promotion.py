@@ -13,3 +13,11 @@ class Promotion(Move):
             self.end_coords,
             self.promotion_str
         )
+    
+    def apply(self, board: Board):
+        super().apply(board)
+
+        piece = board.get_square(self.end_coords)
+        piece.promote(self.promotion_str)
+
+
