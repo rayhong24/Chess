@@ -4,8 +4,8 @@ from enums import Colour
 from coords import Coords
 
 class Queen(Piece):
-    def __init__(self, colour: Colour, coords: Coords) -> None:
-        super().__init__(colour, coords)
+    def __init__(self, colour: Colour) -> None:
+        super().__init__(colour)
         self.value = 9
 
     def get_representation(self) -> str:

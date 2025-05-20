@@ -3,10 +3,14 @@ from enums import Colour
 from coords import Coords
 
 from Pieces.moveCandidate import MoveCandidate
+from Pieces.rook import Rook
+from Pieces.queen import Queen
+from Pieces.bishop import Bishop
+from Pieces.knight import Knight
 
 class Pawn(Piece):
-    def __init__(self, colour: Colour, coords: Coords) -> None:
-        super().__init__(colour, coords)
+    def __init__(self, colour: Colour) -> None:
+        super().__init__(colour)
 
         self.value = 1
 
@@ -17,7 +21,6 @@ class Pawn(Piece):
 
     def get_candidate_moves(self, coords: Coords):
         moves = []
-
 
         direction = 1 if self.colour == Colour.WHITE else -1
 
@@ -56,3 +59,4 @@ class Pawn(Piece):
         moves.append(move)
 
         return moves
+    

@@ -15,7 +15,7 @@ class PieceFactory:
 
         colour = Colour.WHITE if piece_str.isupper() else Colour.BLACK
 
-        return initializer(colour, coords)
+        return initializer(colour)
 
     def _get_piece_initializer(self, piece_str):
         piece_dict = {

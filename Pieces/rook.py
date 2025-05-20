@@ -5,8 +5,8 @@ from coords import Coords
 from enums import Colour
 
 class Rook(Piece):
-    def __init__(self, colour: Colour, coords: Coords) -> None:
-        super().__init__(colour, coords)
+    def __init__(self, colour: Colour) -> None:
+        super().__init__(colour)
 
         self.value = 5
 
