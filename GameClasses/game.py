@@ -9,6 +9,8 @@ from Moves.move import Move
 class Game():
     startpos_fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     # startpos_fenstr = "1r1qkb1r/pB1p1p1p/6p1/2p1p3/P7/6P1/1PPP1P1P/RNBQK1NR w KQk - 1 9"
+    # startpos_fenstr = "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4"
+    startpos_fenstr = "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
     def __init__(self, fenstr=startpos_fenstr):
         self.board = Board()
 
