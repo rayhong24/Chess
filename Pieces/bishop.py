@@ -5,8 +5,8 @@ from coords import Coords
 from Pieces.moveCandidate import MoveCandidate
 
 class Bishop(Piece):
-    def __init__(self, colour: Colour, coords: Coords) -> None:
-        super().__init__(colour, coords)
+    def __init__(self, colour: Colour) -> None:
+        super().__init__(colour)
 
         self.value = 3
 

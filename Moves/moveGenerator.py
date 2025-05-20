@@ -1,7 +1,9 @@
 from GameClasses.board import Board
 from Moves.move import Move
+from Moves.promotion import Promotion
 
 from Pieces.piece import Piece
+from Pieces.pawn import Pawn
 
 from enums import Colour
 from coords import Coords
@@ -29,12 +31,28 @@ class MoveGenerator():
                 if board.get_square(end_coords) == None:
                     if candidate.capture_forced:
                         break
-                    moves.append(Move(piece.colour, coords, False, end_coords))
+                    if type(piece) == Pawn and (end_coords.rank == 1 or end_coords.rank == 8):
+                        moves.extend(self.generate_promotion_moves(piece, coords, False, end_coords))
+                    else:
+                        moves.append(Move(piece.colour, coords, False, end_coords))
 
                 else:
                     blocking_piece = board.get_square(end_coords)
                     if candidate.capture_allowed and blocking_piece.colour != piece.colour:
-                        moves.append(Move(piece.colour, coords, True, end_coords))
+                        if type(piece) == Pawn and (end_coords.row == 0 or end_coords.row == 7):
+                            moves.extend(self.generate_promotion_moves(piece, coords, True, end_coords))
+                        else:
+                            moves.append(Move(piece.colour, coords, True, end_coords))
                     break
+
+        return moves
+
+    def generate_promotion_moves(self, piece, start_coords, capture, end_coords):
+        moves = []
+
+        moves.append(Promotion(piece.colour, start_coords, capture, end_coords, "q"))
+        moves.append(Promotion(piece.colour, start_coords, capture, end_coords, "r"))
+        moves.append(Promotion(piece.colour, start_coords, capture, end_coords, "b"))
+        moves.append(Promotion(piece.colour, start_coords, capture, end_coords, "n"))
 
         return moves

@@ -4,8 +4,8 @@ from enums import *
 from coords import Coords
 
 class King(Piece):
-    def __init__(self, colour: Colour, coords: Coords) -> None:
-        super().__init__(colour, coords)
+    def __init__(self, colour: Colour) -> None:
+        super().__init__(colour)
 
     def get_representation(self) -> str:
         return 'k' if self.colour == Colour.BLACK else 'K'
