@@ -11,7 +11,6 @@ class Piece:
         self.colour = colour
         self.has_moved = False
 
-        self.value = 0
 
     def get_representation(self) -> str:
         raise NotImplementedError
@@ -19,3 +18,6 @@ class Piece:
     # generator for possible coordinates moves
     def get_candidate_moves(self, coords):
         raise NotImplementedError
+
+    def get_value(self, coords: Coords) -> int:
+        return 0
