@@ -51,7 +51,13 @@ class MoveFactory:
         )
 
     def _init_promotion(self, move_str: str, player_to_move: Colour):
-        return ()
+        return Promotion(
+            player_to_move,
+            Coords.init_from_str(move_str[:2]),
+            False,
+            Coords.init_from_str(move_str[2:4]),
+            move_str[4]
+        )
 
     def _get_move_initializer(self, move_str: str, game: Game):
         castle_strs = ["e1g1", "e1c1", "e8g8", "e8c8"]
