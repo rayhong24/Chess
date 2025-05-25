@@ -15,10 +15,10 @@ class rulesEngine():
         self.move_generator = MoveGenerator()
 
     def get_valid_moves(self, game: Game):
-        pseudo_moves = self.move_generator.generate_pseudo_legal_moves(game.board, game.state.to_move)
+        valid_moves = self.move_generator.generate_pseudo_legal_moves(game.board, game.state.to_move)
 
-        valid_moves = list(filter(lambda m: not self.does_leave_player_in_check(game, m), pseudo_moves))
-        valid_moves = list(filter(lambda m: self.is_castle_and_castle_valid(game, m), pseudo_moves))
+        valid_moves = list(filter(lambda m: not self.does_leave_player_in_check(game, m), valid_moves))
+        valid_moves = list(filter(lambda m: self.is_castle_and_castle_valid(game, m), valid_moves))
 
         return valid_moves
 
