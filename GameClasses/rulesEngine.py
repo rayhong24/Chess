@@ -7,18 +7,20 @@ from GameClasses.game import Game
 
 from coords import Coords
 from enums import Colour
+from enums import File
 
 from Pieces.king import King
+from Pieces.rook import Rook
 
 class rulesEngine():
     def __init__(self):
         self.move_generator = MoveGenerator()
 
     def get_valid_moves(self, game: Game):
-        pseudo_moves = self.move_generator.generate_pseudo_legal_moves(game.board, game.state.to_move)
+        valid_moves = self.move_generator.generate_pseudo_legal_moves(game.board, game.state.to_move)
 
-        valid_moves = list(filter(lambda m: not self.does_leave_player_in_check(game, m), pseudo_moves))
-        valid_moves = list(filter(lambda m: self.is_castle_and_castle_valid(game, m), pseudo_moves))
+        valid_moves = list(filter(lambda m: not self.does_leave_player_in_check(game, m), valid_moves))
+        valid_moves = list(filter(lambda m: self.is_castle_and_castle_valid(game, m), valid_moves))
 
         return valid_moves
 
@@ -76,17 +78,37 @@ class rulesEngine():
                                  "e8g8": "k",
                                  "e8c8": "q"}
 
-        if type(move) == Castle:
-            if move_to_castle_rights[str(move)] not in game.state.castling_rights:
+    
+        # Check if the move is a castle move
+        if type(move) != Castle:
+            return True
+
+        # Check if player still has castling rights
+        if move_to_castle_rights[str(move)] not in game.state.castling_rights:
+            return False
+
+        # Check if rook is in the right position
+        rook = game.board.get_square(move.rook_start_coords)
+        if rook == None or type(rook) != Rook  or rook.colour != move.player_to_move:
+            return False
+
+        rank = move.start_coords.rank
+
+        # Check if the king moves through check
+        range_start = min(move.start_coords.file.value, move.end_coords.file.value)
+        range_end = max(move.start_coords.file.value, move.end_coords.file.value)
+        for file in range(range_start, range_end+1):
+            check_coord = Coords(rank, File(file))
+            if self.can_player_capture_square(game.board, move.player_to_move.other(), check_coord):
                 return False
 
-            rank = move.start_coords.rank
-
-            for file in range(move.start_coords.file.value, move.end_coords.file.value+1):
-                check_coord = Coords(rank, file)
-
-                if self.can_player_capture_square(game.board, move.player_to_move.other(), check_coord):
-                    return False
+        # Check that all squares between the king and rook are empty
+        range_start = min(move.start_coords.file.value, move.rook_start_coords.file.value)
+        range_end = max(move.start_coords.file.value, move.rook_start_coords.file.value)
+        for file in range(range_start + 1, range_end):
+            check_coord = Coords(rank, File(file))
+            if game.board.get_square(check_coord) != None:
+                return False
 
         return True
 

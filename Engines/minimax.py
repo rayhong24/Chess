@@ -14,6 +14,9 @@ class Minimax(Engine):
         best_eval = -1001 if self.game.state.to_move == Colour.WHITE else 1001
 
 
+        self.rules_engine.is_checkmate(self.game)
+        
+
         moves = self.rules_engine.get_valid_moves(self.game)
 
         # if moves:
@@ -85,8 +88,8 @@ class Minimax(Engine):
             piece = self.game.board.get_square(coords)
 
             if piece:
-                mult = 1 if piece.colour == Colour.WHITE else -1
-                value += piece.value*mult
+                # mult = 1 if piece.colour == Colour.WHITE else -1
+                value += piece.get_value(coords) 
 
         return value
 

@@ -12,8 +12,6 @@ class Pawn(Piece):
     def __init__(self, colour: Colour) -> None:
         super().__init__(colour)
 
-        self.value = 1
-
     
     #TODO Change to __str__ or __repr__
     def get_representation(self) -> str:
@@ -59,4 +57,13 @@ class Pawn(Piece):
         moves.append(move)
 
         return moves
+
+    def get_value(self, coords: Coords) -> int:
+        if self.colour == Colour.WHITE:
+            base_value = 1
+            
+        if self.colour == Colour.BLACK:
+            base_value = -1
+
+        return base_value
     
