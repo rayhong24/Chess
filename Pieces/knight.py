@@ -25,3 +25,8 @@ class Knight(Piece):
             candidate_moves.append(candidate)
         
         return candidate_moves
+
+    def get_value(self, coords: Coords) -> int:
+        base_value = 3 if self.colour == Colour.WHITE else -3
+        return base_value
+        

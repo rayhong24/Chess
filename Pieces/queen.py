@@ -24,3 +24,7 @@ class Queen(Piece):
             candidates.append(candidate)
         
         return candidates
+
+    def get_value(self, coords: Coords) -> int:
+        base_value = 9 if self.colour == Colour.WHITE else -9
+        return base_value

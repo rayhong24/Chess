@@ -28,20 +28,6 @@ class MoveFactory:
 
     def _init_castle(self, move_str: str, player_to_move: Colour):
         start_coords, capture, end_coords = self._split_move_information(move_str)
-
-        if move_str == "e1g1":
-            rook_start = Coords.init_from_str("h1")
-            rook_end = Coords.init_from_str("f1")
-        elif move_str == "e1c1":
-            rook_start = Coords.init_from_str("a1")
-            rook_end = Coords.init_from_str("d1")
-        elif move_str == "e8g8":
-            rook_start = Coords.init_from_str("h8")
-            rook_end = Coords.init_from_str("f8")
-        elif move_str == "e8c8":
-            rook_start = Coords.init_from_str("a8")
-            rook_end = Coords.init_from_str("d8")
-
         return Castle(
             player_to_move, 
             start_coords,
