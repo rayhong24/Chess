@@ -14,6 +14,9 @@ class Coords:
             return False
         return self.rank == other.rank and self.file == other.file
 
+    def __repr__(self) -> str:
+        return self.__str__()
+
     def __str__(self) -> str:
         return "{}{}".format(
             self.file.name,
