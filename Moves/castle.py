@@ -23,7 +23,6 @@ class Castle(Move):
                 self.rook_end_coords = Coords.init_from_str("d8")
 
 
-
     def apply(self, board: Board):
         super().apply(board)
 
