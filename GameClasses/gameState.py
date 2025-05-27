@@ -20,7 +20,7 @@ class GameState:
         self.castling_rights_history = []
 
     def update(self, move: Move, board: Board):
-        self.to_move = Colour.WHITE if move.player_to_move == Colour.BLACK else Colour.BLACK
+        self.to_move = self.to_move.other()
         self.castling_rights_history.append(self.castling_rights)
 
         rook_coords_to_castle = {"a1": "Q", "h1": "K", "a8": "q", "h8": "k"}
@@ -40,7 +40,7 @@ class GameState:
         return
 
     def undo(self):
-        self.to_move = Colour.WHITE if self.to_move == Colour.BLACK else Colour.BLACK
+        self.to_move = self.to_move.other()
         self.castling_rights = self.castling_rights_history.pop()
 
 

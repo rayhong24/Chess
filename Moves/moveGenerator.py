@@ -1,9 +1,11 @@
 from GameClasses.board import Board
 from Moves.move import Move
 from Moves.promotion import Promotion
+from Moves.castle import Castle
 
 from Pieces.piece import Piece
 from Pieces.pawn import Pawn
+from Pieces.king import King
 
 from enums import Colour
 from coords import Coords
@@ -33,6 +35,8 @@ class MoveGenerator():
                         break
                     if type(piece) == Pawn and (end_coords.rank == 1 or end_coords.rank == 8):
                         moves.extend(self.generate_promotion_moves(piece, coords, False, end_coords))
+                    elif type(piece) == King and abs(end_coords.file.value - coords.file.value) == 2:
+                        moves.append(Castle(piece.colour, coords, end_coords))
                     else:
                         moves.append(Move(piece.colour, coords, False, end_coords))
 

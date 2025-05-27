@@ -7,6 +7,7 @@ from GameClasses.game import Game
 
 from coords import Coords
 from enums import Colour
+from enums import File
 
 from Pieces.king import King
 
@@ -76,17 +77,26 @@ class rulesEngine():
                                  "e8g8": "k",
                                  "e8c8": "q"}
 
-        if type(move) == Castle:
-            if move_to_castle_rights[str(move)] not in game.state.castling_rights:
+        if type(move) != Castle:
+            return True
+
+        if move_to_castle_rights[str(move)] not in game.state.castling_rights:
+            return False
+
+        rook = game.board.get_square(move.rook_start_coords)
+
+
+
+        rank = move.start_coords.rank
+
+        range_start = min(move.start_coords.file.value, move.end_coords.file.value)
+        range_end = max(move.start_coords.file.value, move.end_coords.file.value)
+
+        for file in range(range_start, range_end+1):
+            check_coord = Coords(rank, File(file))
+
+            if game.board.get_square(check_coord) != None or self.can_player_capture_square(game.board, move.player_to_move.other(), check_coord):
                 return False
-
-            rank = move.start_coords.rank
-
-            for file in range(move.start_coords.file.value, move.end_coords.file.value+1):
-                check_coord = Coords(rank, file)
-
-                if self.can_player_capture_square(game.board, move.player_to_move.other(), check_coord):
-                    return False
 
         return True
 
