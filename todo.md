@@ -1,19 +1,20 @@
 # TODO
-- Refactor to use _variablename to make private variables in different modules
-- Add a public check_valid_move method in the Move class.
-    - Currently, move checking when using the interface iterates through all possible moves from the player and checking if the inputted move is in that set.
-        - Inefficient and unneeded
-- Change implementation of checking for check. Does a similar thing as the check_valid_move at the moment.
-- Remove get_representation() method from piece class. Use built-in repr or str methods instead.
-- Implement the interface (following UCI)
-- Make test errors clearer
-- 50 move rule and turn counter
-    - Like from fenstr
-- Refactor castling
-- Change board check in testGameClass 
-    - either change formatting or implementation
-- Change stored coords of a piece to use file and row
-    - i.e. row=6, col=4 becomes file=e, rank=2
-- Fix fenstring castling rights check for tests
-    - Fix fenstring "-" for castling rights
-- Create a Piece factory so logic is not part of the Board class.
+- Game rule to implement:
+    - enpassant
+    - 50 move rule 
+    - turn counter
+    - timer
+    - 3-fold repetition
+    - 
+- Make code faster/ more efficient:
+    - Code vital parts in a a faster language (C/C++ or Rust)
+    - Change move implementation to remove redundant operations
+- Improve heuristic
+    - Hard coded position values
+        - For example, pieces like knights are generally better closer to the center because they have more possible squares to move to.
+
+- Support more advanced UCI command:
+    - ponder - thinking during the opponents turn
+    - supporting multiple games
+
+- Creating a testsuite
