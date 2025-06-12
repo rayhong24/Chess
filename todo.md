@@ -5,7 +5,7 @@
     - turn counter
     - timer
     - 3-fold repetition
-    - 
+    - stalemate
 - Make code faster/ more efficient:
     - Code vital parts in a a faster language (C/C++ or Rust)
     - Change move implementation to remove redundant operations
