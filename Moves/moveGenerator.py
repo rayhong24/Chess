@@ -43,7 +43,7 @@ class MoveGenerator():
                 else:
                     blocking_piece = board.get_square(end_coords)
                     if candidate.capture_allowed and blocking_piece.colour != piece.colour:
-                        if type(piece) == Pawn and (end_coords.rank == 0 or end_coords.rank == 7):
+                        if type(piece) == Pawn and (end_coords.rank == 1 or end_coords.rank == 8):
                             moves.extend(self.generate_promotion_moves(piece, coords, True, end_coords))
                         else:
                             moves.append(Move(piece.colour, coords, True, end_coords))

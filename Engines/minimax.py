@@ -1,7 +1,9 @@
 import random
 
 from Engines.engine import Engine
+from Pieces.knight import Knight
 
+from coords import Coords
 from enums import Colour
 
 class Minimax(Engine):
@@ -26,6 +28,10 @@ class Minimax(Engine):
             self.game.make_move(move)
             eval = self.minimax()
             self.game.undo_move()
+
+            if type(self.game.board.get_square(Coords.init_from_str("a5"))) == Knight:
+                self.game.display_game()
+
 
             move_evals.append((move, eval))
 
