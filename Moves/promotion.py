@@ -42,4 +42,7 @@ class Promotion(Move):
         board.set_square(new_piece, self.end_coords)
         return
 
+    def undo(self, board: Board):
+        board.set_square(Pawn(self.player_to_move), self.start_coords)
+        board.set_square(self.end_piece, self.end_coords)
 
