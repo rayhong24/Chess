@@ -31,10 +31,7 @@ class MoveFactory:
         return Castle(
             player_to_move, 
             start_coords,
-            False,
-            end_coords,
-            rook_start,
-            rook_end
+            end_coords
         )
 
     def _init_promotion(self, move_str: str, player_to_move: Colour):
