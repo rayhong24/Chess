@@ -1,4 +1,4 @@
-from Engines.minimax import Minimax
+from Engines.Minimax.minimax import Minimax
 
 class Uci():
     def __init__(self):

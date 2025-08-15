@@ -1,5 +1,3 @@
-from Engines.Minimax.Evaluation.pieceSquareTables import PieceSquareTables
-
 from Pieces.pawn import Pawn
 from Pieces.knight import Knight
 from Pieces.bishop import Bishop
