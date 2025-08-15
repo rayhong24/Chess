@@ -9,7 +9,7 @@ class PieceSquareTable:
         if colour == Colour.WHITE:
             return self.board_values[coords.rank-1][coords.file.value]
         else:
-            return -self.board_values[9-coords.rank][coords.file.value]
+            return -self.board_values[8-coords.rank][coords.file.value]
         
 
 
