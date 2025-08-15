@@ -1,4 +1,5 @@
 from GameClasses.board import Board
+from pieceSquareTables import PieceSquareTables
 
 from Pieces.piece import Piece
 from Pieces.pawn import Pawn
@@ -11,6 +12,9 @@ from Pieces.king import King
 from enums import Colour
 
 class Evaluator():
+    def __init__(self):
+        self.piece_square_tables = PieceSquareTables()
+
     def evaluate_board_state(self, board: Board):
         for coords in board.all_squares_iterator():
             piece = self.get_square(coords)
@@ -28,10 +32,9 @@ class Evaluator():
             King: self.evaluate_king
         }
 
-        return evaluation_modifiers[type(piece)](piece, coords)
+        return evaluation_modifiers[type(piece)](piece, coords) + self.piece_square_tables.get_value(piece, coords)
 
     def evaluate_pawn(self, piece: Piece, coords):
-        pawn_piece_square_table = 
         if piece.colour == Colour.WHITE:
             evaluation = 100
         else:
