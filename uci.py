@@ -1,4 +1,5 @@
 from Engines.Minimax.minimax import Minimax
+import time
 
 class Uci():
     def __init__(self):
@@ -62,9 +63,12 @@ class Uci():
 
 
         elif tokens[0] == "go":
+            start = time.time()
             engine_move = self.engine.go()
+            end = time.time()
 
             print(f"bestmove {engine_move}")
+            print(f"total eval time: {end-start}")
             self.engine.print_game_state()
             
         elif tokens[0] == "stop":
