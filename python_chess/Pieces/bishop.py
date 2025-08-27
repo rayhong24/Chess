@@ -1,8 +1,8 @@
-from Pieces.piece import Piece
-from enums import Colour
-from coords import Coords
+from python_chess.Pieces.piece import Piece
+from python_chess.enums import Colour
+from python_chess.coords import Coords
 
-from Pieces.moveCandidate import MoveCandidate
+from python_chess.Pieces.moveCandidate import MoveCandidate
 
 class Bishop(Piece):
     def __init__(self, colour: Colour) -> None:

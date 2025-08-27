@@ -1,9 +1,9 @@
-from GameClasses.board import Board
-from GameClasses.gameState import GameState
+from python_chess.GameClasses.board import Board
+from python_chess.GameClasses.gameState import GameState
 
-from enums import *
-from coords import Coords
-from Moves.move import Move
+from python_chess.enums import *
+from python_chess.coords import Coords
+from python_chess.Moves.move import Move
 
 
 class Game():

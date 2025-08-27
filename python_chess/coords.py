@@ -1,4 +1,4 @@
-from enums import *
+from python_chess.enums import *
 
 class Coords:
     def __init__(self, rank: int, file: File):

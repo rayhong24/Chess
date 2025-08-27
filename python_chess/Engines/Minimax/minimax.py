@@ -1,14 +1,14 @@
 import random
-import Engines.Minimax as Minimax
+import python_chess.Engines.Minimax as Minimax
 
 from .Evaluation.evaluator import Evaluator
 
 
-from Engines.engine import Engine
-from Pieces.knight import Knight
+from python_chess.Engines.engine import Engine
+from python_chess.Pieces.knight import Knight
 
-from coords import Coords
-from enums import Colour
+from python_chess.coords import Coords
+from python_chess.enums import Colour
 
 class Minimax(Engine):
     evaluator = Evaluator()

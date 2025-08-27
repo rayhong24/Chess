@@ -1,13 +1,13 @@
-from enums import *
+from python_chess.enums import *
 
-from Pieces.piece import Piece
-from Pieces.pawn import Pawn
-from Pieces.rook import Rook
-from Pieces.knight import Knight
-from Pieces.bishop import Bishop
-from Pieces.queen import Queen
-from Pieces.king import King
-from coords import Coords
+from python_chess.Pieces.piece import Piece
+from python_chess.Pieces.pawn import Pawn
+from python_chess.Pieces.rook import Rook
+from python_chess.Pieces.knight import Knight
+from python_chess.Pieces.bishop import Bishop
+from python_chess.Pieces.queen import Queen
+from python_chess.Pieces.king import King
+from python_chess.coords import Coords
 
 class PieceFactory:
     def init_piece(self, piece_str, coords: Coords) -> Piece:

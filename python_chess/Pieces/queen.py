@@ -1,7 +1,7 @@
-from Pieces.piece import Piece
-from Pieces.moveCandidate import MoveCandidate
-from enums import Colour
-from coords import Coords
+from python_chess.Pieces.piece import Piece
+from python_chess.Pieces.moveCandidate import MoveCandidate
+from python_chess.enums import Colour
+from python_chess.coords import Coords
 
 class Queen(Piece):
     def __init__(self, colour: Colour) -> None:

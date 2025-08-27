@@ -1,11 +1,11 @@
 from typing import Optional
 
-from enums import Colour
-from coords import Coords
+from python_chess.enums import Colour
+from python_chess.coords import Coords
 
-from Moves.move import Move
+from python_chess.Moves.move import Move
 
-from GameClasses.board import Board
+from python_chess.GameClasses.board import Board
 
 class GameState:
     to_move: Colour

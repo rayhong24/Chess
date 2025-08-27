@@ -1,4 +1,4 @@
-from Engines.Minimax.minimax import Minimax
+from python_chess.Engines.Minimax.minimax import Minimax
 import time
 
 class Uci():

@@ -1,7 +1,7 @@
 from random import choice
-from GameClasses.game import Game
-from Moves.moveFactory import MoveFactory
-from GameClasses.rulesEngine import rulesEngine
+from python_chess.GameClasses.game import Game
+from python_chess.Moves.moveFactory import MoveFactory
+from python_chess.GameClasses.rulesEngine import rulesEngine
 
 class Engine():
     def __init__(self):
