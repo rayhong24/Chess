@@ -1,10 +1,10 @@
 import random
-import python_chess.Engines.Minimax as Minimax
+import Engines.Minimax as Minimax
 
 from .Evaluation.evaluator import Evaluator
 
 
-from python_chess.Engines.engine import Engine
+from Engines.engine import Engine
 from python_chess.Pieces.knight import Knight
 
 from python_chess.coords import Coords
