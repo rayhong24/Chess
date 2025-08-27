@@ -28,5 +28,7 @@ class Knight(Piece):
 
     def get_value(self, coords: Coords) -> int:
         base_value = 3 if self.colour == Colour.WHITE else -3
+
+        
         return base_value
         

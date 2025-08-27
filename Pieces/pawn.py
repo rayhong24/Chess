@@ -58,14 +58,4 @@ class Pawn(Piece):
 
         return moves
 
-    def get_value(self, coords: Coords) -> int:
-        if self.colour == Colour.WHITE:
-            base_value = 1
-            base_value += coords.rank*0.1
-            
-        if self.colour == Colour.BLACK:
-            base_value = -1
-            base_value -= (8-coords.rank)*0.1
-
-        return base_value
     

@@ -1,4 +1,8 @@
 import random
+import Engines.Minimax as Minimax
+
+from .Evaluation.evaluator import Evaluator
+
 
 from Engines.engine import Engine
 from Pieces.knight import Knight
@@ -7,31 +11,28 @@ from coords import Coords
 from enums import Colour
 
 class Minimax(Engine):
+    evaluator = Evaluator()
+
     def __init__(self):
         super().__init__()
 
     def go(self):
         move_evals = []
         best_move = None
-        best_eval = -1001 if self.game.state.to_move == Colour.WHITE else 1001
-
+        best_eval = -self.evaluator.checkmate_eval-1 if self.game.state.to_move == Colour.WHITE else self.evaluator.checkmate_eval+1
 
         self.rules_engine.is_checkmate(self.game)
         
 
         moves = self.rules_engine.get_valid_moves(self.game)
 
-        # if moves:
-        #     random.shuffle(moves)
+        if moves:
+            random.shuffle(moves)
 
         for move in moves:
             self.game.make_move(move)
             eval = self.minimax()
             self.game.undo_move()
-
-            if type(self.game.board.get_square(Coords.init_from_str("a5"))) == Knight:
-                self.game.display_game()
-
 
             move_evals.append((move, eval))
 
@@ -50,15 +51,15 @@ class Minimax(Engine):
 
 
 
-    def minimax(self, depth=1, alpha=-1001, beta=1001):
+    def minimax(self, depth=2, alpha=-40001, beta=40001):
         if self.rules_engine.is_checkmate(self.game):
-            return 1000 if self.game.state.to_move == Colour.BLACK else -1000
+            return self.evaluator.checkmate_eval if self.game.state.to_move == Colour.BLACK else -self.evaluator.checkmate_eval
         elif depth == 0:
-            return self.state_heuristic()
+            return self.evaluator.evaluate_game(self.game)
 
 
         if self.game.state.to_move == Colour.WHITE:
-            value = -1000
+            value = -self.evaluator.checkmate_eval
 
             for move in self.rules_engine.get_valid_moves(self.game):
                 self.game.make_move(move)
@@ -73,7 +74,7 @@ class Minimax(Engine):
             return value
 
         else:
-            value = 1000
+            value = self.evaluator.checkmate_eval 
             
             for move in self.rules_engine.get_valid_moves(self.game):
                 self.game.make_move(move)
@@ -87,17 +88,6 @@ class Minimax(Engine):
 
             return value
         
-    def state_heuristic(self):
-        value = 0
-
-        for coords in self.game.board.all_squares_iterator():
-            piece = self.game.board.get_square(coords)
-
-            if piece:
-                # mult = 1 if piece.colour == Colour.WHITE else -1
-                value += piece.get_value(coords) 
-
-        return value
 
 
 
