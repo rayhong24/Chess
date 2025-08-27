@@ -128,7 +128,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustGameClasses"
+name = "rust_chess"
 version = "0.1.0"
 dependencies = [
  "pyo3",
