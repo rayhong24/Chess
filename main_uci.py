@@ -1,6 +1,6 @@
-from python_chess.uci import Uci
+from python_uci.uci import Uci
 
-from python_chess.Engines.engine import Engine
+from Engines.engine import Engine
 from python_chess.GameClasses.game import Game
 
 
