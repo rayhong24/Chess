@@ -2,3 +2,7 @@ __pycache__
 .vscode
 .venv
 .DS_Store
+build/
+venv/
+main_uci.spec
+dist/
