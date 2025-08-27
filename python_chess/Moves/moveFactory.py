@@ -1,15 +1,15 @@
-from enums import *
-from coords import Coords
+from python_chess.enums import *
+from python_chess.coords import Coords
 
-from GameClasses.game import Game
+from python_chess.GameClasses.game import Game
 
-from Pieces.piece import Piece
-from Pieces.king import King
-from Pieces.pawn import Pawn
+from python_chess.Pieces.piece import Piece
+from python_chess.Pieces.king import King
+from python_chess.Pieces.pawn import Pawn
 
-from Moves.move import Move
-from Moves.castle import Castle
-from Moves.promotion import Promotion
+from python_chess.Moves.move import Move
+from python_chess.Moves.castle import Castle
+from python_chess.Moves.promotion import Promotion
 
 class MoveFactory:
     def init_move_from_str(self, move_str: str, game: Game) -> Move:

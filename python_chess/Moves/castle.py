@@ -1,7 +1,7 @@
-from GameClasses.board import Board
-from Moves.move import Move
+from python_chess.GameClasses.board import Board
+from python_chess.Moves.move import Move
 
-from coords import Coords
+from python_chess.coords import Coords
 
 class Castle(Move):
     def __init__(self, player_to_move, start_coords, end_coords):

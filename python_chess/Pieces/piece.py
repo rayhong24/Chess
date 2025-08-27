@@ -1,9 +1,9 @@
 from typing import Self
 
-from enums import Colour
-from enums import File
-from coords import Coords
-from strings import *
+from python_chess.enums import Colour
+from python_chess.enums import File
+from python_chess.coords import Coords
+from python_chess.strings import *
 
 
 class Piece:

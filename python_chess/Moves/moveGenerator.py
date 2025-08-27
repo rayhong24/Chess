@@ -1,14 +1,14 @@
-from GameClasses.board import Board
-from Moves.move import Move
-from Moves.promotion import Promotion
-from Moves.castle import Castle
+from python_chess.GameClasses.board import Board
+from python_chess.Moves.move import Move
+from python_chess.Moves.promotion import Promotion
+from python_chess.Moves.castle import Castle
 
-from Pieces.piece import Piece
-from Pieces.pawn import Pawn
-from Pieces.king import King
+from python_chess.Pieces.piece import Piece
+from python_chess.Pieces.pawn import Pawn
+from python_chess.Pieces.king import King
 
-from enums import Colour
-from coords import Coords
+from python_chess.enums import Colour
+from python_chess.coords import Coords
 
 class MoveGenerator():
     def generate_pseudo_legal_moves(self, board: Board, player: Colour):

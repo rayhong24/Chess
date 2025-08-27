@@ -1,16 +1,16 @@
-from Moves.moveGenerator import MoveGenerator
-from Moves.move import Move
-from Moves.castle import Castle
+from python_chess.Moves.moveGenerator import MoveGenerator
+from python_chess.Moves.move import Move
+from python_chess.Moves.castle import Castle
 
-from GameClasses.board import Board
-from GameClasses.game import Game
+from python_chess.GameClasses.board import Board
+from python_chess.GameClasses.game import Game
 
-from coords import Coords
-from enums import Colour
-from enums import File
+from python_chess.coords import Coords
+from python_chess.enums import Colour
+from python_chess.enums import File
 
-from Pieces.king import King
-from Pieces.rook import Rook
+from python_chess.Pieces.king import King
+from python_chess.Pieces.rook import Rook
 
 class rulesEngine():
     def __init__(self):

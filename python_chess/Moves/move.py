@@ -1,5 +1,5 @@
-from enums import Colour
-from GameClasses.board import Board
+from python_chess.enums import Colour
+from python_chess.GameClasses.board import Board
 # from Pieces.piece import Piece
 
 class Move:

@@ -1,11 +1,11 @@
-from Moves.move import Move
-from GameClasses.board import Board
+from python_chess.Moves.move import Move
+from python_chess.GameClasses.board import Board
 
-from Pieces.pawn import Pawn
-from Pieces.queen import Queen
-from Pieces.rook import Rook
-from Pieces.bishop import Bishop
-from Pieces.knight import Knight
+from python_chess.Pieces.pawn import Pawn
+from python_chess.Pieces.queen import Queen
+from python_chess.Pieces.rook import Rook
+from python_chess.Pieces.bishop import Bishop
+from python_chess.Pieces.knight import Knight
 
 class Promotion(Move):
     def __init__(self, player_to_move, start_coords, capture, end_coords, promotion_str):

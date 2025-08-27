@@ -1,4 +1,4 @@
-from coords import Coords
+from python_chess.coords import Coords
 class MoveCandidate():
     def __init__(self, row_diff, col_diff, dist=1, capture_allowed = True, capture_forced = False):
         self._row_diff: int = row_diff

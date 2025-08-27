@@ -1,8 +1,8 @@
 from .pieceSquareTableValues import table_values
 
-from Pieces.piece import Piece
-from enums import Colour
-from coords import Coords
+from python_chess.Pieces.piece import Piece
+from python_chess.enums import Colour
+from python_chess.coords import Coords
 
 class PieceSquareTables:
     def get_value(self, piece: Piece, coords: Coords):

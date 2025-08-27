@@ -1,11 +1,11 @@
-from Pieces.piece import Piece
-from Pieces.king import King
+from python_chess.Pieces.piece import Piece
+from python_chess.Pieces.king import King
 
-from strings import *
-from enums import *
-from coords import Coords
+from python_chess.strings import *
+from python_chess.enums import *
+from python_chess.coords import Coords
 
-from Pieces.pieceFactory import PieceFactory
+from python_chess.Pieces.pieceFactory import PieceFactory
 
 
 class Board:
