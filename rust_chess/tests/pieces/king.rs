@@ -1,0 +1,46 @@
+use rust_chess::pieces::king::King;
+use rust_chess::pieces::Piece;
+use rust_chess::enums::{Colour, File};
+use rust_chess::coords::Coords;
+
+#[test]
+fn test_king_colour_and_representation() {
+    let king_w = King { colour: Colour::White, position: Coords::new(1, File::E) };
+    let king_b = King { colour: Colour::Black, position: Coords::new(8, File::E) };
+    assert_eq!(king_w.colour(), Colour::White);
+    assert_eq!(king_b.colour(), Colour::Black);
+    assert_eq!(king_w.get_representation(), 'K');
+    assert_eq!(king_b.get_representation(), 'k');
+}
+
+#[test]
+fn test_king_moves_center() {
+    let king = King { colour: Colour::White, position: Coords::new(4, File::E) };
+    let from = Coords::new(4, File::E);
+    let moves = king.get_destination_coords(from);
+    let expected = vec![
+        Coords::new(3, File::D), Coords::new(3, File::E), Coords::new(3, File::F),
+        Coords::new(4, File::D),                       Coords::new(4, File::F),
+        Coords::new(5, File::D), Coords::new(5, File::E), Coords::new(5, File::F),
+    ];
+    for mv in expected {
+        assert!(moves.contains(&mv), "King should be able to move to {:?}", mv);
+    }
+    assert_eq!(moves.len(), 8);
+}
+
+#[test]
+fn test_king_moves_corner() {
+    let king = King { colour: Colour::White, position: Coords::new(1, File::A) };
+    let from = Coords::new(1, File::A);
+    let moves = king.get_destination_coords(from);
+    let expected = vec![
+        Coords::new(1, File::B),
+        Coords::new(2, File::A),
+        Coords::new(2, File::B),
+    ];
+    for mv in expected {
+        assert!(moves.contains(&mv), "King should be able to move to {:?}", mv);
+    }
+    assert_eq!(moves.len(), 3);
+}

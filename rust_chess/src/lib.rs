@@ -1,5 +1,6 @@
 pub mod coords;
 pub mod enums;
+pub mod pieces;
 
 // #[cfg(not(test))]
 // use pyo3::prelude::*;
