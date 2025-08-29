@@ -2,6 +2,7 @@ use std::fmt::DebugSet;
 
 use crate::enums::Colour;
 use crate::coords::Coords;
+use crate::moves::move_ray::MoveRay;
 use crate::pieces::Piece;
 
 #[derive(Debug, Clone)]
@@ -20,7 +21,7 @@ impl Piece for King {
             Colour::Black => 'k',
         }
     }
-    fn get_destination_coords(&self, from: Coords) -> Vec<Coords> {
+    fn get_destination_coords(&self, from: Coords) -> Vec<MoveRay> {
         let mut destinations = Vec::new();
         for (rank_diff, file_diff) in &[
             (-1, -1), (-1, 0), (-1, 1),
@@ -28,7 +29,8 @@ impl Piece for King {
             (1, -1),  (1, 0),  (1, 1),
         ] {
             if let Some(new_coords) = from.get_neighbour(*rank_diff, *file_diff) {
-                destinations.push(new_coords);
+                let move_ray = MoveRay::new(*rank_diff, *file_diff, 1, true, false);
+                destinations.push(move_ray);
             }
         }
 
