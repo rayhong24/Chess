@@ -1,4 +1,3 @@
-use crate::enums::Colour;
 use crate::coords::Coords;
 
 #[derive(Debug, Clone)]
