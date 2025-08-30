@@ -26,7 +26,7 @@ impl Piece for Pawn {
         }
     }
 
-    fn get_destination_coords(&self, coords: Coords) -> Vec<MoveRay> {
+    fn get_move_rays(&self, coords: Coords) -> Vec<MoveRay> {
         let mut moves = Vec::new();
         let direction: i8 = if self.colour == Colour::White { 1 } else { -1 };
 

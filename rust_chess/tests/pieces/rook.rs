@@ -15,7 +15,7 @@ fn test_rook_representation() {
 fn test_rook_moves_initial() {
     let rook = Rook::new(Colour::White);
     let coords = Coords::new(1, File::A);
-    let moves = rook.get_destination_coords(coords);
+    let moves = rook.get_move_rays(coords);
 
     // Rook should have 4 move rays (up, down, left, right)
     assert_eq!(moves.len(), 4);

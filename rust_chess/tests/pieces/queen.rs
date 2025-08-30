@@ -15,7 +15,7 @@ fn test_queen_representation() {
 fn test_queen_moves_initial() {
     let queen = Queen::new(Colour::White);
     let coords = Coords::new(1, File::D);
-    let moves = queen.get_destination_coords(coords);
+    let moves = queen.get_move_rays(coords);
 
     // Queen should have 8 move rays (all directions)
     assert_eq!(moves.len(), 8);

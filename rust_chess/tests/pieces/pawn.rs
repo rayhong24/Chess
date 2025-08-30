@@ -15,7 +15,7 @@ fn test_pawn_representation() {
 fn test_pawn_moves_white_initial() {
     let pawn = Pawn::new(Colour::White);
     let coords = Coords::new(2, File::E);
-    let moves = pawn.get_destination_coords(coords);
+    let moves = pawn.get_move_rays(coords);
 
     // Forward move should allow 2 squares
     let forward = moves.iter().find(|m| m.file_diff == 0).unwrap();
@@ -35,7 +35,7 @@ fn test_pawn_moves_white_initial() {
 fn test_pawn_moves_black_initial() {
     let pawn = Pawn::new(Colour::Black);
     let coords = Coords::new(7, File::E);
-    let moves = pawn.get_destination_coords(coords);
+    let moves = pawn.get_move_rays(coords);
 
     // Forward move should allow 2 squares
     let forward = moves.iter().find(|m| m.file_diff == 0).unwrap();
@@ -55,7 +55,7 @@ fn test_pawn_moves_black_initial() {
 fn test_pawn_moves_white_non_initial() {
     let pawn = Pawn::new(Colour::White);
     let coords = Coords::new(3, File::E);
-    let moves = pawn.get_destination_coords(coords);
+    let moves = pawn.get_move_rays(coords);
 
     let forward = moves.iter().find(|m| m.file_diff == 0).unwrap();
     assert_eq!(forward.rank_diff, 1);
