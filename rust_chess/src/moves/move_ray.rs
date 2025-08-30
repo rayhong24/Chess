@@ -1,4 +1,4 @@
-use crate::{coords::Coords, moves::move_ray};
+use crate::coords::Coords;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MoveRay {
