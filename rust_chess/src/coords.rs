@@ -21,9 +21,9 @@ impl Coords {
         Some(Self::new(rank, file))
     }
 
-    pub fn diff_inbounds(&self, di: i8, dj: i8) -> bool {
-        let new_rank = self.rank as i8 + di;
-        let new_file = self.file.value() as i8 + dj;
+    pub fn diff_inbounds(&self, rank_diff: i8, file_diff: i8) -> bool {
+        let new_rank = self.rank as i8 + rank_diff;
+        let new_file = self.file.value() as i8 + file_diff;
         (1..=8).contains(&new_rank) && (0..=7).contains(&new_file)
     }
 

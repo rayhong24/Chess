@@ -2,7 +2,11 @@ use crate::enums::Colour;
 use crate::coords::Coords;
 use crate::moves::move_ray::MoveRay;
 
-mod king;
+pub mod king;
+pub mod pawn;
+pub mod rook;
+pub mod bishop;
+pub mod queen;
 
 pub trait Piece {
     fn colour(&self) -> Colour;
