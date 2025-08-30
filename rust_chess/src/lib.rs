@@ -2,6 +2,7 @@ pub mod coords;
 pub mod enums;
 pub mod pieces;
 pub mod moves;
+pub mod game_classes;
 
 // #[cfg(not(test))]
 // use pyo3::prelude::*;
