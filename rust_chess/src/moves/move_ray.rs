@@ -2,8 +2,8 @@ use crate::{coords::Coords, moves::move_ray};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MoveRay {
-    pub row_diff: i8,
-    pub col_diff: i8,
+    pub rank_diff: i8,
+    pub file_diff: i8,
     pub dist: u8,
     pub capture_allowed: bool,
     pub capture_forced: bool,
@@ -11,15 +11,15 @@ pub struct MoveRay {
 
 impl MoveRay {
     pub fn new(
-        row_diff: i8,
-        col_diff: i8,
+        rank_diff: i8,
+        file_diff: i8,
         dist: u8,
         capture_allowed: bool,
         capture_forced: bool,
     ) -> Self {
         Self {
-            row_diff,
-            col_diff,
+            rank_diff,
+            file_diff,
             dist,
             capture_allowed,
             capture_forced,
@@ -37,7 +37,7 @@ impl MoveRay {
 
 impl std::fmt::Display for MoveRay {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {} {}", self.row_diff, self.col_diff, self.dist)
+        write!(f, "{} {} {}", self.rank_diff, self.file_diff, self.dist)
     }
 }
 
@@ -56,10 +56,10 @@ impl<'a> Iterator for MoveCandidateCoordsIter<'a> {
             return None;
         }
         let curr = self.current.as_ref()?;
-        if !curr.diff_inbounds(self.candidate.row_diff, self.candidate.col_diff) {
+        if !curr.diff_inbounds(self.candidate.rank_diff, self.candidate.file_diff) {
             return None;
         }
-        let next_coords = curr.get_neighbour(self.candidate.row_diff, self.candidate.col_diff)?;
+        let next_coords = curr.get_neighbour(self.candidate.rank_diff, self.candidate.file_diff)?;
         self.current = Some(next_coords.clone());
         self.step += 1;
         Some(next_coords)
