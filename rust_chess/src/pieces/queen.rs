@@ -42,5 +42,7 @@ impl Piece for Queen {
                 capture_forced: false,
             });
         }
+
+        return move_rays;
     }
 }
