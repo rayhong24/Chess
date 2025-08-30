@@ -15,7 +15,7 @@ fn test_bishop_representation() {
 fn test_bishop_moves_initial() {
     let bishop = Bishop::new(Colour::White);
     let coords = Coords::new(1, File::C);
-    let moves = bishop.get_destination_coords(coords);
+    let moves = bishop.get_move_rays(coords);
 
     // Bishop should have 4 move rays (diagonal directions)
     assert_eq!(moves.len(), 4);

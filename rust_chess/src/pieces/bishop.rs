@@ -26,7 +26,7 @@ impl Piece for Bishop {
         }
     }
 
-    fn get_destination_coords(&self, _coords: Coords) -> Vec<MoveRay> {
+    fn get_move_rays(&self, _coords: Coords) -> Vec<MoveRay> {
         let mut move_rays = Vec::new();
 
         for (di, dj )in &[(-1, -1), (-1, 1), (1, -1), (1, 1)] {

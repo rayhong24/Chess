@@ -26,7 +26,7 @@ impl Piece for Queen {
         }
     }
 
-    fn get_destination_coords(&self, from: Coords) -> Vec<MoveRay> {
+    fn get_move_rays(&self, from: Coords) -> Vec<MoveRay> {
         let mut move_rays = Vec::new();
 
         for (di, dj) in &[

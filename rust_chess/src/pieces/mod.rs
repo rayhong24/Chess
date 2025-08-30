@@ -7,9 +7,10 @@ pub mod pawn;
 pub mod rook;
 pub mod bishop;
 pub mod queen;
+pub mod knight;
 
 pub trait Piece {
     fn colour(&self) -> Colour;
     fn get_representation(&self) -> char;
-    fn get_destination_coords(&self, from: Coords) -> Vec<MoveRay>;
+    fn get_move_rays(&self, from: Coords) -> Vec<MoveRay>;
 }

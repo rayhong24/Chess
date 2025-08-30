@@ -21,7 +21,7 @@ impl Piece for King {
             Colour::Black => 'k',
         }
     }
-    fn get_destination_coords(&self, from: Coords) -> Vec<MoveRay> {
+    fn get_move_rays(&self, from: Coords) -> Vec<MoveRay> {
         let mut destinations = Vec::new();
         for (rank_diff, file_diff) in &[
             (-1, -1), (-1, 0), (-1, 1),
