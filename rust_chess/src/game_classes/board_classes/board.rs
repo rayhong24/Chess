@@ -109,13 +109,29 @@ impl Board {
         }
     }
 
-    fn move_piece(&mut self, piece: &Piece, colour: &Colour, from: &Coords, to: &Coords) {
+    pub fn move_piece(&mut self, piece: &Piece, colour: &Colour, from: &Coords, to: &Coords) {
         let bitboard = self.get_bit_board(*colour, *piece);
         if !bitboard.is_set(from) {
             panic!("No piece found at the source coordinates {:?}", from);
         }
         bitboard.set_bit(from, false);
         bitboard.set_bit(to, true);
+    }
+
+    pub fn get_piece_at(&self, coords: &Coords) -> Option<(Piece, Colour)> {
+        for colour in [Colour::White, Colour::Black] {
+            let bitboards = match colour {
+                Colour::White => &self.white_bit_boards,
+                Colour::Black => &self.black_bit_boards,
+            };
+
+            for piece in Piece::iter() {
+                if bitboards[piece as usize].is_set(coords) {
+                    return Some((piece, colour));
+                }
+            }
+        }
+        None
     }
 }
 
