@@ -1,6 +1,6 @@
 use crate::enums::File;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub struct Coords {
     pub rank: u8, // 1-based (1..=8)
     pub file: File,
