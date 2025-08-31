@@ -199,4 +199,19 @@ mod tests {
         // Destination should be set
         assert!(bitboard.is_set(&to), "Destination square should be set");
     }
+
+    #[test]
+    #[should_panic(expected = "No piece found at the source coordinates")]
+    fn test_move_piece_invalid_panics() {
+        let mut board = Board::new();
+
+        let from = Coords { rank: 2, file: File::A };
+        let to   = Coords { rank: 3, file: File::A };
+
+        let pawn = Piece::Pawn;
+        let colour = Colour::White;
+
+        // Do not place anything at `from`
+        board.move_piece(&pawn, &colour, &from, &to);
+    }
 }
