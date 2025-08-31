@@ -1,7 +1,7 @@
 use crate::enums::Colour;
 use crate::coords::Coords;
-use crate::moves::move_ray::MoveRay;
-use crate::pieces::Piece;
+use crate::moves::move_creators::move_ray::MoveRay;
+use crate::piece_classes::Piece;
 
 #[derive(Debug, Clone)]
 pub struct Knight {

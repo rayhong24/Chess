@@ -1,6 +1,6 @@
 use crate::coords::Coords;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BitBoard {
     bits: u64,
 }
@@ -18,9 +18,9 @@ impl BitBoard {
         self.bits == 0
     }
 
-    pub fn set_bit(&mut self, coords: &Coords, empty: bool) {
+    pub fn set_bit(&mut self, coords: &Coords, filled: bool) {
         let index = (coords.rank - 1) * 8 + coords.file.value() as u8;
-        self.bits = if !empty {
+        self.bits = if filled {
             self.bits | (1 << index)
         } else {
             self.bits & !(1 << index)
@@ -45,10 +45,10 @@ fn test_bit_board_set_and_check() {
     let mut bit_board = BitBoard::new();
     let coords = Coords::new(1, crate::enums::File::A);
 
-    bit_board.set_bit(&coords, false);
+    bit_board.set_bit(&coords, true);
     assert!(bit_board.is_set(&coords));
     assert!(!bit_board.is_empty());
-    bit_board.set_bit(&coords, true);
+    bit_board.set_bit(&coords, false);
     assert!(!bit_board.is_set(&coords));
     assert!(bit_board.is_empty());
 }

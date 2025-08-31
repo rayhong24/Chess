@@ -1,6 +1,6 @@
 pub mod coords;
 pub mod enums;
-pub mod pieces;
+pub mod piece_classes;
 pub mod moves;
 pub mod game_classes;
 

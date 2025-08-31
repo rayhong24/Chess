@@ -6,3 +6,5 @@ edition = "2021"
 
 [dependencies]
 pyo3 = "0.25.0"
+strum = "0.26"
+strum_macros = "0.26"
