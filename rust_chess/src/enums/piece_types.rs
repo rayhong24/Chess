@@ -1,8 +1,9 @@
 use strum_macros::EnumIter;
+use crate::enums::Colour;
 
 #[derive(EnumIter, Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-pub enum Piece {
+pub enum PieceType {
     Pawn=0,
     Knight,
     Bishop,
@@ -11,4 +12,4 @@ pub enum Piece {
     King
 }
 
-pub const PIECE_COUNT: usize = Piece::King as usize + 1;
+pub const PIECE_COUNT: usize = PieceType::King as usize + 1;

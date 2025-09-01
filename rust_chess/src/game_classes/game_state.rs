@@ -1,4 +1,4 @@
-use crate::enums::{Colour, ChessMove, Piece, File};
+use crate::enums::{Colour, ChessMove, PieceType, File};
 use crate::coords::Coords;
 use crate::game_classes::game::Game;
 
@@ -75,7 +75,7 @@ impl GameState {
         self.turn = self.turn.other();
 
         // Update castling rights
-        if mv.piece() == Piece::King {
+        if mv.piece() == PieceType::King {
             if mv.colour() == Colour::White {
                 self.castling_rights.white_kingside = false;
                 self.castling_rights.white_queenside = false;
@@ -84,7 +84,7 @@ impl GameState {
                 self.castling_rights.black_queenside = false;
             }
         }
-        if mv.piece() == Piece::Rook {
+        if mv.piece() == PieceType::Rook {
             if mv.colour() == Colour::White {
                 if mv.from() == Coords::new(1, File::A) {
                     self.castling_rights.white_queenside = false;
@@ -100,7 +100,7 @@ impl GameState {
             }
         }
         // Update en passant target
-        if mv.piece() == Piece::Pawn && (mv.from().rank).abs_diff(mv.to().rank) == 2 {
+        if mv.piece() == PieceType::Pawn && (mv.from().rank).abs_diff(mv.to().rank) == 2 {
             let ep_rank = (mv.from().rank + mv.to().rank) / 2;
             self.en_passant_target = Some(Coords::new(ep_rank, mv.from().file));
         } else {
@@ -114,10 +114,10 @@ impl GameState {
 mod tests {
     use super::*;
     use crate::enums::moves::NormalMove;
-    use crate::enums::{ChessMove, Colour, File, Piece};
+    use crate::enums::{ChessMove, Colour, File, PieceType};
     use crate::coords::Coords;
 
-    fn make_move(piece: Piece, colour: Colour, from: Coords, to: Coords) -> ChessMove {
+    fn make_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> ChessMove {
         ChessMove::Normal(NormalMove {
             colour: colour,
             piece: piece,
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_turn_alternates() {
         let mut gs = GameState::new();
-        let mv = make_move(Piece::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        let mv = make_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
         gs.update(&mv);
         assert_eq!(gs.turn, Colour::Black);
     }
@@ -149,7 +149,7 @@ mod tests {
     #[test]
     fn test_castling_rights_removed_after_king_move() {
         let mut gs = GameState::new();
-        let mv = make_move(Piece::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
+        let mv = make_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
         gs.update(&mv);
         assert!(!gs.castling_rights.white_kingside);
         assert!(!gs.castling_rights.white_queenside);
@@ -160,7 +160,7 @@ mod tests {
         let mut gs = GameState::new();
 
         // White rook A1 → A2 should disable queenside castling
-        let mv = make_move(Piece::Rook, Colour::White, Coords::new(1, File::A), Coords::new(2, File::A));
+        let mv = make_move(PieceType::Rook, Colour::White, Coords::new(1, File::A), Coords::new(2, File::A));
         gs.update(&mv);
         assert!(!gs.castling_rights.white_queenside);
         assert!(gs.castling_rights.white_kingside);
@@ -169,7 +169,7 @@ mod tests {
         let mut gs = GameState::new();
         // Black rook H8 → H7 should disable kingside castling
         gs.turn = Colour::Black;
-        let mv = make_move(Piece::Rook, Colour::Black, Coords::new(8, File::H), Coords::new(7, File::H));
+        let mv = make_move(PieceType::Rook, Colour::Black, Coords::new(8, File::H), Coords::new(7, File::H));
         gs.update(&mv);
         assert!(!gs.castling_rights.black_kingside);
         assert!(gs.castling_rights.black_queenside);
@@ -178,7 +178,7 @@ mod tests {
     #[test]
     fn test_en_passant_set_for_double_pawn_push() {
         let mut gs = GameState::new();
-        let mv = make_move(Piece::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        let mv = make_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
         gs.update(&mv);
         assert_eq!(gs.en_passant_target, Some(Coords::new(3, File::E)));
     }
@@ -186,9 +186,9 @@ mod tests {
     #[test]
     fn test_en_passant_cleared_for_non_double_pawn_push() {
         let mut gs = GameState::new();
-        let mv1 = make_move(Piece::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        let mv1 = make_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
         gs.update(&mv1);
-        let mv2 = make_move(Piece::Pawn, Colour::Black, Coords::new(7, File::A), Coords::new(6, File::A));
+        let mv2 = make_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::A), Coords::new(6, File::A));
         gs.update(&mv2);
         assert!(gs.en_passant_target.is_none());
     }
@@ -197,7 +197,7 @@ mod tests {
     #[should_panic(expected = "It's White's turn")]
     fn test_wrong_turn_panics() {
         let mut gs = GameState::new();
-        let mv = make_move(Piece::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
+        let mv = make_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
         gs.update(&mv); // should panic
     }
 }

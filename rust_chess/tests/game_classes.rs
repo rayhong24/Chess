@@ -2,10 +2,11 @@ use strum::IntoEnumIterator;
 
 use rust_chess::game_classes::game::Game;
 use rust_chess::coords::Coords;
-use rust_chess::enums::{Colour, Piece, File, ChessMove};
+use rust_chess::piece::Piece;
+use rust_chess::enums::{Colour, PieceType, File, ChessMove};
 use rust_chess::enums::moves::NormalMove;
 
-fn normal_move(piece: Piece, colour: Colour, from: Coords, to: Coords) -> ChessMove {
+fn normal_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> ChessMove {
     ChessMove::Normal(NormalMove {
         piece,
         colour,
@@ -22,15 +23,15 @@ fn test_initial_state() {
     // White pawns should be on rank 2
     for file in File::iter() {
         assert_eq!(
-            game.get_board().get_piece_at(&Coords::new(2, file)),
-            Some((Piece::Pawn, Colour::White))
+            game.get_board().get_coords(&Coords::new(2, file)),
+            Some(Piece{kind: PieceType::Pawn, colour: Colour::White})
         );
     }
 
-    // Black pieces should be on rank 8
+    // Check black king
     assert_eq!(
-        game.get_board().get_piece_at(&Coords::new(8, File::E)),
-        Some((Piece::King, Colour::Black))
+        game.get_board().get_coords(&Coords::new(8, File::E)),
+        Some(Piece{kind: PieceType::King, colour: Colour::Black})
     );
 }
 
@@ -38,7 +39,7 @@ fn test_initial_state() {
 fn test_pawn_double_move_sets_en_passant() {
     let mut game = Game::new();
 
-    let mv = normal_move(Piece::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+    let mv = normal_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
     game.make_move(&mv);
 
     assert_eq!(
@@ -52,13 +53,13 @@ fn test_pawn_single_move_clears_en_passant() {
     let mut game = Game::new();
 
     // First, white pawn double move
-    let mv1 = normal_move(Piece::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+    let mv1 = normal_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
     game.make_move(&mv1);
     // Black pawn double move
-    let mv2 = normal_move(Piece::Pawn, Colour::Black, Coords::new(7, File::D), Coords::new(5, File::D));
+    let mv2 = normal_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::D), Coords::new(5, File::D));
     game.make_move(&mv2);
     // White pawn single move
-    let mv3 = normal_move(Piece::Pawn, Colour::White, Coords::new(4, File::E), Coords::new(5, File::E));
+    let mv3 = normal_move(PieceType::Pawn, Colour::White, Coords::new(4, File::E), Coords::new(5, File::E));
     game.make_move(&mv3);
 
     assert_eq!(game.get_game_state().get_en_passant_target(), None);
@@ -68,7 +69,7 @@ fn test_pawn_single_move_clears_en_passant() {
 fn test_castling_rights_revoked_after_king_move() {
     let mut game = Game::new();
 
-    let mv = normal_move(Piece::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
+    let mv = normal_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
     game.make_move(&mv);
 
     // Castling rights for white should be revoked
@@ -82,6 +83,6 @@ fn test_illegal_move_wrong_turn_panics() {
     let mut game = Game::new();
 
     // White always starts, but try Black’s move
-    let mv = normal_move(Piece::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
+    let mv = normal_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
     game.make_move(&mv); // should panic
 }

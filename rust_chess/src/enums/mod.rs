@@ -1,10 +1,10 @@
 pub mod file;
 pub mod colour;
-pub mod pieces;
+pub mod piece_types;
 pub mod moves;
 
 
 pub use file::File;
 pub use colour::Colour;
-pub use pieces::Piece;
+pub use piece_types::PieceType;
 pub use moves::ChessMove;
