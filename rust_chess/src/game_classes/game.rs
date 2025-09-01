@@ -40,16 +40,19 @@ impl Game {
 
         self.game_state_history.push(self.game_state.clone());
 
+        self.game_state.update(chess_move);
 
         match chess_move {
             ChessMove::Normal(ref mv) => {
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.from, &mv.to);
-                self.game_state.update(chess_move);
 
                 // Update move history
                 self.move_history.push(*chess_move);
             }
-            // Handle other move types (Castling, EnPassant) here
+            ChessMove::Castling(ref mv) => {
+                self.board.move_piece(&Piece::King, &mv.colour, &mv.king_from, &mv.king_to);
+                self.board.move_piece(&Piece::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
+            }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
@@ -59,7 +62,7 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::enums::moves::NormalMove;
+    use crate::enums::moves::{NormalMove, CastlingMove};
     use crate::enums::{Colour, Piece, File, ChessMove};
 
     // Helper to create a normal move
@@ -71,6 +74,23 @@ mod tests {
             to: to,
             captured_piece: None,
         })
+    }
+
+    #[test]
+    #[should_panic(expected = "No piece at the source coordinates")]
+    fn test_move_from_empty_square_panics() {
+        let mut game = Game::new();
+        let mv = make_normal_move(Colour::White, Piece::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
+        game.make_move(&mv); // should panic because E3 is empty
+    }
+
+    #[test]
+    #[should_panic(expected = "Piece at")]
+    fn test_move_wrong_piece_panics() {
+        let mut game = Game::new();
+        // Try to move a rook from E2 (actually has a pawn)
+        let mv = make_normal_move(Colour::White, Piece::Rook, Coords::new(2, File::E), Coords::new(4, File::E));
+        game.make_move(&mv); // should panic
     }
 
     #[test]
@@ -99,21 +119,36 @@ mod tests {
         assert!(piece_at_e2.is_none());
     }
 
-    #[test]
-    #[should_panic(expected = "No piece at the source coordinates")]
-    fn test_move_from_empty_square_panics() {
-        let mut game = Game::new();
-        let mv = make_normal_move(Colour::White, Piece::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
-        game.make_move(&mv); // should panic because E3 is empty
-    }
+    // #[test]
+    // fn test_white_kingside_castling() {
+    //     let mut game = Game::new();
 
-    #[test]
-    #[should_panic(expected = "Piece at")]
-    fn test_move_wrong_piece_panics() {
-        let mut game = Game::new();
-        // Try to move a rook from E2 (actually has a pawn)
-        let mv = make_normal_move(Colour::White, Piece::Rook, Coords::new(2, File::E), Coords::new(4, File::E));
-        game.make_move(&mv); // should panic
-    }
+    //     // Clear the path for castling (remove bishop and knight between king and rook)
+    //     game.board.s(&Coords::new(1, File::G)); // knight square (g1)
+    //     game.board.remove_piece(&Coords::new(1, File::F)); // bishop square (f1)
+
+    //     // Define the castling move (White kingside castle: e1 → g1, rook h1 → f1)
+    //     let castle_move = ChessMove::Castling(CastlingMove {
+    //         colour: Colour::White,
+    //         king_from: Coords::new(1, File::E),
+    //         king_to: Coords::new(1, File::G),
+    //         rook_from: Coords::new(1, File::H),
+    //         rook_to: Coords::new(1, File::F),
+    //     });
+
+    //     // Execute the move
+    //     game.make_move(&castle_move);
+
+    //     // Assert king and rook moved correctly
+    //     let king_pos = game.board.get_piece_at(&Coords::new(1, File::G));
+    //     assert_eq!(king_pos, Some((Piece::King, Colour::White)));
+
+    //     let rook_pos = game.board.get_piece_at(&Coords::new(1, File::F));
+    //     assert_eq!(rook_pos, Some((Piece::Rook, Colour::White)));
+
+    //     // Ensure original squares are empty
+    //     assert!(game.board.get_piece_at(&Coords::new(1, File::E)).is_none());
+    //     assert!(game.board.get_piece_at(&Coords::new(1, File::H)).is_none());
+    // }
 }
 

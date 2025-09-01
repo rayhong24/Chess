@@ -54,12 +54,20 @@ impl Board {
         board
     }
 
-    fn get_bit_board(&mut self, colour: Colour, piece: Piece) -> &mut BitBoard {
+    fn get_bit_board(&self, colour: Colour, piece: Piece) -> &BitBoard {
+        match colour {
+            Colour::White => &self.white_bit_boards[piece as usize],
+            Colour::Black => &self.black_bit_boards[piece as usize],
+        }
+    }
+
+    fn get_bit_board_mut(&mut self, colour: Colour, piece: Piece) -> &mut BitBoard {
         match colour {
             Colour::White => &mut self.white_bit_boards[piece as usize],
             Colour::Black => &mut self.black_bit_boards[piece as usize],
         }
     }
+
 
     pub fn set_fenstr(&mut self, fenstr: &str) {
         // Clear all bitboards
@@ -99,7 +107,7 @@ impl Board {
                     };
 
                     let coords = Coords::new(8 - rank_index as u8, crate::enums::File::from_usize(file_index).unwrap());
-                    self.get_bit_board(colour, piece).set_bit(&coords, true);
+                    self.get_bit_board_mut(colour, piece).set_bit(&coords, true);
                     file_index += 1;
                 }
             }
@@ -109,11 +117,31 @@ impl Board {
         }
     }
 
-    pub fn move_piece(&mut self, piece: &Piece, colour: &Colour, from: &Coords, to: &Coords) {
-        let bitboard = self.get_bit_board(*colour, *piece);
-        if !bitboard.is_set(from) {
-            panic!("No piece found at the source coordinates {:?}", from);
+    fn clear_coords(&mut self, coords: &Coords) {
+        // Remove any piece (white or black) from these coords
+        for colour in [Colour::White, Colour::Black] {
+            let bitboards = match colour {
+                Colour::White => &mut self.white_bit_boards,
+                Colour::Black => &mut self.black_bit_boards,
+            };
+            for bitboard in bitboards.iter_mut() {
+                bitboard.set_bit(coords, false);
+            }
         }
+    }
+
+    pub fn move_piece(&mut self, piece: &Piece, colour: &Colour, from: &Coords, to: &Coords) {
+        {
+            let bitboard = self.get_bit_board(*colour, *piece);
+            if !bitboard.is_set(from) {
+                panic!("No piece found at the source coordinates {:?}", from);
+            }
+        }
+
+        self.clear_coords(to);
+
+
+        let mut bitboard = self.get_bit_board_mut(*colour, *piece);
         bitboard.set_bit(from, false);
         bitboard.set_bit(to, true);
     }
@@ -200,7 +228,7 @@ mod tests {
 
         // Place a pawn at "from"
         {
-            let bitboard = board.get_bit_board(colour, piece);
+            let bitboard = board.get_bit_board_mut(colour, piece);
             bitboard.set_bit(&from, true);
         }
 
