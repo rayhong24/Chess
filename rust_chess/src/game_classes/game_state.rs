@@ -10,6 +10,21 @@ struct CastlingRights {
     black_queenside: bool,
 }
 
+// impl CastlingRights {
+//     pub fn get_white_kingside(&self) -> bool {
+//         self.white_kingside
+//     }
+//     pub fn get_white_queenside(&self) -> bool {
+//         self.white_queenside
+//     }
+//     pub fn get_black_kingside(&self) -> bool {
+//         self.black_kingside
+//     }
+//     pub fn get_black_queenside(&self) -> bool {
+//         self.black_queenside
+//     }
+// }
+
 #[derive(Debug, Clone)]
 pub struct GameState {
     turn: Colour,
@@ -29,6 +44,23 @@ impl GameState {
             },
             en_passant_target: None,
         }
+    }
+
+    pub fn can_castle_white_kingside(&self) -> bool {
+        self.castling_rights.white_kingside
+    }
+    pub fn can_castle_white_queenside(&self) -> bool {
+        self.castling_rights.white_queenside
+    }
+    pub fn can_castle_black_kingside(&self) -> bool {
+        self.castling_rights.black_kingside
+    }
+    pub fn can_castle_black_queenside(&self) -> bool {
+        self.castling_rights.black_queenside
+    }
+
+    pub fn get_en_passant_target(&self) -> Option<Coords> {
+        self.en_passant_target
     }
 
     pub fn update(&mut self, mv: &ChessMove) {
@@ -76,9 +108,6 @@ impl GameState {
         }
     }
 
-    pub fn get_en_passant_target(&self) -> Option<Coords> {
-        self.en_passant_target
-    }
 }
 
 #[cfg(test)]
