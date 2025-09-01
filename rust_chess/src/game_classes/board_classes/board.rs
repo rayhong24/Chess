@@ -1,8 +1,9 @@
 use strum::IntoEnumIterator;
 
-use crate::enums::pieces::PIECE_COUNT;
-use crate::enums::{Colour, Piece};
+use crate::enums::piece_types::PIECE_COUNT;
+use crate::enums::{Colour, PieceType};
 use crate::coords::Coords;
+use crate::piece::Piece;
 use crate::game_classes::board_classes::bit_board::BitBoard;
 // use crate::coords::Coords;
 // use crate::pieces::Piece;
@@ -25,43 +26,43 @@ impl Board {
         let mut board = Self::new();
 
         // Setup white pieces
-        board.white_bit_boards[Piece::Rook as usize].set_bit(&Coords::new(1, crate::enums::File::A), true);
-        board.white_bit_boards[Piece::Knight as usize].set_bit(&Coords::new(1, crate::enums::File::B), true);
-        board.white_bit_boards[Piece::Bishop as usize].set_bit(&Coords::new(1, crate::enums::File::C), true);
-        board.white_bit_boards[Piece::Queen as usize].set_bit(&Coords::new(1, crate::enums::File::D), true);
-        board.white_bit_boards[Piece::King as usize].set_bit(&Coords::new(1, crate::enums::File::E), true);
-        board.white_bit_boards[Piece::Bishop as usize].set_bit(&Coords::new(1, crate::enums::File::F), true);
-        board.white_bit_boards[Piece::Knight as usize].set_bit(&Coords::new(1, crate::enums::File::G), true);
-        board.white_bit_boards[Piece::Rook as usize].set_bit(&Coords::new(1, crate::enums::File::H), true);
+        board.white_bit_boards[PieceType::Rook as usize].set_bit(&Coords::new(1, crate::enums::File::A), true);
+        board.white_bit_boards[PieceType::Knight as usize].set_bit(&Coords::new(1, crate::enums::File::B), true);
+        board.white_bit_boards[PieceType::Bishop as usize].set_bit(&Coords::new(1, crate::enums::File::C), true);
+        board.white_bit_boards[PieceType::Queen as usize].set_bit(&Coords::new(1, crate::enums::File::D), true);
+        board.white_bit_boards[PieceType::King as usize].set_bit(&Coords::new(1, crate::enums::File::E), true);
+        board.white_bit_boards[PieceType::Bishop as usize].set_bit(&Coords::new(1, crate::enums::File::F), true);
+        board.white_bit_boards[PieceType::Knight as usize].set_bit(&Coords::new(1, crate::enums::File::G), true);
+        board.white_bit_boards[PieceType::Rook as usize].set_bit(&Coords::new(1, crate::enums::File::H), true);
         for file in crate::enums::File::iter() {
-            board.white_bit_boards[Piece::Pawn as usize].set_bit(&Coords::new(2, file), true);
+            board.white_bit_boards[PieceType::Pawn as usize].set_bit(&Coords::new(2, file), true);
         }
 
         // Setup black pieces
-        board.black_bit_boards[Piece::Rook as usize].set_bit(&Coords::new(8, crate::enums::File::A), true);
-        board.black_bit_boards[Piece::Knight as usize].set_bit(&Coords::new(8, crate::enums::File::B), true);
-        board.black_bit_boards[Piece::Bishop as usize].set_bit(&Coords::new(8, crate::enums::File::C), true);
-        board.black_bit_boards[Piece::Queen as usize].set_bit(&Coords::new(8, crate::enums::File::D), true);
-        board.black_bit_boards[Piece::King as usize].set_bit(&Coords::new(8, crate::enums::File::E), true);
-        board.black_bit_boards[Piece::Bishop as usize].set_bit(&Coords::new(8, crate::enums::File::F), true);
-        board.black_bit_boards[Piece::Knight as usize].set_bit(&Coords::new(8, crate::enums::File::G), true);
-        board.black_bit_boards[Piece::Rook as usize].set_bit(&Coords::new(8, crate::enums::File::H), true);
+        board.black_bit_boards[PieceType::Rook as usize].set_bit(&Coords::new(8, crate::enums::File::A), true);
+        board.black_bit_boards[PieceType::Knight as usize].set_bit(&Coords::new(8, crate::enums::File::B), true);
+        board.black_bit_boards[PieceType::Bishop as usize].set_bit(&Coords::new(8, crate::enums::File::C), true);
+        board.black_bit_boards[PieceType::Queen as usize].set_bit(&Coords::new(8, crate::enums::File::D), true);
+        board.black_bit_boards[PieceType::King as usize].set_bit(&Coords::new(8, crate::enums::File::E), true);
+        board.black_bit_boards[PieceType::Bishop as usize].set_bit(&Coords::new(8, crate::enums::File::F), true);
+        board.black_bit_boards[PieceType::Knight as usize].set_bit(&Coords::new(8, crate::enums::File::G), true);
+        board.black_bit_boards[PieceType::Rook as usize].set_bit(&Coords::new(8, crate::enums::File::H), true);
 
         for file in crate::enums::File::iter() {
-            board.black_bit_boards[Piece::Pawn as usize].set_bit(&Coords::new(7, file), true);
+            board.black_bit_boards[PieceType::Pawn as usize].set_bit(&Coords::new(7, file), true);
         }
 
         board
     }
 
-    fn get_bit_board(&self, colour: Colour, piece: Piece) -> &BitBoard {
+    fn get_bit_board(&self, colour: Colour, piece: PieceType) -> &BitBoard {
         match colour {
             Colour::White => &self.white_bit_boards[piece as usize],
             Colour::Black => &self.black_bit_boards[piece as usize],
         }
     }
 
-    fn get_bit_board_mut(&mut self, colour: Colour, piece: Piece) -> &mut BitBoard {
+    fn get_bit_board_mut(&mut self, colour: Colour, piece: PieceType) -> &mut BitBoard {
         match colour {
             Colour::White => &mut self.white_bit_boards[piece as usize],
             Colour::Black => &mut self.black_bit_boards[piece as usize],
@@ -97,12 +98,12 @@ impl Board {
                 } else {
                     let colour = if ch.is_uppercase() { Colour::White } else { Colour::Black };
                     let piece = match ch.to_ascii_lowercase() {
-                        'p' => Piece::Pawn,
-                        'r' => Piece::Rook,
-                        'n' => Piece::Knight,
-                        'b' => Piece::Bishop,
-                        'q' => Piece::Queen,
-                        'k' => Piece::King,
+                        'p' => PieceType::Pawn,
+                        'r' => PieceType::Rook,
+                        'n' => PieceType::Knight,
+                        'b' => PieceType::Bishop,
+                        'q' => PieceType::Queen,
+                        'k' => PieceType::King,
                         _ => panic!("Invalid FEN string: unknown piece {}", ch),
                     };
 
@@ -117,10 +118,10 @@ impl Board {
         }
     }
 
-    pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<Piece>) {
+    pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<PieceType>) {
         // Remove any piece (white or black) from these coords
         for colour in [Colour::White, Colour::Black] {
-            for piece in Piece::iter() {
+            for piece in PieceType::iter() {
                 let mut bitboard = self.get_bit_board_mut(colour, piece);
 
                 bitboard.set_bit(coords, Some(piece) == maybe_piece);
@@ -129,7 +130,7 @@ impl Board {
         }
     }
 
-    pub fn move_piece(&mut self, piece: &Piece, colour: &Colour, from: &Coords, to: &Coords) {
+    pub fn move_piece(&mut self, piece: &PieceType, colour: &Colour, from: &Coords, to: &Coords) {
         {
             let bitboard = self.get_bit_board(*colour, *piece);
             if !bitboard.is_set(from) {
@@ -142,16 +143,21 @@ impl Board {
 
     }
 
-    pub fn get_piece_at(&self, coords: &Coords) -> Option<(Piece, Colour)> {
+    pub fn get_coords(&self, coords: &Coords) -> Option<Piece> {
         for colour in [Colour::White, Colour::Black] {
             let bitboards = match colour {
                 Colour::White => &self.white_bit_boards,
                 Colour::Black => &self.black_bit_boards,
             };
 
-            for piece in Piece::iter() {
+            for piece in PieceType::iter() {
                 if bitboards[piece as usize].is_set(coords) {
-                    return Some((piece, colour));
+                    return Some(
+                        Piece {
+                            kind: piece,
+                            colour: colour
+                        }
+                    );
                 }
             }
         }
@@ -179,14 +185,14 @@ mod tests {
         let board = Board::setup_startposition();
 
         // Check a few representative squares
-        assert!(board.white_bit_boards[Piece::Rook as usize]
+        assert!(board.white_bit_boards[PieceType::Rook as usize]
             .is_set(&Coords::new(1, File::A)));
-        assert!(board.white_bit_boards[Piece::Pawn as usize]
+        assert!(board.white_bit_boards[PieceType::Pawn as usize]
             .is_set(&Coords::new(2, File::E)));
 
-        assert!(board.black_bit_boards[Piece::King as usize]
+        assert!(board.black_bit_boards[PieceType::King as usize]
             .is_set(&Coords::new(8, File::E)));
-        assert!(board.black_bit_boards[Piece::Pawn as usize]
+        assert!(board.black_bit_boards[PieceType::Pawn as usize]
             .is_set(&Coords::new(7, File::D)));
     }
 
@@ -196,7 +202,7 @@ mod tests {
         // FEN string for just a white king at e4
         board.set_fenstr("4K3/8/8/8/8/8/8/8 w - - 0 1");
 
-        assert!(board.white_bit_boards[Piece::King as usize]
+        assert!(board.white_bit_boards[PieceType::King as usize]
             .is_set(&Coords::new(8, File::E)));
     }
 
@@ -218,7 +224,7 @@ mod tests {
     fn test_move_piece() {
         let mut board = Board::new();
 
-        let piece = Piece::Pawn;
+        let piece = PieceType::Pawn;
         let colour = Colour::White;
         let from = Coords { rank: 2, file: File::A }; // e2
         let to = Coords { rank: 3, file: File::A }; // e2
@@ -249,7 +255,7 @@ mod tests {
         let from = Coords { rank: 2, file: File::A };
         let to   = Coords { rank: 3, file: File::A };
 
-        let pawn = Piece::Pawn;
+        let pawn = PieceType::Pawn;
         let colour = Colour::White;
 
         // Do not place anything at `from`

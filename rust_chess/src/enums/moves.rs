@@ -1,14 +1,14 @@
 use crate::enums::Colour;
 use crate::coords::Coords;
-use crate::enums::Piece;
+use crate::enums::PieceType;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NormalMove {
     pub colour: Colour,
-    pub piece: Piece,
+    pub piece: PieceType,
     pub from: Coords,
     pub to: Coords,
-    pub captured_piece: Option<Piece>,
+    pub captured_piece: Option<PieceType>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -25,8 +25,8 @@ pub struct PromotionMove {
     pub colour: Colour,
     pub from: Coords,
     pub to: Coords,
-    pub promoted_piece: Piece,
-    pub captured_piece: Option<Piece>,
+    pub promoted_piece: PieceType,
+    pub captured_piece: Option<PieceType>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -73,12 +73,12 @@ impl ChessMove {
         }
     }
 
-    pub fn piece(&self) -> Piece {
+    pub fn piece(&self) -> PieceType {
         match self {
             ChessMove::Normal(mv) => mv.piece,
-            ChessMove::Castling(_) => Piece::King,
-            ChessMove::Promotion(_) => Piece::Pawn,
-            ChessMove::EnPassant(_) => Piece::Pawn,
+            ChessMove::Castling(_) => PieceType::King,
+            ChessMove::Promotion(_) => PieceType::Pawn,
+            ChessMove::EnPassant(_) => PieceType::Pawn,
         }
     }
 }

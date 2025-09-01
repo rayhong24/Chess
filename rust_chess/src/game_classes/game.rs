@@ -1,6 +1,7 @@
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
-use crate::enums::{Colour, Piece, File, ChessMove};
+use crate::piece::Piece;
+use crate::enums::{Colour, PieceType, File, ChessMove};
 use crate::game_classes::game_state::GameState;
 
 pub struct Game {
@@ -32,23 +33,22 @@ impl Game {
 
     pub fn make_move(&mut self, chess_move: &ChessMove) {
         self.game_state_history.push(self.game_state.clone());
-
         self.game_state.update(chess_move);
+        self.move_history.push(*chess_move);
 
         match chess_move {
             ChessMove::Normal(ref mv) => {
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.from, &mv.to);
 
-                // Update move history
-                self.move_history.push(*chess_move);
             }
             ChessMove::Castling(ref mv) => {
-                self.board.move_piece(&Piece::King, &mv.colour, &mv.king_from, &mv.king_to);
-                self.board.move_piece(&Piece::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
+                self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
+                self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
             }
-            // ChessMove::Promotion(ref mv) => {
-            //     self.board.
-            // }
+            ChessMove::Promotion(ref mv) => {
+                self.board.set_coords(&mv.from, None);
+                self.board.set_coords(&mv.from, Some(mv.promoted_piece));
+            }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
@@ -58,11 +58,11 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::enums::moves::{NormalMove, CastlingMove};
-    use crate::enums::{Colour, Piece, File, ChessMove};
+    use crate::enums::moves::{NormalMove, CastlingMove, PromotionMove};
+    use crate::enums::{Colour, PieceType, File, ChessMove};
 
     // Helper to create a normal move
-    fn make_normal_move(colour: Colour, piece: Piece, from: Coords, to: Coords) -> ChessMove {
+    fn make_normal_move(colour: Colour, piece: PieceType, from: Coords, to: Coords) -> ChessMove {
         ChessMove::Normal(NormalMove {
             colour,
             piece,
@@ -76,7 +76,7 @@ mod tests {
     #[should_panic()]
     fn test_move_from_empty_square_panics() {
         let mut game = Game::new();
-        let mv = make_normal_move(Colour::White, Piece::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
+        let mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
         game.make_move(&mv); // should panic because E3 is empty
     }
 
@@ -85,7 +85,7 @@ mod tests {
     fn test_move_wrong_piece_panics() {
         let mut game = Game::new();
         // Try to move a rook from E2 (actually has a pawn)
-        let mv = make_normal_move(Colour::White, Piece::Rook, Coords::new(2, File::E), Coords::new(4, File::E));
+        let mv = make_normal_move(Colour::White, PieceType::Rook, Coords::new(2, File::E), Coords::new(4, File::E));
         game.make_move(&mv); // should panic
     }
 
@@ -94,7 +94,7 @@ mod tests {
         let mut game = Game::new();
 
         // Move white pawn from E2 → E4
-        let mv = make_normal_move(Colour::White, Piece::Pawn, Coords::new(2, File::E), Coords::new(4, File::E));
+        let mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(2, File::E), Coords::new(4, File::E));
         game.make_move(&mv);
 
         // Check the move history was updated
@@ -105,26 +105,21 @@ mod tests {
         assert_eq!(game.game_state_history.len(), 1);
 
         // Check the board: pawn should be at E4, not at E2
-        let piece_at_e4 = game.board.get_piece_at(&Coords::new(4, File::E));
+        let piece_at_e4 = game.board.get_coords(&Coords::new(4, File::E));
         assert!(piece_at_e4.is_some());
-        let (piece, colour) = piece_at_e4.unwrap();
-        assert_eq!(piece, Piece::Pawn);
-        assert_eq!(colour, Colour::White);
+        let piece = piece_at_e4.unwrap();
+        assert_eq!(piece, Piece{kind: PieceType::Pawn, colour: Colour::White});
 
-        let piece_at_e2 = game.board.get_piece_at(&Coords::new(2, File::E));
+        let piece_at_e2 = game.board.get_coords(&Coords::new(2, File::E));
         assert!(piece_at_e2.is_none());
     }
 
     // #[test]
-    // fn test_white_kingside_castling() {
+    // fn test_castling_kingside_white() {
     //     let mut game = Game::new();
 
-    //     // Clear the path for castling (remove bishop and knight between king and rook)
-    //     game.board.s(&Coords::new(1, File::G)); // knight square (g1)
-    //     game.board.remove_piece(&Coords::new(1, File::F)); // bishop square (f1)
-
-    //     // Define the castling move (White kingside castle: e1 → g1, rook h1 → f1)
-    //     let castle_move = ChessMove::Castling(CastlingMove {
+    //     // Define castling move: King from E1 to G1, Rook from H1 to F1
+    //     let castling_move = ChessMove::Castling(CastlingMove {
     //         colour: Colour::White,
     //         king_from: Coords::new(1, File::E),
     //         king_to: Coords::new(1, File::G),
@@ -132,19 +127,41 @@ mod tests {
     //         rook_to: Coords::new(1, File::F),
     //     });
 
-    //     // Execute the move
-    //     game.make_move(&castle_move);
+    //     game.make_move(&castling_move);
 
-    //     // Assert king and rook moved correctly
-    //     let king_pos = game.board.get_piece_at(&Coords::new(1, File::G));
-    //     assert_eq!(king_pos, Some((Piece::King, Colour::White)));
+    //     // Assert king moved
+    //     assert_eq!(
+    //         game.board.get_coords(&Coords::new(1, File::G)),
+    //         Some(Piece::King)
+    //     );
+    //     assert_eq!(game.board.get_coords(&Coords::new(1, File::E)), None);
 
-    //     let rook_pos = game.board.get_piece_at(&Coords::new(1, File::F));
-    //     assert_eq!(rook_pos, Some((Piece::Rook, Colour::White)));
+    //     // Assert rook moved
+    //     assert_eq!(
+    //         game.board.get_coords(&Coords::new(1, File::F)),
+    //         Some(Piece::Rook)
+    //     );
+    //     assert_eq!(game.board.get_coords(&Coords::new(1, File::H)), None);
+    // }
 
-    //     // Ensure original squares are empty
-    //     assert!(game.board.get_piece_at(&Coords::new(1, File::E)).is_none());
-    //     assert!(game.board.get_piece_at(&Coords::new(1, File::H)).is_none());
+    // #[test]
+    // fn test_promotion_white_pawn() {
+    //     let mut game = Game::new();
+
+    //     // Define promotion move: Pawn promotes at E8 → Queen
+    //     let promotion_move = ChessMove::Promotion(PromotionMove {
+    //         colour: Colour::White,
+    //         from: Coords::new(7, File::E), // pawn moves from 7th rank
+    //         promoted_piece: Piece::Queen,
+    //     });
+
+    //     game.make_move(&promotion_move);
+
+    //     // Assert square now has promoted piece
+    //     assert_eq!(
+    //         game.board.get_coords(&Coords::new(7, File::E)),
+    //         Some(Piece::Queen)
+    //     );
     // }
 }
 
