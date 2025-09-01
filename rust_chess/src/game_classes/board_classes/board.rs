@@ -117,15 +117,14 @@ impl Board {
         }
     }
 
-    fn clear_coords(&mut self, coords: &Coords) {
+    pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<Piece>) {
         // Remove any piece (white or black) from these coords
         for colour in [Colour::White, Colour::Black] {
-            let bitboards = match colour {
-                Colour::White => &mut self.white_bit_boards,
-                Colour::Black => &mut self.black_bit_boards,
-            };
-            for bitboard in bitboards.iter_mut() {
-                bitboard.set_bit(coords, false);
+            for piece in Piece::iter() {
+                let mut bitboard = self.get_bit_board_mut(colour, piece);
+
+                bitboard.set_bit(coords, Some(piece) == maybe_piece);
+
             }
         }
     }
@@ -138,12 +137,9 @@ impl Board {
             }
         }
 
-        self.clear_coords(to);
+        self.set_coords(from, None);
+        self.set_coords(to, Some(*piece));
 
-
-        let mut bitboard = self.get_bit_board_mut(*colour, *piece);
-        bitboard.set_bit(from, false);
-        bitboard.set_bit(to, true);
     }
 
     pub fn get_piece_at(&self, coords: &Coords) -> Option<(Piece, Colour)> {
@@ -161,6 +157,7 @@ impl Board {
         }
         None
     }
+
 }
 
 #[cfg(test)]

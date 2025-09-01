@@ -46,6 +46,9 @@ impl Game {
                 self.board.move_piece(&Piece::King, &mv.colour, &mv.king_from, &mv.king_to);
                 self.board.move_piece(&Piece::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
             }
+            // ChessMove::Promotion(ref mv) => {
+            //     self.board.
+            // }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
