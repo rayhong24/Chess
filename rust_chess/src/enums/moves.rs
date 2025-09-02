@@ -46,6 +46,16 @@ pub enum ChessMove {
     EnPassant(EnPassantMove),
 }
 
+pub enum ExecutedMove {
+    Normal {
+        mv: NormalMove,
+        captured_piece: Option<Piece>
+    },
+    // Castling {
+    //     mv:
+    // }
+}
+
 
 impl ChessMove {
     pub fn colour(&self) -> Colour {
