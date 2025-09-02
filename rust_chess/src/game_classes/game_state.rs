@@ -10,21 +10,6 @@ struct CastlingRights {
     black_queenside: bool,
 }
 
-// impl CastlingRights {
-//     pub fn get_white_kingside(&self) -> bool {
-//         self.white_kingside
-//     }
-//     pub fn get_white_queenside(&self) -> bool {
-//         self.white_queenside
-//     }
-//     pub fn get_black_kingside(&self) -> bool {
-//         self.black_kingside
-//     }
-//     pub fn get_black_queenside(&self) -> bool {
-//         self.black_queenside
-//     }
-// }
-
 #[derive(Debug, Clone)]
 pub struct GameState {
     turn: Colour,
