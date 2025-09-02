@@ -27,7 +27,6 @@ pub struct PromotionMove {
     pub from: Coords,
     pub to: Coords,
     pub promotion_piece_type: PieceType,
-    pub captured_piece: Option<Piece>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -53,7 +52,12 @@ pub enum ExecutedMove {
     },
     Castling {
         mv: CastlingMove
+    },
+    Promotion {
+        mv: PromotionMove,
+        captured_piece: Option<Piece>
     }
+
 }
 
 
