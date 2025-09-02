@@ -34,7 +34,7 @@ pub struct EnPassantMove {
     pub colour: Colour,
     pub from: Coords,
     pub to: Coords,
-    pub captured_piece: Option<Coords>,
+    pub captured_coords: Coords,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
