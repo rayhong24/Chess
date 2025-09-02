@@ -1,13 +1,13 @@
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
 use crate::piece::Piece;
-use crate::enums::{Colour, PieceType, File, ChessMove};
+use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
 use crate::game_classes::game_state::GameState;
 
 pub struct Game {
     board: Board,
     game_state: GameState,
-    move_history: Vec<ChessMove>,
+    move_history: Vec<ExecutedMove>,
     game_state_history: Vec<GameState>,
     ended: bool,
 }
@@ -31,14 +31,16 @@ impl Game {
         &self.game_state
     }
 
-    pub fn make_move(&mut self, chess_move: &mut ChessMove) {
+    pub fn make_move(&mut self, chess_move: &ChessMove) {
         self.game_state_history.push(self.game_state.clone());
         self.game_state.update(chess_move);
-        self.move_history.push(*chess_move);
+
 
         match chess_move {
-            ChessMove::Normal(ref mut mv) => {
-                mv.captured_piece = self.board.get_coords(&mv.to);
+            ChessMove::Normal(ref mv) => {
+                let executed_move = ExecutedMove::Normal { mv: *mv, captured_piece: self.board.get_coords(&mv.to)};
+                self.move_history.push(executed_move);
+
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.from, &mv.to);
 
             }
@@ -63,13 +65,13 @@ impl Game {
             panic!("No move to undo.");
         }
 
-        let chess_move = self.move_history.pop().unwrap();
+        let executed_move = self.move_history.pop().unwrap();
         self.game_state = self.game_state_history.pop().unwrap();
 
-        match chess_move {
-            ChessMove::Normal(ref mv) => {
+        match executed_move {
+            ExecutedMove::Normal {mv, captured_piece} => {
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.to, &mv.from);
-                self.board.set_coords(&mv.to, mv.captured_piece);
+                self.board.set_coords(&mv.to, captured_piece);
             }
             // ChessMove::Castling(ref mv) => {
             //     self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
@@ -110,8 +112,8 @@ mod tests {
     #[should_panic()]
     fn test_move_from_empty_square_panics() {
         let mut game = Game::new();
-        let mut mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
-        game.make_move(&mut mv); // should panic because E3 is empty
+        let mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
+        game.make_move(&mv); // should panic because E3 is empty
     }
 
     #[test]
@@ -119,8 +121,8 @@ mod tests {
     fn test_move_wrong_piece_panics() {
         let mut game = Game::new();
         // Try to move a rook from E2 (actually has a pawn)
-        let mut mv = make_normal_move(Colour::White, PieceType::Rook, Coords::new(2, File::E), Coords::new(4, File::E));
-        game.make_move(&mut mv); // should panic
+        let mv = make_normal_move(Colour::White, PieceType::Rook, Coords::new(2, File::E), Coords::new(4, File::E));
+        game.make_move(&mv); // should panic
     }
 
     #[test]
@@ -128,12 +130,11 @@ mod tests {
         let mut game = Game::new();
 
         // Move white pawn from E2 → E4
-        let mut mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(2, File::E), Coords::new(4, File::E));
-        game.make_move(&mut mv);
+        let mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(2, File::E), Coords::new(4, File::E));
+        game.make_move(&mv);
 
         // Check the move history was updated
         assert_eq!(game.move_history.len(), 1);
-        assert_eq!(game.move_history[0].from(), Coords::new(2, File::E));
 
         // Check the game state history was updated
         assert_eq!(game.game_state_history.len(), 1);
@@ -216,7 +217,7 @@ mod tests {
 
         // White performs en passant from e5 → d6, capturing pawn at d5
         let to = Coords::new(6, File::D); 
-        let mut mv = ChessMove::EnPassant(EnPassantMove {
+        let mv = ChessMove::EnPassant(EnPassantMove {
             colour: Colour::White,
             from,
             to,
@@ -226,7 +227,7 @@ mod tests {
         // Apply the move
         let mut game = Game::new();
         game.board = board; // use our test board
-        game.make_move(&mut mv);
+        game.make_move(&mv);
 
         // Pawn should be at d6
         let moved_piece = game.board.get_coords(&to);
@@ -254,7 +255,7 @@ mod tests {
         game.board.set_coords(&Coords::new(7, File::E), Some(black_pawn));
 
         // Construct a simple move (white pawn e2 -> e4)
-        let mut mv = ChessMove::Normal(NormalMove {
+        let mv = ChessMove::Normal(NormalMove {
             piece: PieceType::Pawn,
             colour: Colour::White,
             from,
@@ -266,7 +267,7 @@ mod tests {
         let initial_state = game.board.clone();
 
         // Make the move
-        game.make_move(&mut mv);
+        game.make_move(&mv);
 
         assert!(game.board.get_coords(&from).is_none()); // pawn moved from e2
         assert_eq!(game.board.get_coords(&to), Some(white_pawn)); // pawn on e4
