@@ -118,28 +118,30 @@ impl Board {
         }
     }
 
-    pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<PieceType>) {
+    pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<Piece>) {
         // Remove any piece (white or black) from these coords
         for colour in [Colour::White, Colour::Black] {
             for piece in PieceType::iter() {
                 let mut bitboard = self.get_bit_board_mut(colour, piece);
 
-                bitboard.set_bit(coords, Some(piece) == maybe_piece);
-
+                let set = maybe_piece.is_some_and(
+                    |p| p.colour == colour && p.kind == piece
+                );
+                bitboard.set_bit(coords, set);
             }
         }
     }
 
-    pub fn move_piece(&mut self, piece: &PieceType, colour: &Colour, from: &Coords, to: &Coords) {
+    pub fn move_piece(&mut self, piece_type: &PieceType, colour: &Colour, from: &Coords, to: &Coords) {
         {
-            let bitboard = self.get_bit_board(*colour, *piece);
+            let bitboard = self.get_bit_board(*colour, *piece_type);
             if !bitboard.is_set(from) {
                 panic!("No piece found at the source coordinates {:?}", from);
             }
         }
 
         self.set_coords(from, None);
-        self.set_coords(to, Some(*piece));
+        self.set_coords(to, Some(Piece { kind: *piece_type, colour: *colour}));
 
     }
 
