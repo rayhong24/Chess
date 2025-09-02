@@ -1,5 +1,6 @@
 use crate::enums::Colour;
 use crate::coords::Coords;
+use crate::piece::Piece;
 use crate::enums::PieceType;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -8,7 +9,7 @@ pub struct NormalMove {
     pub piece: PieceType,
     pub from: Coords,
     pub to: Coords,
-    pub captured_piece: Option<PieceType>,
+    pub captured_piece: Option<Piece>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -26,7 +27,7 @@ pub struct PromotionMove {
     pub from: Coords,
     pub to: Coords,
     pub promotion_piece_type: PieceType,
-    pub captured_piece: Option<PieceType>,
+    pub captured_piece: Option<Piece>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

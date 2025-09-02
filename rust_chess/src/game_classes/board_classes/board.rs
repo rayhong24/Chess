@@ -8,7 +8,7 @@ use crate::game_classes::board_classes::bit_board::BitBoard;
 // use crate::coords::Coords;
 // use crate::pieces::Piece;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Board {
     white_bit_boards: [BitBoard; PIECE_COUNT],
     black_bit_boards: [BitBoard; PIECE_COUNT],

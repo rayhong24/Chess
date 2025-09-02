@@ -39,8 +39,8 @@ fn test_initial_state() {
 fn test_pawn_double_move_sets_en_passant() {
     let mut game = Game::new();
 
-    let mv = normal_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
-    game.make_move(&mv);
+    let mut mv = normal_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+    game.make_move(&mut mv);
 
     assert_eq!(
         game.get_game_state().get_en_passant_target(),
@@ -53,14 +53,14 @@ fn test_pawn_single_move_clears_en_passant() {
     let mut game = Game::new();
 
     // First, white pawn double move
-    let mv1 = normal_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
-    game.make_move(&mv1);
+    let mut mv1 = normal_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+    game.make_move(&mut mv1);
     // Black pawn double move
-    let mv2 = normal_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::D), Coords::new(5, File::D));
-    game.make_move(&mv2);
+    let mut mv2 = normal_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::D), Coords::new(5, File::D));
+    game.make_move(&mut mv2);
     // White pawn single move
-    let mv3 = normal_move(PieceType::Pawn, Colour::White, Coords::new(4, File::E), Coords::new(5, File::E));
-    game.make_move(&mv3);
+    let mut mv3 = normal_move(PieceType::Pawn, Colour::White, Coords::new(4, File::E), Coords::new(5, File::E));
+    game.make_move(&mut mv3);
 
     assert_eq!(game.get_game_state().get_en_passant_target(), None);
 }
@@ -69,8 +69,8 @@ fn test_pawn_single_move_clears_en_passant() {
 fn test_castling_rights_revoked_after_king_move() {
     let mut game = Game::new();
 
-    let mv = normal_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
-    game.make_move(&mv);
+    let mut mv = normal_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
+    game.make_move(&mut mv);
 
     // Castling rights for white should be revoked
     assert!(!game.get_game_state().clone().can_castle_white_kingside());
@@ -83,6 +83,6 @@ fn test_illegal_move_wrong_turn_panics() {
     let mut game = Game::new();
 
     // White always starts, but try Black’s move
-    let mv = normal_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
-    game.make_move(&mv); // should panic
+    let mut mv = normal_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
+    game.make_move(&mut mv); // should panic
 }
