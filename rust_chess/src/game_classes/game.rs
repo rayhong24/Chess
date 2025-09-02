@@ -49,6 +49,10 @@ impl Game {
                 self.board.set_coords(&mv.from, None);
                 self.board.set_coords(&mv.from, Some(Piece {kind: mv.promotion_piece_type, colour: mv.colour}));
             }
+            ChessMove::EnPassant(ref mv) => {
+                self.board.move_piece(&PieceType::Pawn, &mv.colour, &mv.from, &mv.to);
+                self.board.set_coords(&mv.captured_coords, None);
+            }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
@@ -58,7 +62,7 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::enums::moves::{NormalMove, CastlingMove, PromotionMove};
+    use crate::enums::moves::{NormalMove, CastlingMove, PromotionMove, EnPassantMove};
     use crate::enums::{Colour, PieceType, File, ChessMove};
 
     // Helper to create a normal move
@@ -164,6 +168,45 @@ mod tests {
             game.board.get_coords(&Coords::new(7, File::E)),
             Some(Piece { kind: PieceType::Queen, colour: Colour::White })
         );
+    }
+
+    #[test]
+    fn test_en_passant_move() {
+        let mut board = Board::new();
+
+        // White pawn at e5
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(5, File::E);
+        board.set_coords(&from, Some(white_pawn));
+
+        // Black pawn at d5 – target for en passant
+        let black_pawn = Piece { kind: PieceType::Pawn, colour: Colour::Black };
+        let captured = Coords::new(5, File::D);
+        board.set_coords(&captured, Some(black_pawn));
+
+        // White performs en passant from e5 → d6, capturing pawn at d5
+        let to = Coords::new(6, File::D); 
+        let mv = ChessMove::EnPassant(EnPassantMove {
+            colour: Colour::White,
+            from,
+            to,
+            captured_coords: captured,
+        });
+
+        // Apply the move
+        let mut game = Game::new();
+        game.board = board; // use our test board
+        game.make_move(&mv);
+
+        // Pawn should be at d6
+        let moved_piece = game.board.get_coords(&to);
+        assert_eq!(moved_piece, Some(white_pawn));
+
+        // The captured black pawn should be removed
+        assert_eq!(game.board.get_coords(&captured), None);
+
+        // The old position should now be empty
+        assert_eq!(game.board.get_coords(&from), None);
     }
 }
 
