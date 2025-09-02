@@ -45,6 +45,9 @@ impl Game {
 
             }
             ChessMove::Castling(ref mv) => {
+                let executed_move = ExecutedMove::Castling { mv: *mv };
+                self.move_history.push(executed_move);
+
                 self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
                 self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
             }
@@ -73,10 +76,10 @@ impl Game {
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.to, &mv.from);
                 self.board.set_coords(&mv.to, captured_piece);
             }
-            // ChessMove::Castling(ref mv) => {
-            //     self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
-            //     self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
-            // }
+            ExecutedMove::Castling {mv} => {
+                self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_to, &mv.king_from);
+                self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_to, &mv.rook_from);
+            }
             // ChessMove::Promotion(ref mv) => {
             //     self.board.set_coords(&mv.from, None);
             //     self.board.set_coords(&mv.from, Some(Piece {kind: mv.promotion_piece_type, colour: mv.colour}));
@@ -283,6 +286,52 @@ mod tests {
         // History should be empty again
         assert_eq!(game.move_history.len(), 0);
         assert_eq!(game.game_state_history.len(), 0);
+    }
+
+    #[test]
+    fn undo_castling_move() {
+        let mut game = Game::new();
+
+        // Assume White King-side castling:
+        // King: e1 -> g1
+        // Rook: h1 -> f1
+        let castling_move = ChessMove::Castling(CastlingMove {
+            colour: Colour::White,
+            king_from: Coords::new(1, File::E),
+            king_to: Coords::new(1, File::G),
+            rook_from: Coords::new(1, File::H),
+            rook_to: Coords::new(1, File::F),
+        });
+
+        // Execute the castling move
+        game.make_move(&castling_move);
+
+        // Verify King and Rook are on their new squares
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::G)),
+            Some(Piece { kind: PieceType::King, colour: Colour::White })
+        );
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::F)),
+            Some(Piece { kind: PieceType::Rook, colour: Colour::White })
+        );
+
+        // Undo the castling move
+        game.undo_last_move();
+
+        // Verify King and Rook are back on their original squares
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::E)),
+            Some(Piece { kind: PieceType::King, colour: Colour::White })
+        );
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::H)),
+            Some(Piece { kind: PieceType::Rook, colour: Colour::White })
+        );
+
+        // Verify the castling squares are now empty
+        assert_eq!(game.board.get_coords(&Coords::new(1, File::G)), None);
+        assert_eq!(game.board.get_coords(&Coords::new(1, File::F)), None);
     }
 }
 
