@@ -51,9 +51,9 @@ pub enum ExecutedMove {
         mv: NormalMove,
         captured_piece: Option<Piece>
     },
-    // Castling {
-    //     mv:
-    // }
+    Castling {
+        mv: CastlingMove
+    }
 }
 
 
