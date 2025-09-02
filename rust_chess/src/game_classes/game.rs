@@ -41,10 +41,10 @@ impl Game {
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.from, &mv.to);
 
             }
-            // ChessMove::Castling(ref mv) => {
-            //     self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
-            //     self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
-            // }
+            ChessMove::Castling(ref mv) => {
+                self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
+                self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
+            }
             // ChessMove::Promotion(ref mv) => {
             //     self.board.set_coords(&mv.from, None);
             //     self.board.set_coords(&mv.from, Some(mv.promoted_piece));
@@ -114,35 +114,35 @@ mod tests {
         assert!(piece_at_e2.is_none());
     }
 
-    // #[test]
-    // fn test_castling_kingside_white() {
-    //     let mut game = Game::new();
+    #[test]
+    fn test_castling_kingside_white() {
+        let mut game = Game::new();
 
-    //     // Define castling move: King from E1 to G1, Rook from H1 to F1
-    //     let castling_move = ChessMove::Castling(CastlingMove {
-    //         colour: Colour::White,
-    //         king_from: Coords::new(1, File::E),
-    //         king_to: Coords::new(1, File::G),
-    //         rook_from: Coords::new(1, File::H),
-    //         rook_to: Coords::new(1, File::F),
-    //     });
+        // Define castling move: King from E1 to G1, Rook from H1 to F1
+        let castling_move = ChessMove::Castling(CastlingMove {
+            colour: Colour::White,
+            king_from: Coords::new(1, File::E),
+            king_to: Coords::new(1, File::G),
+            rook_from: Coords::new(1, File::H),
+            rook_to: Coords::new(1, File::F),
+        });
 
-    //     game.make_move(&castling_move);
+        game.make_move(&castling_move);
 
-    //     // Assert king moved
-    //     assert_eq!(
-    //         game.board.get_coords(&Coords::new(1, File::G)),
-    //         Some(Piece::King)
-    //     );
-    //     assert_eq!(game.board.get_coords(&Coords::new(1, File::E)), None);
+        // Assert king moved
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::G)),
+            Some(Piece{kind: PieceType::King, colour: Colour::White})
+        );
+        assert_eq!(game.board.get_coords(&Coords::new(1, File::E)), None);
 
-    //     // Assert rook moved
-    //     assert_eq!(
-    //         game.board.get_coords(&Coords::new(1, File::F)),
-    //         Some(Piece::Rook)
-    //     );
-    //     assert_eq!(game.board.get_coords(&Coords::new(1, File::H)), None);
-    // }
+        // Assert rook moved
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::F)),
+            Some(Piece{kind: PieceType::Rook, colour: Colour::White})
+        );
+        assert_eq!(game.board.get_coords(&Coords::new(1, File::H)), None);
+    }
 
     // #[test]
     // fn test_promotion_white_pawn() {

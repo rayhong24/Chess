@@ -92,7 +92,6 @@ impl GameState {
             self.en_passant_target = None;
         }
     }
-
 }
 
 #[cfg(test)]
