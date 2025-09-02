@@ -25,7 +25,7 @@ pub struct PromotionMove {
     pub colour: Colour,
     pub from: Coords,
     pub to: Coords,
-    pub promoted_piece: PieceType,
+    pub promotion_piece_type: PieceType,
     pub captured_piece: Option<PieceType>,
 }
 
@@ -34,7 +34,7 @@ pub struct EnPassantMove {
     pub colour: Colour,
     pub from: Coords,
     pub to: Coords,
-    pub captured_pawn_coords: Coords,
+    pub captured_piece: Option<Coords>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

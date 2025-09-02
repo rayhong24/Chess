@@ -45,10 +45,10 @@ impl Game {
                 self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
                 self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
             }
-            // ChessMove::Promotion(ref mv) => {
-            //     self.board.set_coords(&mv.from, None);
-            //     self.board.set_coords(&mv.from, Some(mv.promoted_piece));
-            // }
+            ChessMove::Promotion(ref mv) => {
+                self.board.set_coords(&mv.from, None);
+                self.board.set_coords(&mv.from, Some(Piece {kind: mv.promotion_piece_type, colour: mv.colour}));
+            }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
@@ -144,24 +144,26 @@ mod tests {
         assert_eq!(game.board.get_coords(&Coords::new(1, File::H)), None);
     }
 
-    // #[test]
-    // fn test_promotion_white_pawn() {
-    //     let mut game = Game::new();
+    #[test]
+    fn test_promotion_white_pawn() {
+        let mut game = Game::new();
 
-    //     // Define promotion move: Pawn promotes at E8 → Queen
-    //     let promotion_move = ChessMove::Promotion(PromotionMove {
-    //         colour: Colour::White,
-    //         from: Coords::new(7, File::E), // pawn moves from 7th rank
-    //         promoted_piece: Piece::Queen,
-    //     });
+        // Define promotion move: Pawn promotes at E8 → Queen
+        let promotion_move = ChessMove::Promotion(PromotionMove {
+            colour: Colour::White,
+            from: Coords::new(7, File::E), // pawn moves from 7th rank
+            to: Coords::new(8, File::E), 
+            promotion_piece_type: PieceType::Queen,
+            captured_piece: None,
+        });
 
-    //     game.make_move(&promotion_move);
+        game.make_move(&promotion_move);
 
-    //     // Assert square now has promoted piece
-    //     assert_eq!(
-    //         game.board.get_coords(&Coords::new(7, File::E)),
-    //         Some(Piece::Queen)
-    //     );
-    // }
+        // Assert square now has promoted piece
+        assert_eq!(
+            game.board.get_coords(&Coords::new(7, File::E)),
+            Some(Piece { kind: PieceType::Queen, colour: Colour::White })
+        );
+    }
 }
 
