@@ -41,14 +41,14 @@ impl Game {
                 self.board.move_piece(&mv.piece, &mv.colour, &mv.from, &mv.to);
 
             }
-            ChessMove::Castling(ref mv) => {
-                self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
-                self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
-            }
-            ChessMove::Promotion(ref mv) => {
-                self.board.set_coords(&mv.from, None);
-                self.board.set_coords(&mv.from, Some(mv.promoted_piece));
-            }
+            // ChessMove::Castling(ref mv) => {
+            //     self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
+            //     self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
+            // }
+            // ChessMove::Promotion(ref mv) => {
+            //     self.board.set_coords(&mv.from, None);
+            //     self.board.set_coords(&mv.from, Some(mv.promoted_piece));
+            // }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
