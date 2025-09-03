@@ -36,18 +36,32 @@ impl Game {
         // 1. Board setup
         self.board.set_board_from_fenstr(fenstr_parts[0]);
 
-        // 2. Active Colour
+        // 2. Active colour
         self.game_state.set_turn(match fenstr_parts[1] {
             "w" => Colour::White,
             "b" => Colour::Black,
             _ => {panic!("Invalid active colour field in fenstring")}
         });
 
+        // 3. Castling rights
         self.game_state.set_castling_rights_from_fenstr(fenstr_parts[2]);
 
-        
+
+        // 4. En passant target
+        if fenstr_parts[3] != "-" {
+            if let Some(coords) = Coords::from_str(fenstr_parts[3]) {
+                self.game_state.set_en_passant_target(Some(coords));
+            }
+            else {
+                panic!("Invalid Enpassant target");
+            }
+        }
+        else {
+            self.game_state.set_en_passant_target(None);
+        }
 
 
+        // Halfmove clock and fullmove number not yet implemented
         
     }
 
