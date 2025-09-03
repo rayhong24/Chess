@@ -22,8 +22,33 @@ impl Game {
             ended: false,
         }
     }
+
     pub fn clear_board(&mut self) {
         self.board = Board::new();
+    }
+
+    pub fn set_fenstr(&mut self, fenstr: &str) {
+        let fenstr_parts: Vec<&str> = fenstr.split(' ').collect();
+        if fenstr_parts.len() < 4 {
+            panic!("Invalid FEN string: expected at least 4 fields, got {}", fenstr_parts.len());
+        }
+
+        // 1. Board setup
+        self.board.set_board_from_fenstr(fenstr_parts[0]);
+
+        // 2. Active Colour
+        self.game_state.set_turn(match fenstr_parts[1] {
+            "w" => Colour::White,
+            "b" => Colour::Black,
+            _ => {panic!("Invalid active colour field in fenstring")}
+        });
+
+        self.game_state.set_castling_rights_from_fenstr(fenstr_parts[2]);
+
+        
+
+
+        
     }
 
     pub fn get_board(&self) -> &Board {
@@ -161,13 +186,17 @@ mod tests {
     // #[test]
     // fn test_castling_kingside_white() {
     //     let mut game = Game::new();
+    //     game.clear_board();
+
+    //     let king_start_coords = Coords::new(1, File::E);
+    //     let rook_start_coords = Coords::new(1, File::H);
 
     //     // Define castling move: King from E1 to G1, Rook from H1 to F1
     //     let mut castling_move = ChessMove::Castling(CastlingMove {
     //         colour: Colour::White,
-    //         king_from: Coords::new(1, File::E),
+    //         king_from: king_start_coords,
     //         king_to: Coords::new(1, File::G),
-    //         rook_from: Coords::new(1, File::H),
+    //         rook_from: rook_start_coords,
     //         rook_to: Coords::new(1, File::F),
     //     });
 
