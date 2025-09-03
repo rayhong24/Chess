@@ -70,7 +70,7 @@ impl Board {
     }
 
 
-    pub fn set_fenstr(&mut self, fenstr: &str) {
+    pub fn set_board_from_fenstr(&mut self, fenstr_board: &str) {
         // Clear all bitboards
         for bitboard in &mut self.white_bit_boards {
             *bitboard = BitBoard::new();
@@ -79,16 +79,11 @@ impl Board {
             *bitboard = BitBoard::new();
         }
 
-        let parts: Vec<&str> = fenstr.split(' ').collect();
-        if parts.len() < 1 {
-            panic!("Invalid FEN string");
-        }
-
-        let board_part = parts[0];
-        let ranks: Vec<&str> = board_part.split('/').collect();
+        let ranks: Vec<&str> = fenstr_board.split('/').collect();
         if ranks.len() != 8 {
             panic!("Invalid FEN string: incorrect number of ranks");
         }
+        println!("asdfasdjfsdklfjasdfklasdjflasdjfasdklf {}", fenstr_board);
 
         for (rank_index, rank_str) in ranks.iter().enumerate() {
             let mut file_index = 0;
@@ -202,7 +197,7 @@ mod tests {
     fn test_set_fenstr_valid() {
         let mut board = Board::new();
         // FEN string for just a white king at e4
-        board.set_fenstr("4K3/8/8/8/8/8/8/8 w - - 0 1");
+        board.set_board_from_fenstr("4K3/8/8/8/8/8/8/8");
 
         assert!(board.white_bit_boards[PieceType::King as usize]
             .is_set(&Coords::new(8, File::E)));
@@ -212,14 +207,14 @@ mod tests {
     #[should_panic(expected = "Invalid FEN string: unknown piece")]
     fn test_set_fenstr_invalid_piece() {
         let mut board = Board::new();
-        board.set_fenstr("4X3/8/8/8/8/8/8/8 w - - 0 1");
+        board.set_board_from_fenstr("4X3/8/8/8/8/8/8/8");
     }
 
     #[test]
     #[should_panic(expected = "Invalid FEN string: incorrect number of ranks")]
     fn test_set_fenstr_invalid_rank_count() {
         let mut board = Board::new();
-        board.set_fenstr("8/8/8/8/8/8/8 w - - 0 1");
+        board.set_board_from_fenstr("8/8/8/8/8/8/8");
     }
 
     #[test]

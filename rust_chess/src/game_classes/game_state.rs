@@ -31,6 +31,31 @@ impl GameState {
         }
     }
 
+    pub fn set_castling_rights_from_fenstr(&mut self, castling_rights_fenstr: &str) {
+        self.castling_rights.white_kingside = false;
+        self.castling_rights.white_queenside = false;
+        self.castling_rights.black_kingside = false;
+        self.castling_rights.black_queenside = false;
+
+        if castling_rights_fenstr == "-" {
+            return;
+        }
+
+        for ch in castling_rights_fenstr.chars() {
+            match ch {
+                'K' => self.castling_rights.white_kingside = true,
+                'Q' => self.castling_rights.white_queenside = true,
+                'k' => self.castling_rights.black_kingside = true,
+                'q' => self.castling_rights.black_queenside = true,
+                _ => panic!("Invalid castling rights character in FEN: {}", ch),
+            }
+        }
+    }
+    
+    pub fn set_turn(&mut self, colour: Colour) {
+        self.turn = colour;
+    }
+
     pub fn can_castle_white_kingside(&self) -> bool {
         self.castling_rights.white_kingside
     }
