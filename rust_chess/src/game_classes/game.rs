@@ -83,25 +83,31 @@ impl Game {
                 let executed_move = ExecutedMove::Normal { mv: *mv, captured_piece: self.board.get_coords(&mv.to)};
                 self.move_history.push(executed_move);
 
-                self.board.move_piece(&mv.piece, &mv.colour, &mv.from, &mv.to);
+                let piece = Piece { kind: mv.piece_type, colour: mv.colour};
+                self.board.move_piece(&piece, &mv.from, &mv.to);
 
             }
             ChessMove::Castling(ref mv) => {
                 let executed_move = ExecutedMove::Castling { mv: *mv };
                 self.move_history.push(executed_move);
 
-                self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_from, &mv.king_to);
-                self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_from, &mv.rook_to);
+                let king = Piece { kind: PieceType::King, colour: mv.colour};
+                let rook = Piece { kind: PieceType::Rook, colour: mv.colour};
+
+                self.board.move_piece(&king, &mv.king_from, &mv.king_to);
+                self.board.move_piece(&rook, &mv.rook_from, &mv.rook_to);
             }
             ChessMove::Promotion(ref mv) => {
                 let executed_move = ExecutedMove::Promotion { mv: *mv , captured_piece: self.board.get_coords(&mv.to)};
                 self.move_history.push(executed_move);
 
+                let promotion_piece = Piece {kind: mv.promotion_piece_type, colour: mv.colour};
                 self.board.set_coords(&mv.from, None);
-                self.board.set_coords(&mv.to, Some(Piece {kind: mv.promotion_piece_type, colour: mv.colour}));
+                self.board.set_coords(&mv.to, Some(promotion_piece));
             }
             ChessMove::EnPassant(ref mv) => {
-                self.board.move_piece(&PieceType::Pawn, &mv.colour, &mv.from, &mv.to);
+                let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
+                self.board.move_piece(&pawn, &mv.from, &mv.to);
                 self.board.set_coords(&mv.captured_coords, None);
             }
             _ => unimplemented!("This move type is not yet implemented."),
@@ -118,16 +124,22 @@ impl Game {
 
         match executed_move {
             ExecutedMove::Normal {mv, captured_piece} => {
-                self.board.move_piece(&mv.piece, &mv.colour, &mv.to, &mv.from);
+                let piece = Piece { kind: mv.piece_type, colour: mv.colour};
+
+                self.board.move_piece(&piece, &mv.to, &mv.from);
                 self.board.set_coords(&mv.to, captured_piece);
             }
             ExecutedMove::Castling {mv} => {
-                self.board.move_piece(&PieceType::King, &mv.colour, &mv.king_to, &mv.king_from);
-                self.board.move_piece(&PieceType::Rook, &mv.colour, &mv.rook_to, &mv.rook_from);
+                let king = Piece { kind: PieceType::King, colour: mv.colour };
+                let rook = Piece { kind: PieceType::Rook, colour: mv.colour };
+                self.board.move_piece(&king, &mv.king_to, &mv.king_from);
+                self.board.move_piece(&rook, &mv.rook_to, &mv.rook_from);
             }
             ExecutedMove::Promotion {mv, captured_piece} => {
+                let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
+
                 self.board.set_coords(&mv.to, captured_piece);
-                self.board.set_coords(&mv.from, Some(Piece {kind: PieceType::Pawn, colour: mv.colour}));
+                self.board.set_coords(&mv.from, Some(pawn));
             }
             // ChessMove::EnPassant(ref mv) => {
             //     self.board.move_piece(&PieceType::Pawn, &mv.colour, &mv.from, &mv.to);
@@ -149,7 +161,7 @@ mod tests {
     fn make_normal_move(colour: Colour, piece: PieceType, from: Coords, to: Coords) -> ChessMove {
         ChessMove::Normal(NormalMove {
             colour,
-            piece,
+            piece_type: piece,
             from: from,
             to: to,
             captured_piece: None,
@@ -311,7 +323,7 @@ mod tests {
 
         // Construct move (white pawn e2 -> e4)
         let mv = ChessMove::Normal(NormalMove {
-            piece: PieceType::Pawn,
+            piece_type: PieceType::Pawn,
             colour: Colour::White,
             from,
             to,

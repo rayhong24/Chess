@@ -127,16 +127,16 @@ impl Board {
         }
     }
 
-    pub fn move_piece(&mut self, piece_type: &PieceType, colour: &Colour, from: &Coords, to: &Coords) {
+    pub fn move_piece(&mut self, piece: &Piece, from: &Coords, to: &Coords) {
         {
-            let bitboard = self.get_bit_board(*colour, *piece_type);
+            let bitboard = self.get_bit_board(piece.colour, piece.kind);
             if !bitboard.is_set(from) {
                 panic!("No piece found at the source coordinates {:?}", from);
             }
         }
 
         self.set_coords(from, None);
-        self.set_coords(to, Some(Piece { kind: *piece_type, colour: *colour}));
+        self.set_coords(to, Some(*piece));
 
     }
 
@@ -221,21 +221,22 @@ mod tests {
     fn test_move_piece() {
         let mut board = Board::new();
 
-        let piece = PieceType::Pawn;
+        let piece_type = PieceType::Pawn;
         let colour = Colour::White;
+        let white_pawn = Piece { kind: piece_type, colour: colour };
         let from = Coords { rank: 2, file: File::A }; // e2
         let to = Coords { rank: 3, file: File::A }; // e2
 
         // Place a pawn at "from"
         {
-            let bitboard = board.get_bit_board_mut(colour, piece);
+            let bitboard = board.get_bit_board_mut(colour, piece_type);
             bitboard.set_bit(&from, true);
         }
 
         // Move it
-        board.move_piece(&piece, &colour, &from, &to);
+        board.move_piece(&white_pawn, &from, &to);
 
-        let bitboard = board.get_bit_board(colour, piece);
+        let bitboard = board.get_bit_board(colour, piece_type);
 
         // Source should be cleared
         assert!(!bitboard.is_set(&from), "Source square should be cleared");
@@ -252,10 +253,9 @@ mod tests {
         let from = Coords { rank: 2, file: File::A };
         let to   = Coords { rank: 3, file: File::A };
 
-        let pawn = PieceType::Pawn;
-        let colour = Colour::White;
+        let pawn = Piece { kind: PieceType::Pawn, colour: Colour::White};
 
         // Do not place anything at `from`
-        board.move_piece(&pawn, &colour, &from, &to);
+        board.move_piece(&pawn, &from, &to);
     }
 }

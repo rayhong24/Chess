@@ -6,7 +6,7 @@ use crate::enums::PieceType;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NormalMove {
     pub colour: Colour,
-    pub piece: PieceType,
+    pub piece_type: PieceType,
     pub from: Coords,
     pub to: Coords,
     pub captured_piece: Option<Piece>,
@@ -90,7 +90,7 @@ impl ChessMove {
 
     pub fn piece(&self) -> PieceType {
         match self {
-            ChessMove::Normal(mv) => mv.piece,
+            ChessMove::Normal(mv) => mv.piece_type,
             ChessMove::Castling(_) => PieceType::King,
             ChessMove::Promotion(_) => PieceType::Pawn,
             ChessMove::EnPassant(_) => PieceType::Pawn,
