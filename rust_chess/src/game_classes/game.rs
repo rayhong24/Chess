@@ -98,7 +98,7 @@ impl Game {
                 self.move_history.push(executed_move);
 
                 self.board.set_coords(&mv.from, None);
-                self.board.set_coords(&mv.from, Some(Piece {kind: mv.promotion_piece_type, colour: mv.colour}));
+                self.board.set_coords(&mv.to, Some(Piece {kind: mv.promotion_piece_type, colour: mv.colour}));
             }
             ChessMove::EnPassant(ref mv) => {
                 self.board.move_piece(&PieceType::Pawn, &mv.colour, &mv.from, &mv.to);
@@ -197,40 +197,72 @@ mod tests {
         assert!(piece_at_e2.is_none());
     }
 
-    // #[test]
-    // fn test_castling_kingside_white() {
-    //     let mut game = Game::new();
-    //     game.clear_board();
+    #[test]
+    fn test_castling_kingside_white() {
+        let mut game = Game::new();
+        game.clear_board(); // assumes you have a way to reset the board
 
-    //     let king_start_coords = Coords::new(1, File::E);
-    //     let rook_start_coords = Coords::new(1, File::H);
+        // Place only the king and rook in starting positions
+        let white_king = Piece { kind: PieceType::King, colour: Colour::White };
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        let king_start = Coords::new(1, File::E);
+        let rook_start = Coords::new(1, File::H);
 
-    //     // Define castling move: King from E1 to G1, Rook from H1 to F1
-    //     let mut castling_move = ChessMove::Castling(CastlingMove {
-    //         colour: Colour::White,
-    //         king_from: king_start_coords,
-    //         king_to: Coords::new(1, File::G),
-    //         rook_from: rook_start_coords,
-    //         rook_to: Coords::new(1, File::F),
-    //     });
+        game.board.set_coords(&king_start, Some(white_king));
+        game.board.set_coords(&rook_start, Some(white_rook));
 
-    //     game.make_move(&mut castling_move);
+        let castling_move = ChessMove::Castling(CastlingMove {
+            colour: Colour::White,
+            king_from: king_start,
+            king_to: Coords::new(1, File::G),
+            rook_from: rook_start,
+            rook_to: Coords::new(1, File::F),
+        });
 
-    //     // Assert king moved
-    //     assert_eq!(
-    //         game.board.get_coords(&Coords::new(1, File::G)),
-    //         Some(Piece{kind: PieceType::King, colour: Colour::White})
-    //     );
-    //     assert_eq!(game.board.get_coords(&Coords::new(1, File::E)), None);
+        game.make_move(&castling_move);
 
-    //     // Assert rook moved
-    //     assert_eq!(
-    //         game.board.get_coords(&Coords::new(1, File::F)),
-    //         Some(Piece{kind: PieceType::Rook, colour: Colour::White})
-    //     );
-    //     assert_eq!(game.board.get_coords(&Coords::new(1, File::H)), None);
-    // }
+        // Assert king moved
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::G)),
+            Some(white_king)
+        );
+        assert_eq!(game.board.get_coords(&Coords::new(1, File::E)), None);
 
+        // Assert rook moved
+        assert_eq!(
+            game.board.get_coords(&Coords::new(1, File::F)),
+            Some(white_rook)
+        );
+        assert_eq!(game.board.get_coords(&Coords::new(1, File::H)), None);
+    }
+
+    #[test]
+    fn test_promotion_white_pawn() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place a white pawn at rank 7
+        let pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(7, File::E);
+        let to = Coords::new(8, File::E);
+        game.board.set_coords(&from, Some(pawn));
+
+        let promotion_move = ChessMove::Promotion(PromotionMove {
+            colour: Colour::White,
+            from,
+            to,
+            promotion_piece_type: PieceType::Queen,
+        });
+
+        game.make_move(&promotion_move);
+
+        // Assert promoted piece is now on the board
+        assert_eq!(
+            game.board.get_coords(&to),
+            Some(Piece { kind: PieceType::Queen, colour: Colour::White })
+        );
+        assert_eq!(game.board.get_coords(&from), None);
+    }
     // #[test]
     // fn test_promotion_white_pawn() {
     //     let mut game = Game::new();
