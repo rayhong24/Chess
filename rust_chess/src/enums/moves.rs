@@ -56,6 +56,9 @@ pub enum ExecutedMove {
     Promotion {
         mv: PromotionMove,
         captured_piece: Option<Piece>
+    },
+    EnPassant {
+        mv: EnPassantMove
     }
 
 }

@@ -106,6 +106,9 @@ impl Game {
                 self.board.set_coords(&mv.to, Some(promotion_piece));
             }
             ChessMove::EnPassant(ref mv) => {
+                let executed_move = ExecutedMove::EnPassant { mv:*mv };
+                self.move_history.push(executed_move);
+
                 let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
                 self.board.move_piece(&pawn, &mv.from, &mv.to);
                 self.board.set_coords(&mv.captured_coords, None);
@@ -141,10 +144,13 @@ impl Game {
                 self.board.set_coords(&mv.to, captured_piece);
                 self.board.set_coords(&mv.from, Some(pawn));
             }
-            // ChessMove::EnPassant(ref mv) => {
-            //     self.board.move_piece(&PieceType::Pawn, &mv.colour, &mv.from, &mv.to);
-            //     self.board.set_coords(&mv.captured_coords, None);
-            // }
+            ExecutedMove::EnPassant {mv} => {
+                let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
+                self.board.move_piece(&pawn, &mv.to, &mv.from);
+
+                let captured_pawn = Piece { kind: PieceType::Pawn, colour: mv.colour.other() };
+                self.board.set_coords(&mv.captured_coords, Some(captured_pawn));
+            }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
@@ -420,6 +426,51 @@ mod tests {
         let reverted_piece = game.board.get_coords(&from).unwrap();
         assert_eq!(reverted_piece.kind, PieceType::Pawn);
         assert_eq!(reverted_piece.colour, Colour::White);
+        assert!(game.board.get_coords(&to).is_none());
+    }
+
+    #[test]
+    fn test_undo_en_passant_move() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // White pawn on e5
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(5, File::E);
+        game.board.set_coords(&from, Some(white_pawn));
+
+        // Black pawn on d5 (target for en passant)
+        let black_pawn = Piece { kind: PieceType::Pawn, colour: Colour::Black };
+        let captured = Coords::new(5, File::D);
+        game.board.set_coords(&captured, Some(black_pawn));
+
+        // White plays e5 → d6 (en passant capture)
+        let to = Coords::new(6, File::D);
+        let en_passant_move = ChessMove::EnPassant(EnPassantMove {
+            colour: Colour::White,
+            from,
+            to,
+            captured_coords: captured,
+        });
+
+        // Execute en passant
+        game.make_move(&en_passant_move);
+
+        // White pawn should be on d6
+        assert_eq!(game.board.get_coords(&to), Some(white_pawn));
+        // Black pawn should be removed
+        assert_eq!(game.board.get_coords(&captured), None);
+        // e5 should now be empty
+        assert!(game.board.get_coords(&from).is_none());
+
+        // Undo the en passant
+        game.undo_last_move();
+
+        // White pawn should be back on e5
+        assert_eq!(game.board.get_coords(&from), Some(white_pawn));
+        // Black pawn should be restored on d5
+        assert_eq!(game.board.get_coords(&captured), Some(black_pawn));
+        // d6 should be empty again
         assert!(game.board.get_coords(&to).is_none());
     }
 }
