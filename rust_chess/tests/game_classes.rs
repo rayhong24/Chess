@@ -8,7 +8,7 @@ use rust_chess::enums::moves::NormalMove;
 
 fn normal_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> ChessMove {
     ChessMove::Normal(NormalMove {
-        piece,
+        piece_type: piece,
         colour,
         from: from,
         to: to,

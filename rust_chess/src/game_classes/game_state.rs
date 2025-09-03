@@ -133,7 +133,7 @@ mod tests {
     fn make_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> ChessMove {
         ChessMove::Normal(NormalMove {
             colour: colour,
-            piece: piece,
+            piece_type: piece,
             from: from,
             to: to,
             captured_piece: None,
