@@ -55,17 +55,17 @@ impl Board {
         board
     }
 
-    fn get_bit_board(&self, colour: Colour, piece: PieceType) -> &BitBoard {
-        match colour {
-            Colour::White => &self.white_bit_boards[piece as usize],
-            Colour::Black => &self.black_bit_boards[piece as usize],
+    fn get_bit_board(&self, piece: &Piece) -> &BitBoard {
+        match piece.colour {
+            Colour::White => &self.white_bit_boards[piece.kind as usize],
+            Colour::Black => &self.black_bit_boards[piece.kind as usize],
         }
     }
 
-    fn get_bit_board_mut(&mut self, colour: Colour, piece: PieceType) -> &mut BitBoard {
-        match colour {
-            Colour::White => &mut self.white_bit_boards[piece as usize],
-            Colour::Black => &mut self.black_bit_boards[piece as usize],
+    fn get_bit_board_mut(&mut self, piece: &Piece) -> &mut BitBoard {
+        match piece.colour {
+            Colour::White => &mut self.white_bit_boards[piece.kind as usize],
+            Colour::Black => &mut self.black_bit_boards[piece.kind as usize],
         }
     }
 
@@ -92,7 +92,7 @@ impl Board {
                     file_index += ch.to_digit(10).unwrap() as usize;
                 } else {
                     let colour = if ch.is_uppercase() { Colour::White } else { Colour::Black };
-                    let piece = match ch.to_ascii_lowercase() {
+                    let piece_type = match ch.to_ascii_lowercase() {
                         'p' => PieceType::Pawn,
                         'r' => PieceType::Rook,
                         'n' => PieceType::Knight,
@@ -103,7 +103,8 @@ impl Board {
                     };
 
                     let coords = Coords::new(8 - rank_index as u8, crate::enums::File::from_usize(file_index).unwrap());
-                    self.get_bit_board_mut(colour, piece).set_bit(&coords, true);
+                    let piece = Piece { kind: piece_type, colour: colour };
+                    self.get_bit_board_mut(&piece).set_bit(&coords, true);
                     file_index += 1;
                 }
             }
@@ -116,11 +117,12 @@ impl Board {
     pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<Piece>) {
         // Remove any piece (white or black) from these coords
         for colour in [Colour::White, Colour::Black] {
-            for piece in PieceType::iter() {
-                let mut bitboard = self.get_bit_board_mut(colour, piece);
+            for piece_type in PieceType::iter() {
+                let piece = Piece { kind: piece_type, colour: colour };
+                let mut bitboard = self.get_bit_board_mut(&piece);
 
                 let set = maybe_piece.is_some_and(
-                    |p| p.colour == colour && p.kind == piece
+                    |p| p.colour == colour && p.kind == piece_type
                 );
                 bitboard.set_bit(coords, set);
             }
@@ -129,7 +131,7 @@ impl Board {
 
     pub fn move_piece(&mut self, piece: &Piece, from: &Coords, to: &Coords) {
         {
-            let bitboard = self.get_bit_board(piece.colour, piece.kind);
+            let bitboard = self.get_bit_board(piece);
             if !bitboard.is_set(from) {
                 panic!("No piece found at the source coordinates {:?}", from);
             }
@@ -221,22 +223,20 @@ mod tests {
     fn test_move_piece() {
         let mut board = Board::new();
 
-        let piece_type = PieceType::Pawn;
-        let colour = Colour::White;
-        let white_pawn = Piece { kind: piece_type, colour: colour };
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
         let from = Coords { rank: 2, file: File::A }; // e2
         let to = Coords { rank: 3, file: File::A }; // e2
 
         // Place a pawn at "from"
         {
-            let bitboard = board.get_bit_board_mut(colour, piece_type);
+            let bitboard = board.get_bit_board_mut(&white_pawn);
             bitboard.set_bit(&from, true);
         }
 
         // Move it
         board.move_piece(&white_pawn, &from, &to);
 
-        let bitboard = board.get_bit_board(colour, piece_type);
+        let bitboard = board.get_bit_board(&white_pawn);
 
         // Source should be cleared
         assert!(!bitboard.is_set(&from), "Source square should be cleared");
