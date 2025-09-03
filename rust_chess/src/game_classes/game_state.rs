@@ -51,7 +51,7 @@ impl GameState {
             }
         }
     }
-    
+
     pub fn set_turn(&mut self, colour: Colour) {
         self.turn = colour;
     }
@@ -71,6 +71,10 @@ impl GameState {
 
     pub fn get_en_passant_target(&self) -> Option<Coords> {
         self.en_passant_target
+    }
+
+    pub fn set_en_passant_target(&mut self, target: Option<Coords>) {
+        self.en_passant_target = target;
     }
 
     pub fn update(&mut self, mv: &ChessMove) {
