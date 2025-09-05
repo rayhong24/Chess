@@ -1,1 +1,2 @@
-pub mod move_creators;
+pub mod move_ray;
+pub mod move_generator;

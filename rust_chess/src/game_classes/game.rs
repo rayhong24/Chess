@@ -73,6 +73,12 @@ impl Game {
         &self.game_state
     }
 
+    pub fn get_player_pieces(&self) -> Vec<(Piece, Coords)> {
+        let to_move = self.game_state.get_turn();
+
+        self.board.get_player_pieces(to_move)
+    }
+
     pub fn make_move(&mut self, chess_move: &ChessMove) {
         self.game_state_history.push(self.game_state.clone());
         self.game_state.update(chess_move);
@@ -170,7 +176,6 @@ mod tests {
             piece_type: piece,
             from: from,
             to: to,
-            captured_piece: None,
         })
     }
 
@@ -333,7 +338,6 @@ mod tests {
             colour: Colour::White,
             from,
             to,
-            captured_piece: None,
         });
 
         let initial_state = game.board.clone();

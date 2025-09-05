@@ -52,6 +52,10 @@ impl GameState {
         }
     }
 
+    pub fn get_turn(&self) -> Colour {
+        self.turn
+    }
+
     pub fn set_turn(&mut self, colour: Colour) {
         self.turn = colour;
     }
@@ -136,7 +140,6 @@ mod tests {
             piece_type: piece,
             from: from,
             to: to,
-            captured_piece: None,
         })
     }
 

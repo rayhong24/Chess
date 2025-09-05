@@ -9,7 +9,6 @@ pub struct NormalMove {
     pub piece_type: PieceType,
     pub from: Coords,
     pub to: Coords,
-    pub captured_piece: Option<Piece>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
