@@ -12,7 +12,6 @@ fn normal_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> Ch
         colour,
         from: from,
         to: to,
-        captured_piece: None
     })
 }
 
