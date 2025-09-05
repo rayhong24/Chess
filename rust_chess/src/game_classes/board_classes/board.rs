@@ -4,7 +4,7 @@ use crate::enums::piece_types::PIECE_COUNT;
 use crate::enums::{Colour, PieceType};
 use crate::coords::Coords;
 use crate::piece::Piece;
-use crate::game_classes::board_classes::bit_board::BitBoard;
+use crate::game_classes::board_classes::bit_board::{self, BitBoard};
 // use crate::coords::Coords;
 // use crate::pieces::Piece;
 
@@ -53,6 +53,24 @@ impl Board {
         }
 
         board
+    }
+
+    pub fn get_player_pieces(&self, colour: Colour) -> Vec<(Piece, Coords)> {
+        let mut out = Vec::new();
+
+        let bitboards = match colour {
+            Colour::White => &self.white_bit_boards,
+            Colour::Black => &self.black_bit_boards
+        };
+
+        for piece_type in PieceType::iter() {
+            let piece = Piece { kind: piece_type, colour: colour };
+            for set_coords in bitboards[piece_type as usize].get_set_coords() {
+                out.push((piece, set_coords));
+            }
+        }
+
+        out
     }
 
     fn get_bit_board(&self, piece: &Piece) -> &BitBoard {
@@ -257,5 +275,46 @@ mod tests {
 
         // Do not place anything at `from`
         board.move_piece(&pawn, &from, &to);
+    }
+
+    #[test]
+    fn test_get_player_pieces_empty_board() {
+        let board = Board::new();
+        let white_pieces = board.get_player_pieces(Colour::White);
+        let black_pieces = board.get_player_pieces(Colour::Black);
+
+        assert!(white_pieces.is_empty());
+        assert!(black_pieces.is_empty());
+    }
+
+    #[test]
+    fn test_get_player_pieces_single_piece() {
+        let mut board = Board::new();
+        let coord = Coords::new(2, File::E);
+        board.white_bit_boards[PieceType::Pawn as usize].set_bit(&coord, true);
+
+        let white_pieces = board.get_player_pieces(Colour::White);
+
+        assert_eq!(white_pieces.len(), 1);
+        assert_eq!(white_pieces[0], (Piece { kind: PieceType::Pawn, colour: Colour::White }, coord));
+    }
+
+    #[test]
+    fn test_get_player_pieces_multiple_pieces() {
+        let mut board = Board::new();
+
+        // Add a white knight on g1
+        let knight_coord = Coords::new(1, File::G);
+        board.white_bit_boards[PieceType::Knight as usize].set_bit(&knight_coord, true);
+
+        // Add a white rook on a1
+        let rook_coord = Coords::new(1, File::A);
+        board.white_bit_boards[PieceType::Rook as usize].set_bit(&rook_coord, true);
+
+        let white_pieces = board.get_player_pieces(Colour::White);
+
+        assert_eq!(white_pieces.len(), 2);
+        assert!(white_pieces.contains(&(Piece { kind: PieceType::Knight, colour: Colour::White }, knight_coord)));
+        assert!(white_pieces.contains(&(Piece { kind: PieceType::Rook, colour: Colour::White }, rook_coord)));
     }
 }
