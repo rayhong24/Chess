@@ -69,6 +69,10 @@ impl Game {
         &self.board
     }
 
+    pub fn get_board_mut(&mut self) -> &mut Board {
+        &mut self.board
+    }
+
     pub fn get_game_state(&self) -> &GameState {
         &self.game_state
     }
