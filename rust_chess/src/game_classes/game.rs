@@ -77,6 +77,10 @@ impl Game {
         &self.game_state
     }
 
+    pub fn set_turn(&mut self, colour: Colour) {
+        self.game_state.set_turn(colour);
+    }
+
     pub fn get_player_pieces(&self) -> Vec<(Piece, Coords)> {
         let to_move = self.game_state.get_turn();
 

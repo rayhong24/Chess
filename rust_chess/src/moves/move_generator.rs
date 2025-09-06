@@ -1,6 +1,6 @@
 use strum::IntoEnumIterator;
 
-use crate::enums::moves::{NormalMove, PromotionMove};
+use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove};
 use crate::enums::{ChessMove, PieceType, Colour};
 use crate::game_classes::game::Game;
 use crate::moves::move_ray::MoveRay;
@@ -25,16 +25,12 @@ impl MoveGenerator {
             );
         }
 
-        for m in &moves {
-            println!("{:?}", m);
-        }
-
-
         return moves;
     }
 
     fn move_rays_to_chess_moves(game: &Game, piece: &Piece, start_coords: &Coords, move_rays: &Vec<MoveRay>) -> Vec<ChessMove> {
         fn init_move(chess_moves: &mut Vec<ChessMove>, piece: &Piece, start_coords: &Coords, end_coords: &Coords) {
+            // Promotion case
             if piece.kind == PieceType::Pawn && (end_coords.rank == 1 || end_coords.rank == 8) {
                 for promotion_piece_type in PieceType::iter() {
                     if promotion_piece_type != PieceType::Pawn && promotion_piece_type != PieceType::King {
@@ -48,8 +44,8 @@ impl MoveGenerator {
                         );
                     }
                 }
-
             }
+            // Normal case
             else {
                 chess_moves.push(
                     ChessMove::Normal(NormalMove { 
@@ -73,6 +69,17 @@ impl MoveGenerator {
                 }
                 else {
                     if move_ray.capture_forced {
+                        // En passant
+                        if piece.kind == PieceType::Pawn && move_ray.capture_allowed && Some(end_coords) == game.get_game_state().get_en_passant_target() {
+                            chess_moves.push(
+                                ChessMove::EnPassant(EnPassantMove {
+                                    colour: piece.colour,
+                                    from: *start_coords,
+                                    to: end_coords,
+                                    captured_coords: game.get_game_state().get_en_passant_piece_coords().unwrap()
+                                })
+                            )
+                        }
                         break;
                     }
                     init_move(&mut chess_moves, piece, start_coords, &end_coords);
@@ -90,6 +97,7 @@ impl MoveGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::enums::File;
 
     #[test]
     fn test_generate_pseudo_legal_moves_startposition() {
@@ -155,5 +163,57 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn test_en_passant_generation() {
+        let mut game = Game::new();
+
+        // Clear board and set up only the pawns needed
+        game.clear_board();
+        game.set_turn(Colour::Black);
+
+        // Place white pawn on e5
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let white_pawn_coords = Coords::new(5, File::E);
+        game.get_board_mut().set_coords(&white_pawn_coords, Some(white_pawn));
+
+        // Place black pawn on d7
+        let black_pawn = Piece { kind: PieceType::Pawn, colour: Colour::Black };
+        let black_pawn_start = Coords::new(7, File::D);
+        game.get_board_mut().set_coords(&black_pawn_start, Some(black_pawn));
+
+        // Black moves pawn d7 -> d5
+        let black_pawn_move = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Pawn,
+            from: black_pawn_start,
+            to: Coords::new(5, File::D),
+        });
+        game.make_move(&black_pawn_move);
+
+        // Now generate White moves
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game);
+
+        // Expect en passant capture on d6
+        let expected_en_passant = ChessMove::EnPassant(EnPassantMove {
+            colour: Colour::White,
+            from: white_pawn_coords,
+            to: Coords::new(6, File::D),
+            captured_coords: Coords::new(5, File::D),
+        });
+
+        println!("sdafasdfasdfasdfasdf");
+        for m in &moves {
+            println!("{:?}", m);
+            println!()
+        }
+
+        assert!(
+            moves.contains(&expected_en_passant),
+            "Expected en passant move {:?}, but got {:?}",
+            expected_en_passant,
+            moves
+        );
     }
 }
