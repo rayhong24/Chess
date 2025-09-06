@@ -10,11 +10,11 @@ use crate::coords::Coords;
 pub struct MoveGenerator;
 
 impl MoveGenerator {
-    pub fn generate_pseudo_legal_moves(game: &Game) -> Vec<ChessMove> {
+    pub fn generate_pseudo_legal_moves(game: &Game, player: Colour) -> Vec<ChessMove> {
         let mut moves = vec![];
 
 
-        for (piece, coords) in &game.get_player_pieces() {
+        for (piece, coords) in &game.get_player_pieces(player) {
             moves.extend(
                 Self::move_rays_to_chess_moves(
                     game,
@@ -89,6 +89,12 @@ impl MoveGenerator {
 
         chess_moves
     }
+
+    fn is_square_under_attack(game: &Game, attacker: &Colour, coords: &Coords) -> bool {
+        let moves = Self::generate_pseudo_legal_moves(game, *attacker);
+
+        moves.iter().any(|m| m.to() == *coords)
+    }
 }
 
 
@@ -103,7 +109,7 @@ mod tests {
     fn test_generate_pseudo_legal_moves_startposition() {
         let game = Game::new(); // sets up standard start position
 
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game);
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
 
         // At the start, white pawns can move 1 or 2 squares forward
         let mut pawn_moves = moves.iter().filter(|mv| {
@@ -127,7 +133,7 @@ mod tests {
         game.clear_board();
         game.get_board_mut().set_coords(&promotion_coords, Some(white_pawn));
 
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game);
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
 
         // Check for promotion moves
         let promotion_moves: Vec<_> = moves.into_iter().filter(|mv| {
@@ -152,7 +158,7 @@ mod tests {
         let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
         game.get_board_mut().set_coords(&blocking_coords, Some(white_pawn));
 
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game);
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
 
         // The rook should not be able to move past the blocking pawn
         for mv in moves {
@@ -193,7 +199,7 @@ mod tests {
         game.make_move(&black_pawn_move);
 
         // Now generate White moves
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game);
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
 
         // Expect en passant capture on d6
         let expected_en_passant = ChessMove::EnPassant(EnPassantMove {
@@ -214,6 +220,56 @@ mod tests {
             "Expected en passant move {:?}, but got {:?}",
             expected_en_passant,
             moves
+        );
+    }
+
+    #[test]
+    fn test_square_under_attack_by_rook() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place a white rook on d4
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        let rook_coords = Coords::new(4, File::D);
+        game.get_board_mut().set_coords(&rook_coords, Some(white_rook));
+
+        // Square d6 should be attacked
+        let target = Coords::new(6, File::D);
+        assert!(
+            MoveGenerator::is_square_under_attack(&game, &Colour::White, &target),
+            "Expected d6 to be attacked by rook on d4"
+        );
+
+        // Square e5 should NOT be attacked
+        let not_attacked = Coords::new(5, File::E);
+        assert!(
+            !MoveGenerator::is_square_under_attack(&game, &Colour::White, &not_attacked),
+            "Expected e5 not to be attacked by rook on d4"
+        );
+    }
+
+    #[test]
+    fn test_square_under_attack_by_knight() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place a black knight on g5
+        let black_knight = Piece { kind: PieceType::Knight, colour: Colour::Black };
+        let knight_coords = Coords::new(5, File::G);
+        game.get_board_mut().set_coords(&knight_coords, Some(black_knight));
+
+        // Square e4 should be attacked (knight move)
+        let target = Coords::new(4, File::E);
+        assert!(
+            MoveGenerator::is_square_under_attack(&game, &Colour::Black, &target),
+            "Expected e4 to be attacked by knight on g5"
+        );
+
+        // Square g6 should NOT be attacked
+        let not_attacked = Coords::new(6, File::G);
+        assert!(
+            !MoveGenerator::is_square_under_attack(&game, &Colour::Black, &not_attacked),
+            "Expected g6 not to be attacked by knight on g5"
         );
     }
 }

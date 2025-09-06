@@ -81,10 +81,8 @@ impl Game {
         self.game_state.set_turn(colour);
     }
 
-    pub fn get_player_pieces(&self) -> Vec<(Piece, Coords)> {
-        let to_move = self.game_state.get_turn();
-
-        self.board.get_player_pieces(to_move)
+    pub fn get_player_pieces(&self, player: Colour) -> Vec<(Piece, Coords)> {
+        self.board.get_player_pieces(player)
     }
 
     pub fn make_move(&mut self, chess_move: &ChessMove) {
