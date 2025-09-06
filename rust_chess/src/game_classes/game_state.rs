@@ -15,6 +15,7 @@ pub struct GameState {
     turn: Colour,
     castling_rights: CastlingRights,
     en_passant_target: Option<Coords>,
+    en_passant_piece_coords: Option<Coords>
 }
 
 impl GameState {
@@ -28,6 +29,7 @@ impl GameState {
                 black_queenside: true,
             },
             en_passant_target: None,
+            en_passant_piece_coords: None
         }
     }
 
@@ -77,6 +79,10 @@ impl GameState {
         self.en_passant_target
     }
 
+    pub fn get_en_passant_piece_coords(&self) -> Option<Coords> {
+        self.en_passant_piece_coords
+    }
+
     pub fn set_en_passant_target(&mut self, target: Option<Coords>) {
         self.en_passant_target = target;
     }
@@ -121,8 +127,10 @@ impl GameState {
         if mv.piece() == PieceType::Pawn && (mv.from().rank).abs_diff(mv.to().rank) == 2 {
             let ep_rank = (mv.from().rank + mv.to().rank) / 2;
             self.en_passant_target = Some(Coords::new(ep_rank, mv.from().file));
+            self.en_passant_piece_coords = Some(mv.to());
         } else {
             self.en_passant_target = None;
+            self.en_passant_piece_coords = None
         }
     }
 }
