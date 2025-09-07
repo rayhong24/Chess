@@ -1,7 +1,9 @@
+use std::iter::Filter;
+
 use strum::IntoEnumIterator;
 
-use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove};
-use crate::enums::{ChessMove, PieceType, Colour};
+use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove, CastlingMove};
+use crate::enums::{ChessMove, PieceType, Colour, File};
 use crate::game_classes::game::Game;
 use crate::moves::move_ray::MoveRay;
 use crate::piece::Piece;
@@ -10,6 +12,43 @@ use crate::coords::Coords;
 pub struct MoveGenerator;
 
 impl MoveGenerator {
+    pub fn generate_legal_moves(game: &mut Game, player: Colour) -> Vec<ChessMove> {
+        let pseudo_legal_moves = Self::generate_pseudo_legal_moves(game, player);
+
+        let mut legal_moves: Vec<ChessMove> = pseudo_legal_moves.into_iter().filter(|&m| !Self::does_leave_player_in_check(game, &m)).collect();
+
+        legal_moves.append(&mut Self::generate_castling_moves(game, player));
+
+
+        legal_moves
+    }
+
+    fn does_leave_player_in_check(game: &mut Game, chess_move: &ChessMove) -> bool {
+        game.make_move(&chess_move);
+
+        let player_king = Piece {kind: PieceType::King, colour: chess_move.colour() };
+        let player_king_coords = game.get_board().get_piece_coords(player_king);
+
+        if player_king_coords.len() != 1 {
+            panic!("Multiple king coords found: {:?}", player_king_coords);
+        }
+
+        let king_coords = player_king_coords[0];
+
+        let out;
+
+        if Self::is_square_under_attack(game, &chess_move.colour().other(), &king_coords) {
+            out = true;
+        }
+        else {
+            out = false;
+        }
+
+        game.undo_last_move();
+
+        out
+    }
+
     pub fn generate_pseudo_legal_moves(game: &Game, player: Colour) -> Vec<ChessMove> {
         let mut moves = vec![];
 
@@ -94,6 +133,129 @@ impl MoveGenerator {
         let moves = Self::generate_pseudo_legal_moves(game, *attacker);
 
         moves.iter().any(|m| m.to() == *coords)
+    }
+
+    pub fn generate_castling_moves(game: &Game, colour: Colour) -> Vec<ChessMove> {
+        let mut moves = Vec::new();
+        let state = game.get_game_state();
+
+        // King and starting square
+        let rank = if colour == Colour::White { 1 } else { 8 };
+        let king_start = Coords::new(rank, File::E);
+        let king = Piece {kind: PieceType::King, colour: colour};
+
+        // Check king on starting square
+        if let Some(piece) = game.get_board().get_coords(&king_start) {
+            if piece != king {
+                return moves;
+            }
+        }
+        else {
+            return moves
+        }
+
+        // Kingside castle
+        if Self::can_castle_kingside(game, colour, &king_start) {
+            moves.push(ChessMove::Castling(CastlingMove {
+                colour,
+                king_from: king_start,
+                king_to: Coords::new(rank, File::G),
+                rook_from: Coords::new(rank, File::H),
+                rook_to: Coords::new(rank, File::F),
+            }));
+        }
+
+        // Queenside castle
+        if Self::can_castle_queenside(game, colour, &king_start) {
+            moves.push(ChessMove::Castling(CastlingMove {
+                colour,
+                king_from: king_start,
+                king_to: Coords::new(rank, File::C),
+                rook_from: Coords::new(rank, File::A),
+                rook_to: Coords::new(rank, File::D),
+            }));
+        }
+
+        moves
+    }
+
+    fn can_castle_kingside(game: &Game, colour: Colour, king_start: &Coords) -> bool {
+        let rank = king_start.rank;
+
+        // Check castling rights
+        let rights_ok = match colour {
+            Colour::White => game.get_game_state().can_castle_white_kingside(),
+            Colour::Black => game.get_game_state().can_castle_black_kingside(),
+        };
+        if !rights_ok { return false; }
+
+        // Check rook is on starting square
+        let rook_coords = Coords::new(rank, File::H);
+        let rook = Piece { kind: PieceType::Rook, colour: colour};
+
+        if let Some(piece) = game.get_board().get_coords(&rook_coords) {
+            if piece != rook {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+
+        // Check squares empty
+        if game.get_board().get_coords(&Coords::new(rank, File::F)).is_some() ||
+           game.get_board().get_coords(&Coords::new(rank, File::G)).is_some() {
+            return false;
+        }
+
+        // King not in check and doesn't cross attacked squares
+        if Self::is_square_under_attack(game, &colour.other(), king_start) ||
+           Self::is_square_under_attack(game, &colour.other(), &Coords::new(rank, File::F)) ||
+           Self::is_square_under_attack(game, &colour.other(), &Coords::new(rank, File::G)) {
+            return false;
+        }
+
+        true
+    }
+
+    fn can_castle_queenside(game: &Game, colour: Colour, king_start: &Coords) -> bool {
+        let rank = king_start.rank;
+
+        // Check castling rights
+        let rights_ok = match colour {
+            Colour::White => game.get_game_state().can_castle_white_queenside(),
+            Colour::Black => game.get_game_state().can_castle_black_queenside(),
+        };
+        if !rights_ok { return false; }
+
+        // Check rook is on starting square
+        let rook_coords = Coords::new(rank, File::A);
+        let rook = Piece { kind: PieceType::Rook, colour: colour};
+
+        if let Some(piece) = game.get_board().get_coords(&rook_coords) {
+            if piece != rook {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+
+        // Check squares empty
+        if game.get_board().get_coords(&Coords::new(rank, File::B)).is_some() ||
+           game.get_board().get_coords(&Coords::new(rank, File::C)).is_some() ||
+           game.get_board().get_coords(&Coords::new(rank, File::D)).is_some() {
+            return false;
+        }
+
+        // King not in check and doesn't cross attacked squares
+        if Self::is_square_under_attack(game, &colour.other(), king_start) ||
+           Self::is_square_under_attack(game, &colour.other(), &Coords::new(rank, File::D)) ||
+           Self::is_square_under_attack(game, &colour.other(), &Coords::new(rank, File::C)) {
+            return false;
+        }
+
+        true
     }
 }
 
@@ -270,6 +432,157 @@ mod tests {
         assert!(
             !MoveGenerator::is_square_under_attack(&game, &Colour::Black, &not_attacked),
             "Expected g6 not to be attacked by knight on g5"
+        );
+    }
+
+    #[test]
+    fn test_generate_castling_moves_white_kingside() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place white king on e1
+        let white_king = Piece { kind: PieceType::King, colour: Colour::White};
+        game.get_board_mut().set_coords(
+            &Coords::new(1, File::E),
+            Some(white_king)
+        );
+
+        // Place white rook on h1
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White};
+        game.get_board_mut().set_coords(
+            &Coords::new(1, File::H),
+            Some(white_rook)
+        );
+
+        let moves = MoveGenerator::generate_castling_moves(&game, Colour::White);
+
+        // Expect a single kingside castling move
+        let expected = ChessMove::Castling(CastlingMove {
+            colour: Colour::White,
+            king_from: Coords::new(1, File::E),
+            king_to: Coords::new(1, File::G),
+            rook_from: Coords::new(1, File::H),
+            rook_to: Coords::new(1, File::F),
+        });
+
+        assert!(
+            moves.contains(&expected),
+            "Expected kingside castling move {:?}, got {:?}",
+            expected,
+            moves
+        );
+    }
+
+    #[test]
+    fn test_generate_castling_moves_white_kingside_through_check() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place white king on e1
+        let white_king = Piece { kind: PieceType::King, colour: Colour::White};
+        game.get_board_mut().set_coords(
+            &Coords::new(1, File::E),
+            Some(white_king)
+        );
+
+        // Place white rook on h1
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White};
+        game.get_board_mut().set_coords(
+            &Coords::new(1, File::H),
+            Some(white_rook)
+        );
+
+        // Place black rook in f8
+        let black_rook = Piece { kind: PieceType::Rook, colour: Colour::Black};
+        game.get_board_mut().set_coords(
+            &Coords::new(8, File::F),
+            Some(black_rook)
+        );
+
+
+        let moves = MoveGenerator::generate_castling_moves(&game, Colour::White);
+
+        assert!(
+            moves.is_empty(),
+            "Expected no castling moves. Got {:?}",
+            moves
+        );
+    }
+
+    fn setup_simple_game() -> Game {
+        // Creates a minimal board with only a few pieces for testing.
+        let mut game = Game::new(); // Assuming you have a constructor for an empty board
+        game.clear_board();
+
+        // Place white king on e1
+        game.get_board_mut().set_coords(&Coords::new(1, File::E), Some(Piece { kind: PieceType::King, colour: Colour::White }));
+        // Place black king on e8
+        game.get_board_mut().set_coords(&Coords::new(8, File::E), Some(Piece { kind: PieceType::King, colour: Colour::Black }));
+        game
+    }
+
+    #[test]
+    fn test_generate_pseudo_legal_moves_pawn_push() {
+        let mut game = setup_simple_game();
+        // Add a white pawn on e2
+        game.get_board_mut().set_coords(&Coords::new(2, File::E), Some(Piece { kind: PieceType::Pawn, colour: Colour::White }));
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, Colour::White);
+
+        assert!(moves.iter().any(|m| m.to() == Coords::new(3, File::E)),
+            "Pawn should be able to move forward to e3");
+    }
+
+    #[test]
+    fn test_does_leave_player_in_check_true() {
+        let mut game = setup_simple_game();
+        // Add a white rook on e2, black king already on e8
+        game.get_board_mut().set_coords(&Coords::new(2, File::E), Some(Piece { kind: PieceType::Rook, colour: Colour::White }));
+        // Add black rook on e7, pinning white king
+        game.get_board_mut().set_coords(&Coords::new(7, File::E), Some(Piece { kind: PieceType::Rook, colour: Colour::Black }));
+
+        // Try moving the white rook away, exposing king
+        let chess_move = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Rook,
+            from: Coords::new(2, File::E),
+            to: Coords::new(2, File::F),
+        });
+
+        assert!(MoveGenerator::does_leave_player_in_check(&mut game, &chess_move),
+            "Moving rook away should leave the white king in check");
+    }
+
+    #[test]
+    fn test_does_leave_player_in_check_false() {
+        let mut game = setup_simple_game();
+        // Add white rook on a1
+        game.get_board_mut().set_coords(&Coords::new(1, File::A), Some(Piece { kind: PieceType::Rook, colour: Colour::White }));
+
+        // Safe rook move
+        let chess_move = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Rook,
+            from: Coords::new(1, File::A),
+            to: Coords::new(1, File::B),
+        });
+
+        assert!(!MoveGenerator::does_leave_player_in_check(&mut game, &chess_move),
+            "Rook moving on a1->b1 should not expose king to check");
+    }
+
+    #[test]
+    fn test_generate_legal_moves_filters_illegal() {
+        let mut game = setup_simple_game();
+        // Place white pawn on e2 and black rook on e3, directly checking king after pawn push
+        game.get_board_mut().set_coords(&Coords::new(2, File::E), Some(Piece { kind: PieceType::Pawn, colour: Colour::White }));
+        game.get_board_mut().set_coords(&Coords::new(3, File::E), Some(Piece { kind: PieceType::Rook, colour: Colour::Black }));
+
+        let legal_moves = MoveGenerator::generate_legal_moves(&mut game, Colour::White);
+
+        assert!(
+            !legal_moves.iter().any(|m| m.to() == Coords::new(3, File::E)),
+            "Pawn move to e3 should be illegal because it leaves the king in check"
         );
     }
 }
