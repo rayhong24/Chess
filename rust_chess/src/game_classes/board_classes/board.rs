@@ -181,6 +181,14 @@ impl Board {
         None
     }
 
+    pub fn get_piece_coords(&self, piece: Piece) -> Vec<Coords> {
+        let bitboards = match piece.colour {
+            Colour::White => &self.white_bit_boards,
+            Colour::Black => &self.black_bit_boards,
+        };
+
+        bitboards[piece.kind as usize].get_set_coords()
+    }
 }
 
 #[cfg(test)]
