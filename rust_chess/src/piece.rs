@@ -10,12 +10,12 @@ pub struct Piece {
     pub colour: Colour
 }
 
-impl fmt::Display for Piece {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // For example, print like "White Pawn" or "Black Queen"
-        write!(f, "{:?} {:?}", self.colour, self.kind)
-    }
-}
+// impl fmt::Display for Piece {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         // For example, print like "White Pawn" or "Black Queen"
+//         write!(f, "{:?} {:?}", self.colour, self.kind)
+//     }
+// }
 
 impl Piece {
     pub fn get_move_rays(&self, coords: &Coords) -> Vec<MoveRay> {
