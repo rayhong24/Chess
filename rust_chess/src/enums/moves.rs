@@ -1,7 +1,9 @@
+use std::fmt;
+
 use crate::enums::Colour;
 use crate::coords::Coords;
 use crate::piece::Piece;
-use crate::enums::PieceType;
+use crate::enums::{PieceType, File};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NormalMove {
@@ -96,6 +98,29 @@ impl ChessMove {
             ChessMove::Castling(_) => PieceType::King,
             ChessMove::Promotion(_) => PieceType::Pawn,
             ChessMove::EnPassant(_) => PieceType::Pawn,
+        }
+    }
+}
+
+impl fmt::Display for ChessMove {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ChessMove::Normal(mv) => {
+                write!(f, "{}{}", mv.from, mv.to)
+            }
+            ChessMove::Castling(mv) => {
+                if mv.king_to.file == File::G {
+                    write!(f, "O-O") // kingside
+                } else {
+                    write!(f, "O-O-O") // queenside
+                }
+            }
+            ChessMove::Promotion(mv) => {
+                write!(f, "{}{}={}", mv.from, mv.to, mv.promotion_piece_type)
+            }
+            ChessMove::EnPassant(mv) => {
+                write!(f, "{}{} e.p.", mv.from, mv.to)
+            }
         }
     }
 }

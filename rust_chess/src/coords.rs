@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::enums::File;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]

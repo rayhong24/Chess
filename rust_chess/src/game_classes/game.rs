@@ -1,3 +1,4 @@
+use crate::enums::moves::{NormalMove, PromotionMove};
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
 use crate::piece::Piece;
