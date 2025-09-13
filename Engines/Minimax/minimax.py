@@ -51,7 +51,7 @@ class Minimax(Engine):
 
 
 
-    def minimax(self, depth=2, alpha=-40001, beta=40001):
+    def minimax(self, depth=1, alpha=-40001, beta=40001):
         if self.rules_engine.is_checkmate(self.game):
             return self.evaluator.checkmate_eval if self.game.state.to_move == Colour.BLACK else -self.evaluator.checkmate_eval
         elif depth == 0:

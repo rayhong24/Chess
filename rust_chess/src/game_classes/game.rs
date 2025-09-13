@@ -1,6 +1,7 @@
 use crate::enums::moves::{NormalMove, PromotionMove};
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
+use crate::moves::move_generator::MoveGenerator;
 use crate::piece::Piece;
 use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
 use crate::game_classes::game_state::GameState;
@@ -64,6 +65,11 @@ impl Game {
 
         // Halfmove clock and fullmove number not yet implemented
         
+    }
+
+    pub fn is_game_over(&mut self) -> bool {
+        let moves = MoveGenerator::generate_legal_moves(self, self.get_game_state().get_turn());
+        return moves.is_empty();
     }
 
     pub fn get_board(&self) -> &Board {

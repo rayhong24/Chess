@@ -1,11 +1,24 @@
-from Engines.Minimax.minimax import Minimax
+import rust_chess 
 import time
+from enum import Enum
+
+from Engines.Minimax.minimax import Minimax
+
+class Mode(Enum):
+    python_minimax = 0
+    rust_minimax = 1 
 
 class Uci():
     def __init__(self):
-        self.engine = Minimax()
+        # self.engine = Minimax()
+        # self.mode = Mode.python_minimax
+        self.engine = rust_chess.PyMinimax(4)
+        self.mode = Mode.rust_minimax
         self.debug_mode = False
         self.running = False
+
+
+        self.depth = 1
 
     def sanitize(self, input):
         return input.strip()
@@ -57,20 +70,33 @@ class Uci():
                 if len(tokens) > 3 and tokens[3] == "moves":
                     moves = tokens[4:]
 
+
             self.engine.set_position(fen, moves)
 
             
 
 
         elif tokens[0] == "go":
+            # if self.mode == Mode.python_minimax:
             start = time.time()
             engine_move = self.engine.go()
             end = time.time()
 
             print(f"bestmove {engine_move}")
             print(f"total eval time: {end-start}")
-            self.engine.print_game_state()
-            
+            print(f"engine: {self.mode}")
+                # self.engine.print_game_state()
+
+            # else:
+            #     start = time.time()
+            #     engine_move = self.engine.go()
+            #     end = time.time()
+
+            #     print(f"bestmove {engine_move}")
+            #     print(f"total eval time: {end-start}")
+            #     self.engine.print_game_state()
+
+                
         elif tokens[0] == "stop":
             pass
         elif tokens[0] == "ponderhit":
