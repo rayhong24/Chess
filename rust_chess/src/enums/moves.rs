@@ -116,7 +116,7 @@ impl fmt::Display for ChessMove {
                 }
             }
             ChessMove::Promotion(mv) => {
-                write!(f, "{}{}={}", mv.from, mv.to, mv.promotion_piece_type)
+                write!(f, "{}{}{}", mv.from, mv.to, mv.promotion_piece_type)
             }
             ChessMove::EnPassant(mv) => {
                 write!(f, "{}{} e.p.", mv.from, mv.to)
