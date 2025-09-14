@@ -57,8 +57,6 @@ impl Minimax {
     }
 
     fn evaluate(&self, game: &Game, colour: Colour) -> i32 {
-        // TODO: replace with a real evaluation function
-        // game.material_count(colour) - game.material_count(colour.opponent())
-        return 0;
+        game.get_board().get_material(colour) - game.get_board().get_material(colour.other())
     }
 }

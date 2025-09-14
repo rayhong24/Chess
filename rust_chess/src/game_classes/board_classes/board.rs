@@ -101,7 +101,6 @@ impl Board {
         if ranks.len() != 8 {
             panic!("Invalid FEN string: incorrect number of ranks");
         }
-        println!("asdfasdjfsdklfjasdfklasdjflasdjfasdklf {}", fenstr_board);
 
         for (rank_index, rank_str) in ranks.iter().enumerate() {
             let mut file_index = 0;
@@ -188,6 +187,30 @@ impl Board {
         };
 
         bitboards[piece.kind as usize].get_set_coords()
+    }
+
+    pub fn get_material(&self, colour: Colour) -> i32 {
+        let bitboards = match colour {
+            Colour::White => &self.white_bit_boards,
+            Colour::Black => &self.black_bit_boards,
+        };
+
+        let mut out = 0;
+
+        for piece_type in PieceType::iter() {
+            let value = match piece_type {
+                PieceType::Pawn   => 1,
+                PieceType::Knight => 3,
+                PieceType::Bishop => 3,
+                PieceType::Rook   => 5,
+                PieceType::Queen  => 9,
+                PieceType::King   => 0,
+            };
+
+            out += value * bitboards[piece_type as usize].num_set_bits();
+        }
+
+        out
     }
 }
 
@@ -324,5 +347,13 @@ mod tests {
         assert_eq!(white_pieces.len(), 2);
         assert!(white_pieces.contains(&(Piece { kind: PieceType::Knight, colour: Colour::White }, knight_coord)));
         assert!(white_pieces.contains(&(Piece { kind: PieceType::Rook, colour: Colour::White }, rook_coord)));
+    }
+
+    #[test]
+    fn test_get_material_count() {
+        let mut board = Board::setup_startposition();
+
+        assert_eq!(board.get_material(Colour::White), 39);
+        assert_eq!(board.get_material(Colour::Black), 39);
     }
 }
