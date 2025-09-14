@@ -60,7 +60,7 @@ class Uci():
             fen = None
             moves = []
             if tokens[1] == "startpos":
-                fen = None
+                fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
                 if len(tokens) > 2 and tokens[2] == "moves":
                     moves = tokens[3:]

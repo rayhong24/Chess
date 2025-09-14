@@ -33,6 +33,20 @@ impl BitBoard {
         (self.bits & (1 << index)) != 0
     }
 
+    pub fn num_set_bits(&self) -> i32 {
+        let mut out = 0;
+
+        let mut bb = self.bits;
+
+        while bb != 0 {
+            out += 1;
+            bb &= bb-1;
+        }
+
+        out
+
+    }
+
     pub fn get_set_coords(&self) -> Vec<Coords> {
         let mut result = Vec::new();
         let mut bb = self.bits; // assuming BitBoard wraps a u64, e.g. struct BitBoard(u64);
@@ -119,5 +133,12 @@ mod tests {
             Coords::new(8, File::H),
         ];
         assert_eq!(coords, expected);
+    }
+    
+    #[test]
+    fn test_num_set_bits() {
+        let bb = BitBoard::from_bits((1u64 << 0) | (1u64 << 7) | (1u64 << 63));
+
+        assert_eq!(bb.num_set_bits(), 3);
     }
 }
