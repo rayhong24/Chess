@@ -14,6 +14,8 @@ impl Minimax {
     pub fn find_best_move(&self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
         let mut best_score = i32::MIN;
         let mut best_move: Option<ChessMove> = None;
+        
+        let mut move_scores = vec![];
 
         let moves = MoveGenerator::generate_legal_moves(game, colour);
         for mv in moves {
@@ -23,13 +25,19 @@ impl Minimax {
 
             game.undo_last_move();
 
-
+            move_scores.push((mv, score));
 
             if score > best_score {
                 best_score = score;
                 best_move = Some(mv);
             }
         }
+
+        // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
+
+        // for (mv, score) in &move_scores {
+        //     println!("{}: {}", mv, score);
+        // }
 
         best_move
     }
@@ -56,7 +64,7 @@ impl Minimax {
         best_score
     }
 
-    fn evaluate(&self, game: &Game, colour: Colour) -> i32 {
+    pub fn evaluate(&self, game: &Game, colour: Colour) -> i32 {
         game.get_board().get_material(colour) - game.get_board().get_material(colour.other())
     }
 }
