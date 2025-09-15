@@ -44,13 +44,13 @@ impl Minimax {
 
     fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
         if depth == 0 || game.is_game_over() {
-            return self.evaluate(game, colour);
+            return self.quiescence(game, -i32::MAX, i32::MAX, colour);
         }
 
         let moves = MoveGenerator::generate_legal_moves(game, colour);
         let mut best_score = i32::MIN;
 
-        for mv in moves {
+        for mv in &moves {
             game.make_move(&mv);
             let score = -self.minimax(game, depth - 1, -beta, -alpha, colour.other());
             game.undo_last_move();
@@ -66,5 +66,38 @@ impl Minimax {
 
     pub fn evaluate(&self, game: &Game, colour: Colour) -> i32 {
         game.get_board().get_material(colour) - game.get_board().get_material(colour.other())
+    }
+
+    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, colour: Colour) -> i32 {
+        // Step 1: stand pat evaluation
+        let stand_pat = self.evaluate(game, colour);
+
+        if stand_pat >= beta {
+            return stand_pat;
+        }
+        if stand_pat > alpha {
+            alpha = stand_pat;
+        }
+
+        // Step 2: generate only "tactical" moves (captures/promotions/checks)
+        let moves = MoveGenerator::generate_legal_moves(game, colour);
+        for mv in &moves {
+            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) && !game.is_check(mv) {
+                continue;
+            }
+
+            game.make_move(&mv);
+            let score = -self.quiescence(game, -beta, -alpha, colour.other());
+            game.undo_last_move();
+
+            if score >= beta {
+                return beta;
+            }
+            if score > alpha {
+                alpha = score;
+            }
+        }
+
+        alpha
     }
 }
