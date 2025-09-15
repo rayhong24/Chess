@@ -26,23 +26,8 @@ impl MoveGenerator {
     fn does_leave_player_in_check(game: &mut Game, chess_move: &ChessMove) -> bool {
         game.make_move(&chess_move);
 
-        let player_king = Piece {kind: PieceType::King, colour: chess_move.colour() };
-        let player_king_coords = game.get_board().get_piece_coords(player_king);
+        let out = game.is_player_in_check(chess_move.colour());
 
-        if player_king_coords.len() != 1 {
-            panic!("Multiple king coords found: {:?}", player_king_coords);
-        }
-
-        let king_coords = player_king_coords[0];
-
-        let out;
-
-        if Self::is_square_under_attack(game, &chess_move.colour().other(), &king_coords) {
-            out = true;
-        }
-        else {
-            out = false;
-        }
 
         game.undo_last_move();
 
@@ -129,7 +114,7 @@ impl MoveGenerator {
         chess_moves
     }
 
-    fn is_square_under_attack(game: &Game, attacker: &Colour, coords: &Coords) -> bool {
+    pub fn is_square_under_attack(game: &Game, attacker: &Colour, coords: &Coords) -> bool {
         let moves = Self::generate_pseudo_legal_moves(game, *attacker);
 
         moves.iter().any(|m| m.to() == *coords)
