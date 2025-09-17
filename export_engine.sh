@@ -4,5 +4,6 @@ maturin develop
 
 cd ..
 
-pyinstaller --onefile -c main_uci.py
+pyinstaller --onefile -c --paths=D:.venv/lib/python3.11/site-packages main_uci.py
+
 mv dist/main_uci.exe ../lichess-bot/engines/main_uci.exe

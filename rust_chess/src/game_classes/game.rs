@@ -173,6 +173,34 @@ impl Game {
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
+
+    pub fn is_capture(&mut self, chess_move: &ChessMove) -> bool {
+        self.board.get_coords(&chess_move.to()).is_some()
+    }
+
+    pub fn is_player_in_check(&self, player: Colour) -> bool {
+        let player_king = Piece {kind: PieceType::King, colour: player };
+        let player_king_coords = self.board.get_piece_coords(player_king);
+
+        if player_king_coords.len() != 1 {
+            panic!("Multiple king coords found: {:?}", player_king_coords);
+        }
+
+        let king_coords = player_king_coords[0];
+
+        MoveGenerator::is_square_under_attack(self, &player.other(), &king_coords)
+    }
+
+    pub fn is_check(&mut self, chess_move: &ChessMove) -> bool {
+        self.make_move(chess_move);
+
+        let out = self.is_player_in_check(chess_move.colour().other()); 
+
+        self.undo_last_move();
+
+
+        out
+    }
 }
 
 
@@ -490,5 +518,118 @@ mod tests {
         // d6 should be empty again
         assert!(game.board.get_coords(&to).is_none());
     }
+    #[test]
+    fn test_is_capture_detects_capture() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place a white pawn at e2
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(2, File::E);
+        game.board.set_coords(&from, Some(white_pawn));
+
+        // Place a black pawn at e3 (target square)
+        let black_pawn = Piece { kind: PieceType::Pawn, colour: Colour::Black };
+        let to = Coords::new(3, File::E);
+        game.board.set_coords(&to, Some(black_pawn));
+
+        // Construct a move: white pawn e2 -> e3
+        let mv = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Pawn,
+            from,
+            to,
+        });
+
+        // Check if the move is considered a capture
+        let is_capture = game.is_capture(&mv);
+
+        assert!(is_capture, "Expected e2→e3 to be a capture because e3 is occupied");
+    }
+
+    #[test]
+    fn test_is_capture_non_capture_move() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place a white pawn at e2
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(2, File::E);
+        game.board.set_coords(&from, Some(white_pawn));
+
+        // Target square is empty (e4)
+        let to = Coords::new(4, File::E);
+
+        // Construct a move: white pawn e2 -> e4
+        let mv = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Pawn,
+            from,
+            to,
+        });
+
+        // Check if the move is considered a capture
+        let is_capture = game.is_capture(&mv);
+
+        assert!(!is_capture, "Expected e2→e4 not to be a capture because e4 is empty");
+    }
+
+    #[test]
+    fn test_is_check_detects_check() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place black king on e8
+        let black_king = Piece { kind: PieceType::King, colour: Colour::Black };
+        let black_king_pos = Coords::new(8, File::E);
+        game.board.set_coords(&black_king_pos, Some(black_king));
+
+        // Place white queen on g2
+        let white_queen = Piece { kind: PieceType::Queen, colour: Colour::White };
+        let white_queen_pos = Coords::new(2, File::G);
+        game.board.set_coords(&white_queen_pos, Some(white_queen));
+
+        let white_queen_dest = Coords::new(8, File::G);
+
+        // Construct move: white queen e1 -> e8 (puts black king in check)
+        let mv = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Queen,
+            from: white_queen_pos,
+            to: white_queen_dest,
+        });
+
+        // Check if is_check detects check
+        let is_check = game.is_check(&mv);
+        assert!(is_check, "Expected move to put Black in check");
+    }
+
+    #[test]
+    fn test_is_check_non_check_move() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place black king on e8
+        let black_king = Piece { kind: PieceType::King, colour: Colour::Black };
+        let black_king_pos = Coords::new(8, File::E);
+        game.board.set_coords(&black_king_pos, Some(black_king));
+
+        // Place white queen somewhere not attacking king
+        let white_queen = Piece { kind: PieceType::Queen, colour: Colour::White };
+        let white_queen_pos = Coords::new(1, File::D);
+        game.board.set_coords(&white_queen_pos, Some(white_queen));
+
+        // Move queen to d2 (does not put king in check)
+        let mv = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Queen,
+            from: white_queen_pos,
+            to: Coords::new(2, File::D),
+        });
+
+        let is_check = game.is_check(&mv);
+        assert!(!is_check, "Expected move not to put Black in check");
+    }
+
 }
 

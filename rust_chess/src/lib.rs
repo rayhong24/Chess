@@ -73,7 +73,7 @@ impl PyMinimax {
 
     fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
-        println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
+        // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
         let best = self.inner.find_best_move(&mut self.game, colour);
         return best.unwrap().to_string();
     }
