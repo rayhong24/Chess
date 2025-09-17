@@ -11,6 +11,7 @@ pub mod enums;
 pub mod moves;
 pub mod game_classes;
 pub mod minimax;
+pub mod move_ordering;
 
 #[pymodule]
 fn rust_chess(m: &Bound<'_, PyModule>) -> PyResult<()> {
