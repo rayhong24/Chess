@@ -1,6 +1,7 @@
 use crate::game_classes::game::Game;
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour};
+use crate::move_ordering::order_moves;
 
 pub struct Minimax {
     pub max_depth: usize,
@@ -44,7 +45,7 @@ impl Minimax {
 
     fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
         if depth == 0 || game.is_game_over() {
-            return self.quiescence(game, -i32::MAX, i32::MAX, colour);
+            return self.quiescence(game, -i32::MAX, i32::MAX);
         }
 
         let moves = MoveGenerator::generate_legal_moves(game, colour);
@@ -64,13 +65,16 @@ impl Minimax {
         best_score
     }
 
-    pub fn evaluate(&self, game: &Game, colour: Colour) -> i32 {
+
+    pub fn evaluate(&self, game: &Game) -> i32 {
+        let colour = game.get_game_state().get_turn();
+
         game.get_board().get_material(colour) - game.get_board().get_material(colour.other())
     }
 
-    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, colour: Colour) -> i32 {
+    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32) -> i32 {
         // Step 1: stand pat evaluation
-        let stand_pat = self.evaluate(game, colour);
+        let stand_pat = self.evaluate(game);
 
         if stand_pat >= beta {
             return stand_pat;
@@ -80,14 +84,17 @@ impl Minimax {
         }
 
         // Step 2: generate only "tactical" moves (captures/promotions/checks)
-        let moves = MoveGenerator::generate_legal_moves(game, colour);
+        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn());
+        order_moves(&mut moves, game);
+
+
         for mv in &moves {
             if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) && !game.is_check(mv) {
                 continue;
             }
 
             game.make_move(&mv);
-            let score = -self.quiescence(game, -beta, -alpha, colour.other());
+            let score = -self.quiescence(game, -beta, -alpha);
             game.undo_last_move();
 
             if score >= beta {
