@@ -198,16 +198,7 @@ impl Board {
         let mut out = 0;
 
         for piece_type in PieceType::iter() {
-            let value = match piece_type {
-                PieceType::Pawn   => 1,
-                PieceType::Knight => 3,
-                PieceType::Bishop => 3,
-                PieceType::Rook   => 5,
-                PieceType::Queen  => 9,
-                PieceType::King   => 0,
-            };
-
-            out += value * bitboards[piece_type as usize].num_set_bits();
+            out += piece_type.value() * bitboards[piece_type as usize].num_set_bits();
         }
 
         out
