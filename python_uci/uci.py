@@ -12,7 +12,7 @@ class Uci():
     def __init__(self):
         # self.engine = Minimax()
         # self.mode = Mode.python_minimax
-        self.engine = rust_chess.PyMinimax(3)
+        self.engine = rust_chess.PyMinimax(2)
         self.mode = Mode.rust_minimax
         self.debug_mode = False
         self.running = False
