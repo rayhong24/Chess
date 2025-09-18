@@ -1,9 +1,9 @@
-from Pieces.pawn import Pawn
-from Pieces.knight import Knight
-from Pieces.bishop import Bishop
-from Pieces.rook import Rook
-from Pieces.queen import Queen
-from Pieces.king import King
+from python_chess.Pieces.pawn import Pawn
+from python_chess.Pieces.knight import Knight
+from python_chess.Pieces.bishop import Bishop
+from python_chess.Pieces.rook import Rook
+from python_chess.Pieces.queen import Queen
+from python_chess.Pieces.king import King
 
 table_values = { 
     Pawn: 

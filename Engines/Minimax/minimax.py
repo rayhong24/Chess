@@ -5,10 +5,10 @@ from .Evaluation.evaluator import Evaluator
 
 
 from Engines.engine import Engine
-from Pieces.knight import Knight
+from python_chess.Pieces.knight import Knight
 
-from coords import Coords
-from enums import Colour
+from python_chess.coords import Coords
+from python_chess.enums import Colour
 
 class Minimax(Engine):
     evaluator = Evaluator()
@@ -51,7 +51,7 @@ class Minimax(Engine):
 
 
 
-    def minimax(self, depth=2, alpha=-40001, beta=40001):
+    def minimax(self, depth=1, alpha=-40001, beta=40001):
         if self.rules_engine.is_checkmate(self.game):
             return self.evaluator.checkmate_eval if self.game.state.to_move == Colour.BLACK else -self.evaluator.checkmate_eval
         elif depth == 0:

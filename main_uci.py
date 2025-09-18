@@ -1,7 +1,7 @@
-from uci import Uci
+from python_uci.uci import Uci
 
 from Engines.engine import Engine
-from GameClasses.game import Game
+from python_chess.GameClasses.game import Game
 
 
 def main():

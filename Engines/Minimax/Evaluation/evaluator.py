@@ -1,16 +1,16 @@
-from GameClasses.board import Board
-from GameClasses.game import Game
+from python_chess.GameClasses.board import Board
+from python_chess.GameClasses.game import Game
 from .pieceSquareTables import PieceSquareTables
 
-from Pieces.piece import Piece
-from Pieces.pawn import Pawn
-from Pieces.knight import Knight
-from Pieces.bishop import Bishop
-from Pieces.rook import Rook
-from Pieces.queen import Queen
-from Pieces.king import King
+from python_chess.Pieces.piece import Piece
+from python_chess.Pieces.pawn import Pawn
+from python_chess.Pieces.knight import Knight
+from python_chess.Pieces.bishop import Bishop
+from python_chess.Pieces.rook import Rook
+from python_chess.Pieces.queen import Queen
+from python_chess.Pieces.king import King
 
-from enums import Colour
+from python_chess.enums import Colour
 
 class Evaluator():
     checkmate_eval = 40000
