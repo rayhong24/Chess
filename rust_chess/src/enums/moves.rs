@@ -38,7 +38,7 @@ pub struct EnPassantMove {
     pub captured_coords: Coords,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ChessMove {
     Normal(NormalMove),
     Castling(CastlingMove),
@@ -63,7 +63,6 @@ pub enum ExecutedMove {
     }
 
 }
-
 
 impl ChessMove {
     pub fn colour(&self) -> Colour {
@@ -98,6 +97,22 @@ impl ChessMove {
             ChessMove::Castling(_) => PieceType::King,
             ChessMove::Promotion(_) => PieceType::Pawn,
             ChessMove::EnPassant(_) => PieceType::Pawn,
+        }
+    }
+}
+
+impl ExecutedMove {
+    pub fn is_capture(&self) -> bool {
+        match self {
+            ExecutedMove::Normal { mv: _, captured_piece } => {
+                captured_piece.is_some()
+            }
+            ExecutedMove::Promotion { mv: _, captured_piece } => {
+                captured_piece.is_some()
+            }
+            ExecutedMove::EnPassant { mv: _ } => true,
+            ExecutedMove::Castling { mv: _ } => false
+
         }
     }
 }
