@@ -68,8 +68,8 @@ pub struct PyMinimax {
 #[pymethods]
 impl PyMinimax {
     #[new]
-    pub fn new(max_depth:usize, quiescence_max_depth: usize) -> Self {
-        Self { inner: Minimax::new(max_depth, quiescence_max_depth) , game: Game::new() }
+    pub fn new(max_depth:usize, quiescence_max_depth: usize, selective_quiescence: bool) -> Self {
+        Self { inner: Minimax::new(max_depth, quiescence_max_depth, selective_quiescence) , game: Game::new() }
     }
 
     pub fn go(&mut self) -> String {

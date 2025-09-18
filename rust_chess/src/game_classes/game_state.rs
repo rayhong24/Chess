@@ -1,4 +1,4 @@
-use crate::enums::{Colour, ChessMove, PieceType, File};
+use crate::enums::{ChessMove, Colour, ExecutedMove, File, PieceType};
 use crate::coords::Coords;
 use crate::game_classes::game::Game;
 

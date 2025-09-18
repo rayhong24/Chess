@@ -1,18 +1,19 @@
 use crate::game_classes::game::{Game, GameResult};
 use crate::moves::move_generator::MoveGenerator;
-use crate::enums::{ChessMove, Colour};
+use crate::enums::{ChessMove, Colour, ExecutedMove};
 use crate::move_ordering::order_moves;
 
 const INF: i32 = 30_000;
 
 pub struct Minimax {
     pub max_depth: usize,
-    pub quiescence_max_depth: usize
+    pub quiescence_max_depth: usize,
+    pub selective_quiescence: bool
 }
 
 impl Minimax {
-    pub fn new(max_depth: usize, quiescence_max_depth: usize) -> Self {
-        Self { max_depth, quiescence_max_depth }
+    pub fn new(max_depth: usize, quiescence_max_depth: usize, selective_quiescence: bool) -> Self {
+        Self { max_depth, quiescence_max_depth, selective_quiescence}
     }
 
     pub fn find_best_move(&self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
@@ -49,7 +50,16 @@ impl Minimax {
 
     fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
         if depth == 0 || game.is_game_over().is_some() {
-            return self.quiescence(game, -INF, INF, self.quiescence_max_depth);
+            if self.selective_quiescence
+                && game
+                    .get_last_move()
+                    .map_or(false, |m| m.is_capture())
+            {
+                return self.quiescence(game, -INF, INF, self.quiescence_max_depth);
+            }
+            else {
+                return self.evaluate(game);
+            }
         }
 
         let moves = MoveGenerator::generate_legal_moves(game, colour);

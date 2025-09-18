@@ -356,11 +356,6 @@ mod tests {
             captured_coords: Coords::new(5, File::D),
         });
 
-        println!("sdafasdfasdfasdfasdf");
-        for m in &moves {
-            println!("{:?}", m);
-            println!()
-        }
 
         assert!(
             moves.contains(&expected_en_passant),

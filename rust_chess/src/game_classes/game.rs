@@ -103,6 +103,10 @@ impl Game {
         &self.game_state
     }
 
+    pub fn get_last_move(&self) -> Option<&ExecutedMove> {
+        self.move_history.last()
+    }
+
     pub fn set_turn(&mut self, colour: Colour) {
         self.game_state.set_turn(colour);
     }
