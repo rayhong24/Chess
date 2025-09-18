@@ -6,6 +6,12 @@ use crate::piece::Piece;
 use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
 use crate::game_classes::game_state::GameState;
 
+
+pub enum GameResult {
+    Checkmate(Colour),
+    Stalemate
+}
+
 pub struct Game {
     board: Board,
     game_state: GameState,
@@ -67,9 +73,22 @@ impl Game {
         
     }
 
-    pub fn is_game_over(&mut self) -> bool {
-        let moves = MoveGenerator::generate_legal_moves(self, self.get_game_state().get_turn());
-        return moves.is_empty();
+    pub fn is_game_over(&mut self) -> Option<GameResult> {
+        let player = self.get_game_state().get_turn();
+        let moves = MoveGenerator::generate_legal_moves(self, player);
+
+        if moves.len() > 0 {
+            return None;
+        }
+
+
+        if self.is_player_in_check(player) {
+            return Some(GameResult::Checkmate((player)))
+        }
+        else {
+            return Some(GameResult::Stalemate)
+        }
+        
     }
 
     pub fn get_board(&self) -> &Board {
