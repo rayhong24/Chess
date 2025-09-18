@@ -68,18 +68,18 @@ pub struct PyMinimax {
 #[pymethods]
 impl PyMinimax {
     #[new]
-    fn new(max_depth:usize) -> Self {
+    pub fn new(max_depth:usize) -> Self {
         Self { inner: Minimax::new(max_depth) , game: Game::new() }
     }
 
-    fn go(&mut self) -> String {
+    pub fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
         // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
         let best = self.inner.find_best_move(&mut self.game, colour);
         return best.unwrap().to_string();
     }
 
-    fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {
+    pub fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {
         self.game.set_fenstr(fenstr);
 
         for m in moves {

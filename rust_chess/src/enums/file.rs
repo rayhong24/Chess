@@ -1,4 +1,5 @@
 use strum_macros::EnumIter;
+use std::ops::Sub;
 
 #[derive(EnumIter, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum File {
@@ -58,6 +59,14 @@ impl File {
             File::G => 'g',
             File::H => 'h',
         }
+    }
+}
+
+impl Sub for File {
+    type Output = i32;
+
+    fn sub(self, other: File) -> i32 {
+        self.value() as i32 - other.value() as i32
     }
 }
 

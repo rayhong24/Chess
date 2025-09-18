@@ -1,7 +1,9 @@
-use crate::game_classes::game::Game;
+use crate::game_classes::game::{Game, GameResult};
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour};
 use crate::move_ordering::order_moves;
+
+const INF: i32 = 30_000;
 
 pub struct Minimax {
     pub max_depth: usize,
@@ -18,11 +20,12 @@ impl Minimax {
         
         let mut move_scores = vec![];
 
-        let moves = MoveGenerator::generate_legal_moves(game, colour);
+        let mut moves = MoveGenerator::generate_legal_moves(game, colour);
+        order_moves(&mut moves, game);
         for mv in moves {
             game.make_move(&mv);
 
-            let score = -self.minimax(game, self.max_depth - 1, -i32::MAX, i32::MAX, colour.other());
+            let score = -self.minimax(game, self.max_depth - 1, -INF, INF, colour.other());
 
             game.undo_last_move();
 
@@ -44,8 +47,8 @@ impl Minimax {
     }
 
     fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
-        if depth == 0 || game.is_game_over() {
-            return self.quiescence(game, -i32::MAX, i32::MAX);
+        if depth == 0 || game.is_game_over().is_some() {
+            return self.quiescence(game, -INF, INF);
         }
 
         let moves = MoveGenerator::generate_legal_moves(game, colour);
@@ -65,12 +68,30 @@ impl Minimax {
         best_score
     }
 
-
-    pub fn evaluate(&self, game: &Game) -> i32 {
+    pub fn evaluate_material(&self, game: &Game) -> i32 {
         let colour = game.get_game_state().get_turn();
-
         game.get_board().get_material(colour) - game.get_board().get_material(colour.other())
     }
+
+
+    pub fn evaluate(&self, game: &mut Game) -> i32 {
+        let colour = game.get_game_state().get_turn();
+
+        match game.is_game_over() {
+            Some(GameResult::Checkmate(loser)) => {
+                if loser == colour {
+                    -INF
+                }
+                else {
+                    INF
+                }
+            }
+            Some(GameResult::Stalemate) => 0,
+            None => self.evaluate_material(game)
+        }
+
+    }
+
 
     fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32) -> i32 {
         // Step 1: stand pat evaluation
