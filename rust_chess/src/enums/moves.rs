@@ -38,7 +38,7 @@ pub struct EnPassantMove {
     pub captured_coords: Coords,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum ChessMove {
     Normal(NormalMove),
     Castling(CastlingMove),
@@ -122,5 +122,48 @@ impl fmt::Display for ChessMove {
                 write!(f, "{}{} e.p.", mv.from, mv.to)
             }
         }
+    }
+}
+
+impl fmt::Display for ExecutedMove {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ExecutedMove::Normal { mv, captured_piece } => {
+                if let Some(piece) = captured_piece {
+                    write!(f, "{}x{}", mv.from, mv.to) // simple capture notation
+                } else {
+                    write!(f, "{}{}", mv.from, mv.to)
+                }
+            }
+            ExecutedMove::Castling { mv } => {
+                if mv.king_to.file == File::G {
+                    write!(f, "O-O") // kingside
+                } else {
+                    write!(f, "O-O-O") // queenside
+                }
+            }
+            ExecutedMove::Promotion { mv, captured_piece } => {
+                if let Some(_piece) = captured_piece {
+                    write!(f, "{}x{}={}", mv.from, mv.to, mv.promotion_piece_type)
+                } else {
+                    write!(f, "{}{}={}", mv.from, mv.to, mv.promotion_piece_type)
+                }
+            }
+            ExecutedMove::EnPassant { mv } => {
+                write!(f, "{}{} e.p.", mv.from, mv.to)
+            }
+        }
+    }
+}
+
+struct PrettyMoves<'a>(pub &'a [ExecutedMove]);
+
+impl<'a> fmt::Debug for PrettyMoves<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = self.0.iter()
+            .map(|m| m.to_string())
+            .collect::<Vec<_>>()
+            .join(" ");
+        write!(f, "{}", s)
     }
 }

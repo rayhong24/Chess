@@ -7,11 +7,12 @@ const INF: i32 = 30_000;
 
 pub struct Minimax {
     pub max_depth: usize,
+    pub quiescence_max_depth: usize
 }
 
 impl Minimax {
-    pub fn new(max_depth: usize) -> Self {
-        Self { max_depth }
+    pub fn new(max_depth: usize, quiescence_max_depth: usize) -> Self {
+        Self { max_depth, quiescence_max_depth }
     }
 
     pub fn find_best_move(&self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
@@ -48,7 +49,7 @@ impl Minimax {
 
     fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
         if depth == 0 || game.is_game_over().is_some() {
-            return self.quiescence(game, -INF, INF);
+            return self.quiescence(game, -INF, INF, self.quiescence_max_depth);
         }
 
         let moves = MoveGenerator::generate_legal_moves(game, colour);
@@ -93,29 +94,29 @@ impl Minimax {
     }
 
 
-    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32) -> i32 {
+    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, max_depth: usize) -> i32 {
         // Step 1: stand pat evaluation
         let stand_pat = self.evaluate(game);
 
-        if stand_pat >= beta {
+        if max_depth == 0 || stand_pat >= beta {
             return stand_pat;
         }
         if stand_pat > alpha {
             alpha = stand_pat;
         }
 
-        // Step 2: generate only "tactical" moves (captures/promotions/checks)
+        // Step 2: generate only "tactical" moves (captures/promotions)
         let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn());
         order_moves(&mut moves, game);
 
 
         for mv in &moves {
-            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) && !game.is_check(mv) {
+            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv)  {
                 continue;
             }
 
             game.make_move(&mv);
-            let score = -self.quiescence(game, -beta, -alpha);
+            let score = -self.quiescence(game, -beta, -alpha, max_depth-1);
             game.undo_last_move();
 
             if score >= beta {
