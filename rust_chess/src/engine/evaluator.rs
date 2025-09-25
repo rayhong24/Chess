@@ -17,20 +17,15 @@ use crate::game_classes::game::Game;
 use crate::game_classes::game::GameResult;
 use crate::engine::minimax::INF;
 
-pub const PAWN_VALUE: i32 = 100;
-pub const KNIGHT_VALUE: i32 = 320;
-pub const BISHOP_VALUE: i32 = 330;
-pub const ROOK_VALUE: i32 = 500;
-pub const QUEEN_VALUE: i32 = 900;
-pub const KING_VALUE: i32 = 20000;
-const vec
+const MG_VALUES: [i32; 6] = [82, 337, 365, 477, 1025, 0];
+const EG_VALUES: [i32; 6] = [94, 281, 297, 512, 936, 0];
 
-pub const PAWN_PHASE: i32 = 0;
-pub const KNIGHT_PHASE: i32 = 1;
-pub const BISHOP_PHASE: i32 = 1;
-pub const ROOK_PHASE: i32 = 2;
-pub const QUEEN_PHASE: i32 = 4;
-pub const TOTAL_PHASE: i32 = PAWN_PHASE * 16 + KNIGHT_PHASE * 4
+const PAWN_PHASE: i32 = 0;
+const KNIGHT_PHASE: i32 = 1;
+const BISHOP_PHASE: i32 = 1;
+const ROOK_PHASE: i32 = 2;
+const QUEEN_PHASE: i32 = 4;
+const TOTAL_PHASE: i32 = PAWN_PHASE * 16 + KNIGHT_PHASE * 4
     + BISHOP_PHASE * 4 + ROOK_PHASE * 4 + QUEEN_PHASE * 2; // = 24
 
 
@@ -82,49 +77,45 @@ impl Evaluator {
     }
 
     fn evaluate_piece_tapered(piece: Piece, coords: Coords) -> (i32, i32, i32) {
+        let mut mg_value = MG_VALUES[piece.kind as usize];
+        let mut eg_value = EG_VALUES[piece.kind as usize];
+
         match piece.kind {
             PieceType::Pawn => (
-                PAWN_VALUE + Self::pst_value(&MG_PAWN_PST, coords, piece.colour),
-                PAWN_VALUE + Self::pst_value(&EG_PAWN_PST, coords, piece.colour),
+                mg_value + Self::pst_value(&MG_PAWN_PST, coords, piece.colour),
+                eg_value + Self::pst_value(&EG_PAWN_PST, coords, piece.colour),
                 PAWN_PHASE,
             ),
             PieceType::Knight => (
-                KNIGHT_VALUE + Self::pst_value(&MG_KNIGHT_PST, coords, piece.colour),
-                KNIGHT_VALUE + Self::pst_value(&EG_KNIGHT_PST, coords, piece.colour),
+                mg_value + Self::pst_value(&MG_KNIGHT_PST, coords, piece.colour),
+                eg_value + Self::pst_value(&EG_KNIGHT_PST, coords, piece.colour),
                 KNIGHT_PHASE,
             ),
             PieceType::Bishop => (
-                BISHOP_VALUE + Self::pst_value(&MG_BISHOP_PST, coords, piece.colour),
-                BISHOP_VALUE + Self::pst_value(&EG_BISHOP_PST, coords, piece.colour),
+                mg_value + Self::pst_value(&MG_BISHOP_PST, coords, piece.colour),
+                eg_value + Self::pst_value(&EG_BISHOP_PST, coords, piece.colour),
                 BISHOP_PHASE,
             ),
             PieceType::Rook => (
-                ROOK_VALUE + Self::pst_value(&MG_ROOK_PST, coords, piece.colour),
-                ROOK_VALUE + Self::pst_value(&EG_ROOK_PST, coords, piece.colour),
+                mg_value + Self::pst_value(&MG_ROOK_PST, coords, piece.colour),
+                eg_value + Self::pst_value(&EG_ROOK_PST, coords, piece.colour),
                 ROOK_PHASE,
             ),
             PieceType::Queen => (
-                QUEEN_VALUE + Self::pst_value(&MG_QUEEN_PST, coords, piece.colour),
-                QUEEN_VALUE + Self::pst_value(&EG_QUEEN_PST, coords, piece.colour),
+                mg_value + Self::pst_value(&MG_QUEEN_PST, coords, piece.colour),
+                eg_value + Self::pst_value(&EG_QUEEN_PST, coords, piece.colour),
                 QUEEN_PHASE,
             ),
             PieceType::King => (
-                KING_VALUE + Self::pst_value(&MG_KING_PST, coords, piece.colour),
-                KING_VALUE + Self::pst_value(&EG_KING_PST, coords, piece.colour),
+                mg_value + Self::pst_value(&MG_KING_PST, coords, piece.colour),
+                eg_value + Self::pst_value(&EG_KING_PST, coords, piece.colour),
                 0, // kings don’t contribute to phase
             ),
         }
     }
 
     pub fn get_piece_value(piece_type: PieceType) -> i32 {
-        match piece_type {
-            PieceType::Pawn => PAWN_VALUE,
-            PieceType::Knight => KNIGHT_VALUE,
-            PieceType::Bishop => BISHOP_VALUE,
-            PieceType::Rook => ROOK_VALUE,
-            PieceType::Queen => QUEEN_VALUE,
-            PieceType::King => KING_VALUE,
-        }
+        MG_VALUES[piece_type as usize]
     }
 
     fn pst_value(pst: &[[i32; 8]; 8], coords: Coords, colour: Colour) -> i32 {
