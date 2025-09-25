@@ -1,8 +1,9 @@
 use crate::enums::{ChessMove, PieceType};
 use crate::game_classes::game::Game;
+use crate::engine::evaluator::Evaluator;
 
 fn mvv_lva_score(attacker: PieceType, victim: PieceType) -> i32 {
-    victim.value() * 10 - attacker.value()
+    Evaluator::get_piece_value(victim) - Evaluator::get_piece_value(attacker)
 }
 
 fn is_recapture(mv: &ChessMove, last_move: Option<&ChessMove>) -> bool {

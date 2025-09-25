@@ -124,11 +124,7 @@ impl fmt::Display for ChessMove {
                 write!(f, "{}{}", mv.from, mv.to)
             }
             ChessMove::Castling(mv) => {
-                if mv.king_to.file == File::G {
-                    write!(f, "O-O") // kingside
-                } else {
-                    write!(f, "O-O-O") // queenside
-                }
+                write!(f, "{}{}", mv.king_from, mv.king_to)
             }
             ChessMove::Promotion(mv) => {
                 write!(f, "{}{}{}", mv.from, mv.to, mv.promotion_piece_type)
