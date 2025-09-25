@@ -99,7 +99,7 @@ impl Minimax {
 
 
         for mv in &moves {
-            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv)  {
+            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) && !game.is_check(mv) {
                 continue;
             }
 

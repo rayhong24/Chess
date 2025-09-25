@@ -73,6 +73,16 @@ impl Board {
         out
     }
 
+    pub fn get_all_pieces(&self) -> Vec<(Piece, Coords)> {
+        let mut out = Vec::new();
+
+        for player in Colour::iter() {
+            out.extend(self.get_player_pieces(player));
+        }
+
+        out
+    }
+
     fn get_bit_board(&self, piece: &Piece) -> &BitBoard {
         match piece.colour {
             Colour::White => &self.white_bit_boards[piece.kind as usize],
