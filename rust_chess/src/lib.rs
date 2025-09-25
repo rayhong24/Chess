@@ -3,14 +3,14 @@ use pyo3::prelude::*;
 use crate::moves::move_generator;
 use crate::game_classes::game::Game;
 use crate::moves::move_parser::MoveParser;
-use crate::minimax::Minimax;
+use crate::engine::minimax::Minimax;
 
 pub mod coords;
 pub mod piece;
 pub mod enums;
 pub mod moves;
 pub mod game_classes;
-pub mod minimax;
+pub mod engine;
 pub mod move_ordering;
 
 #[pymodule]

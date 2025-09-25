@@ -2,8 +2,9 @@ use crate::game_classes::game::{Game, GameResult};
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour, ExecutedMove};
 use crate::move_ordering::order_moves;
+use crate::engine::evaluator::Evaluator;
 
-const INF: i32 = 30_000;
+pub const INF: i32 = 30_000;
 
 pub struct Minimax {
     pub max_depth: usize,
@@ -58,7 +59,7 @@ impl Minimax {
                 return self.quiescence(game, -INF, INF, self.quiescence_max_depth);
             }
             else {
-                return self.evaluate(game);
+                return Evaluator::evaluate(game);
             }
         }
 
@@ -79,34 +80,11 @@ impl Minimax {
         best_score
     }
 
-    pub fn evaluate_material(&self, game: &Game) -> i32 {
-        let colour = game.get_game_state().get_turn();
-        game.get_board().get_material(colour) - game.get_board().get_material(colour.other())
-    }
-
-
-    pub fn evaluate(&self, game: &mut Game) -> i32 {
-        let colour = game.get_game_state().get_turn();
-
-        match game.is_game_over() {
-            Some(GameResult::Checkmate(loser)) => {
-                if loser == colour {
-                    -INF
-                }
-                else {
-                    INF
-                }
-            }
-            Some(GameResult::Stalemate) => 0,
-            None => self.evaluate_material(game)
-        }
-
-    }
 
 
     fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, max_depth: usize) -> i32 {
         // Step 1: stand pat evaluation
-        let stand_pat = self.evaluate(game);
+        let stand_pat = Evaluator::evaluate(game);
 
         if max_depth == 0 || stand_pat >= beta {
             return stand_pat;
