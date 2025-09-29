@@ -5,6 +5,7 @@ use strum::IntoEnumIterator;
 use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove, CastlingMove};
 use crate::enums::{ChessMove, PieceType, Colour, File};
 use crate::game_classes::game::Game;
+use crate::game_classes::game_state::CastlingRights;
 use crate::moves::move_ray::MoveRay;
 use crate::piece::Piece;
 use crate::coords::Coords;
@@ -169,8 +170,8 @@ impl MoveGenerator {
 
         // Check castling rights
         let rights_ok = match colour {
-            Colour::White => game.get_game_state().can_castle_white_kingside(),
-            Colour::Black => game.get_game_state().can_castle_black_kingside(),
+            Colour::White => game.get_game_state().can_castle(CastlingRights::WHITE_KINGSIDE),
+            Colour::Black => game.get_game_state().can_castle(CastlingRights::BLACK_KINGSIDE),
         };
         if !rights_ok { return false; }
 
@@ -208,8 +209,8 @@ impl MoveGenerator {
 
         // Check castling rights
         let rights_ok = match colour {
-            Colour::White => game.get_game_state().can_castle_white_queenside(),
-            Colour::Black => game.get_game_state().can_castle_black_queenside(),
+            Colour::White => game.get_game_state().can_castle(CastlingRights::WHITE_QUEENSIDE),
+            Colour::Black => game.get_game_state().can_castle(CastlingRights::BLACK_QUEENSIDE),
         };
         if !rights_ok { return false; }
 

@@ -38,6 +38,10 @@ impl Coords {
             None
         }
     }
+
+    pub fn to_index(&self) -> usize {
+        ((self.rank - 1) as usize) * 8 + (self.file.value() as usize)
+    }
 }
 
 impl std::fmt::Display for Coords {

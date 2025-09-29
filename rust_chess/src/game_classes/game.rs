@@ -1,10 +1,12 @@
 use crate::enums::moves::{NormalMove, PromotionMove};
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
+use crate::game_classes::game_state_tracker::GameStateTracker;
+use crate::game_classes::zobrist::Zobrist;
 use crate::moves::move_generator::MoveGenerator;
 use crate::piece::Piece;
 use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
-use crate::game_classes::game_state::GameState;
+use crate::game_classes::game_state::{GameState, CastlingRights};
 
 
 pub enum GameResult {
@@ -17,18 +19,28 @@ pub struct Game {
     game_state: GameState,
     move_history: Vec<ExecutedMove>,
     game_state_history: Vec<GameState>,
+    zobrist: Zobrist,
+    state_tracker: GameStateTracker,
+    hash: u64,
     ended: bool,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Self {
+        let mut game = Self {
             board: Board::setup_startposition(),
             game_state: GameState::new(),
             move_history: Vec::new(),
             game_state_history: Vec::new(),
+            zobrist: Zobrist::new(),
+            state_tracker: GameStateTracker::new(),
+            hash: 0,
             ended: false,
-        }
+        };
+
+        game.hash_position();
+
+        game
     }
 
     pub fn clear_board(&mut self) {
@@ -68,6 +80,7 @@ impl Game {
             self.game_state.set_en_passant_target(None);
         }
 
+        self.hash_position();
 
         // Halfmove clock and fullmove number not yet implemented
         
@@ -117,7 +130,7 @@ impl Game {
 
     pub fn make_move(&mut self, chess_move: &ChessMove) {
         self.game_state_history.push(self.game_state.clone());
-        self.game_state.update(chess_move);
+        self.game_state.update(chess_move, &mut self.hash, &self.zobrist);
 
 
         match chess_move {
@@ -223,6 +236,45 @@ impl Game {
 
 
         out
+    }
+
+    pub fn hash_position(&mut self) {
+        let mut hash = 0u64;
+
+
+        for (piece, coords) in self.board.get_all_pieces() {
+            let colour_idx = piece.colour as usize;
+            let kind_idx = piece.kind as usize;
+            let coords_idx = coords.to_index();
+
+        }
+
+
+        // Add castling rights
+        if self.game_state.can_castle(CastlingRights::WHITE_KINGSIDE) {
+            hash ^= self.zobrist.castling[0];
+        }
+        if self.game_state.can_castle(CastlingRights::WHITE_QUEENSIDE) {
+            hash ^= self.zobrist.castling[1];
+        }
+        if self.game_state.can_castle(CastlingRights::BLACK_KINGSIDE) {
+            hash ^= self.zobrist.castling[2];
+        }
+        if self.game_state.can_castle(CastlingRights::BLACK_QUEENSIDE) {
+            hash ^= self.zobrist.castling[3];
+        }
+
+        // En passant
+        if let Some(coords) = self.game_state.get_en_passant_piece_coords() {
+            hash ^= self.zobrist.en_passant[coords.file.value()];
+        }
+
+        // Side to move
+        if self.game_state.get_turn() == Colour::Black {
+            hash ^= self.zobrist.side_to_move;
+        }
+
+        self.hash = hash;
     }
 }
 

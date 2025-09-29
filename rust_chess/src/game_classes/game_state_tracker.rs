@@ -1,12 +1,16 @@
 use std::collections::HashMap;
 
+use crate::game_classes::game;
+use crate::game_classes::{board_classes::board::Board, game_state::GameState, zobrist::Zobrist};
+use crate::enums::colour::Colour;
+
 pub struct GameStateTracker {
-    state_counts: HashMap<u64, u32>, // Zobrist hash -> count
+    state_counts: HashMap<u64, u32>,
 }
 
 impl GameStateTracker {
     pub fn new() -> Self {
-        Self { state_counts: HashMap::new() }
+        Self{ state_counts: HashMap::new() }
     }
 
     pub fn record_position(&mut self, hash: u64) {
@@ -17,4 +21,5 @@ impl GameStateTracker {
     pub fn is_threefold_repetition(&self, hash: u64) -> bool {
         self.state_counts.get(&hash).cloned().unwrap_or(0) >= 3
     }
+
 }

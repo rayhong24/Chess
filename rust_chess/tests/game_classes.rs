@@ -1,3 +1,4 @@
+use rust_chess::game_classes::game_state::CastlingRights;
 use strum::IntoEnumIterator;
 
 use rust_chess::game_classes::game::Game;
@@ -72,8 +73,8 @@ fn test_castling_rights_revoked_after_king_move() {
     game.make_move(&mut mv);
 
     // Castling rights for white should be revoked
-    assert!(!game.get_game_state().clone().can_castle_white_kingside());
-    assert!(!game.get_game_state().clone().can_castle_white_queenside());
+    assert!(!game.get_game_state().can_castle(CastlingRights::WHITE_KINGSIDE));
+    assert!(!game.get_game_state().can_castle(CastlingRights::WHITE_QUEENSIDE));
 }
 
 #[test]
