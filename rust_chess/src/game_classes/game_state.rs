@@ -59,6 +59,10 @@ impl GameState {
         self.turn = colour;
     }
 
+    pub fn get_castling_rights(&self) -> CastlingRights {
+        self.castling_rights
+    }
+
     pub fn can_castle(&self, right: CastlingRights) -> bool {
         self.castling_rights.contains(right)
     }
