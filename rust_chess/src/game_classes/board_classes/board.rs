@@ -73,6 +73,23 @@ impl Board {
         out
     }
 
+    pub fn get_all_pieces(&self) -> Vec<(Piece, Coords)> {
+        let mut out = Vec::new();
+
+        for piece_type in PieceType::iter() {
+            let white_piece = Piece { kind: piece_type, colour: Colour::White };
+            let black_piece = Piece { kind: piece_type, colour: Colour::Black };
+            for set_coords in self.white_bit_boards[piece_type as usize].get_set_coords() {
+                out.push((white_piece, set_coords));
+            }
+            for set_coords in self.black_bit_boards[piece_type as usize].get_set_coords() {
+                out.push((black_piece, set_coords));
+            }
+        }
+
+        out
+    }
+
     fn get_bit_board(&self, piece: &Piece) -> &BitBoard {
         match piece.colour {
             Colour::White => &self.white_bit_boards[piece.kind as usize],

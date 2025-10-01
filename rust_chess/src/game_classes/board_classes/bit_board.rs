@@ -20,7 +20,7 @@ impl BitBoard {
     }
 
     pub fn set_bit(&mut self, coords: &Coords, filled: bool) {
-        let index = (coords.rank - 1) * 8 + coords.file.value() as u8;
+        let index = coords.to_index();
         self.bits = if filled {
             self.bits | (1 << index)
         } else {
@@ -29,7 +29,7 @@ impl BitBoard {
     }
 
     pub fn is_set(&self, coords: &Coords) -> bool {
-        let index = (coords.rank - 1) * 8 + coords.file.value() as u8;
+        let index = coords.to_index();
         (self.bits & (1 << index)) != 0
     }
 

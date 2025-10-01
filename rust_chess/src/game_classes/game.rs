@@ -1,10 +1,12 @@
 use crate::enums::moves::{NormalMove, PromotionMove};
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
+use crate::game_classes::game_state_tracker::GameStateTracker;
+use crate::game_classes::zobrist::Zobrist;
 use crate::moves::move_generator::MoveGenerator;
 use crate::piece::Piece;
 use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
-use crate::game_classes::game_state::GameState;
+use crate::game_classes::game_state::{GameState, CastlingRights};
 
 
 pub enum GameResult {
@@ -12,23 +14,38 @@ pub enum GameResult {
     Stalemate
 }
 
+struct GameStateSnapshot {
+    state: GameState,
+    hash: u64,
+}
+
 pub struct Game {
     board: Board,
     game_state: GameState,
     move_history: Vec<ExecutedMove>,
-    game_state_history: Vec<GameState>,
+    history: Vec<GameStateSnapshot>,
+    zobrist: Zobrist,
+    // state_tracker: GameStateTracker,
+    hash: u64,
     ended: bool,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Self {
+        let mut game = Self {
             board: Board::setup_startposition(),
             game_state: GameState::new(),
             move_history: Vec::new(),
-            game_state_history: Vec::new(),
+            history: Vec::new(),
+            zobrist: Zobrist::new(),
+            // state_tracker: GameStateTracker::new(),
+            hash: 0,
             ended: false,
-        }
+        };
+
+        game.hash_position();
+
+        game
     }
 
     pub fn clear_board(&mut self) {
@@ -68,6 +85,7 @@ impl Game {
             self.game_state.set_en_passant_target(None);
         }
 
+        self.hash_position();
 
         // Halfmove clock and fullmove number not yet implemented
         
@@ -116,56 +134,116 @@ impl Game {
     }
 
     pub fn make_move(&mut self, chess_move: &ChessMove) {
-        self.game_state_history.push(self.game_state.clone());
-        self.game_state.update(chess_move);
+        self.history.push(GameStateSnapshot { 
+            state: self.game_state.clone(), 
+            hash: self.hash 
+        });
+
+        self.game_state.update(chess_move, &mut self.hash, &self.zobrist);
 
 
         match chess_move {
             ChessMove::Normal(ref mv) => {
+                let piece = Piece { kind: mv.piece_type, colour: mv.colour};
+
+                // Update hash
+
+                // Remove moving piece from original square
+                self.zobrist.toggle_piece(&mut self.hash, &mv.from, &piece);
+                // Remove captured piece if any
+                if let Some(captured) = self.board.get_coords(&mv.to) {
+                    self.zobrist.toggle_piece(&mut self.hash, &mv.to, &captured);
+                }
+                // Add moving piece to destination
+                self.zobrist.toggle_piece(&mut self.hash, &mv.to, &piece);
+
+
+                // Update Board
                 let executed_move = ExecutedMove::Normal { mv: *mv, captured_piece: self.board.get_coords(&mv.to)};
                 self.move_history.push(executed_move);
 
-                let piece = Piece { kind: mv.piece_type, colour: mv.colour};
                 self.board.move_piece(&piece, &mv.from, &mv.to);
-
+                
             }
             ChessMove::Castling(ref mv) => {
-                let executed_move = ExecutedMove::Castling { mv: *mv };
-                self.move_history.push(executed_move);
-
                 let king = Piece { kind: PieceType::King, colour: mv.colour};
                 let rook = Piece { kind: PieceType::Rook, colour: mv.colour};
+                // Update hash
 
+                // Remove king and rook from original squares
+                self.zobrist.toggle_piece(&mut self.hash, &mv.king_from, &king);
+                self.zobrist.toggle_piece(&mut self.hash, &mv.rook_from, &rook);
+                // Add king and rook to destination squares
+                self.zobrist.toggle_piece(&mut self.hash, &mv.king_to, &king);
+                self.zobrist.toggle_piece(&mut self.hash, &mv.rook_to, &rook);
+
+
+                // Update Board
+                let executed_move = ExecutedMove::Castling { mv: *mv };
+                self.move_history.push(executed_move);
                 self.board.move_piece(&king, &mv.king_from, &mv.king_to);
                 self.board.move_piece(&rook, &mv.rook_from, &mv.rook_to);
+
             }
             ChessMove::Promotion(ref mv) => {
+                let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
+                let promotion_piece = Piece {kind: mv.promotion_piece_type, colour: mv.colour};
+
+                // Update hash
+                // Remove pawn from original square
+                self.zobrist.toggle_piece(&mut self.hash, &mv.from, &pawn);
+                // Remove captured piece if any
+                if let Some(captured) = self.board.get_coords(&mv.to) {
+                    self.zobrist.toggle_piece(&mut self.hash, &mv.to, &captured);
+                }
+                // Add promoted piece to destination
+                self.zobrist.toggle_piece(&mut self.hash, &mv.to, &promotion_piece);
+
+                // Update board
                 let executed_move = ExecutedMove::Promotion { mv: *mv , captured_piece: self.board.get_coords(&mv.to)};
                 self.move_history.push(executed_move);
 
-                let promotion_piece = Piece {kind: mv.promotion_piece_type, colour: mv.colour};
                 self.board.set_coords(&mv.from, None);
                 self.board.set_coords(&mv.to, Some(promotion_piece));
+
             }
             ChessMove::EnPassant(ref mv) => {
+                let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
+                let captured = Piece { kind: PieceType::Pawn, colour: mv.colour.other() };
+
+                // update hash
+
+                // Remove moving pawn
+                self.zobrist.toggle_piece(&mut self.hash, &mv.from, &pawn);
+                // Remove captured pawn
+                self.zobrist.toggle_piece(&mut self.hash, &mv.captured_coords, &captured);
+                // Add moving pawn to destination
+                self.zobrist.toggle_piece(&mut self.hash, &mv.to, &pawn);
+
+
+                // Update board
                 let executed_move = ExecutedMove::EnPassant { mv:*mv };
                 self.move_history.push(executed_move);
 
-                let pawn = Piece { kind: PieceType::Pawn, colour: mv.colour };
                 self.board.move_piece(&pawn, &mv.from, &mv.to);
                 self.board.set_coords(&mv.captured_coords, None);
+
             }
             _ => unimplemented!("This move type is not yet implemented."),
         }
     }
 
     pub fn undo_last_move(&mut self) {
-        if self.move_history.is_empty() || self.game_state_history.is_empty() {
+        if self.move_history.is_empty() || self.history.is_empty() {
             panic!("No move to undo.");
         }
 
+        if let Some(snapshot) = self.history.pop() {
+            self.game_state = snapshot.state;
+            self.hash = snapshot.hash;
+        }
+
         let executed_move = self.move_history.pop().unwrap();
-        self.game_state = self.game_state_history.pop().unwrap();
 
         match executed_move {
             ExecutedMove::Normal {mv, captured_piece} => {
@@ -224,6 +302,44 @@ impl Game {
 
         out
     }
+
+    pub fn hash_position(&mut self) {
+        let mut hash = 0u64;
+
+
+        for (piece, coords) in self.board.get_all_pieces() {
+            let colour_idx = piece.colour as usize;
+            let kind_idx = piece.kind as usize;
+            let coords_idx = coords.to_index();
+
+        }
+
+        // Add castling rights
+        if self.game_state.can_castle(CastlingRights::WHITE_KINGSIDE) {
+            hash ^= self.zobrist.castling[0];
+        }
+        if self.game_state.can_castle(CastlingRights::WHITE_QUEENSIDE) {
+            hash ^= self.zobrist.castling[1];
+        }
+        if self.game_state.can_castle(CastlingRights::BLACK_KINGSIDE) {
+            hash ^= self.zobrist.castling[2];
+        }
+        if self.game_state.can_castle(CastlingRights::BLACK_QUEENSIDE) {
+            hash ^= self.zobrist.castling[3];
+        }
+
+        // En passant
+        if let Some(coords) = self.game_state.get_en_passant_piece_coords() {
+            hash ^= self.zobrist.en_passant[coords.file.value()];
+        }
+
+        // Side to move
+        if self.game_state.get_turn() == Colour::Black {
+            hash ^= self.zobrist.side_to_move;
+        }
+
+        self.hash = hash;
+    }
 }
 
 
@@ -232,6 +348,7 @@ mod tests {
     use super::*;
     use crate::enums::moves::{NormalMove, CastlingMove, PromotionMove, EnPassantMove};
     use crate::enums::{Colour, PieceType, File, ChessMove};
+    use crate::game_classes::zobrist;
 
     // Helper to create a normal move
     fn make_normal_move(colour: Colour, piece: PieceType, from: Coords, to: Coords) -> ChessMove {
@@ -272,7 +389,7 @@ mod tests {
         assert_eq!(game.move_history.len(), 1);
 
         // Check the game state history was updated
-        assert_eq!(game.game_state_history.len(), 1);
+        assert_eq!(game.history.len(), 1);
 
         // Check the board: pawn should be at E4, not at E2
         let piece_at_e4 = game.board.get_coords(&Coords::new(4, File::E));
@@ -412,7 +529,7 @@ mod tests {
         assert!(game.board.get_coords(&from).is_none()); // pawn moved
         assert_eq!(game.board.get_coords(&to), Some(white_pawn));
         assert_eq!(game.move_history.len(), 1);
-        assert_eq!(game.game_state_history.len(), 1);
+        assert_eq!(game.history.len(), 1);
 
         // Undo the move
         game.undo_last_move();
@@ -420,7 +537,7 @@ mod tests {
         // Board should match original state
         assert_eq!(game.board, initial_state);
         assert_eq!(game.move_history.len(), 0);
-        assert_eq!(game.game_state_history.len(), 0);
+        assert_eq!(game.history.len(), 0);
     }
 
     #[test]
@@ -541,6 +658,7 @@ mod tests {
         // d6 should be empty again
         assert!(game.board.get_coords(&to).is_none());
     }
+
     #[test]
     fn test_is_capture_detects_capture() {
         let mut game = Game::new();
@@ -652,6 +770,246 @@ mod tests {
 
         let is_check = game.is_check(&mv);
         assert!(!is_check, "Expected move not to put Black in check");
+    }
+
+    #[test]
+    fn test_zobrist_hash_changes_on_normal_move() {
+        let mut game = Game::new();
+        let initial_hash = game.hash;
+
+        // White pawn e2 -> e4
+        let mv = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Pawn,
+            from: Coords::new(2, File::E),
+            to: Coords::new(4, File::E),
+        });
+
+        game.make_move(&mv);
+        let hash_after_move = game.hash;
+
+        assert_ne!(initial_hash, hash_after_move, "Zobrist hash should change after a move");
+    }
+
+    #[test]
+    fn test_zobrist_hash_undo_normal_move() {
+        let mut game = Game::new();
+        let initial_hash = game.hash;
+
+        // White pawn e2 -> e4
+        let mv = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Pawn,
+            from: Coords::new(2, File::E),
+            to: Coords::new(4, File::E),
+        });
+
+        game.make_move(&mv);
+        let hash_after_move = game.hash;
+        assert_ne!(initial_hash, hash_after_move);
+
+        // Undo the move
+        game.undo_last_move();
+        let hash_after_undo = game.hash;
+
+        assert_eq!(initial_hash, hash_after_undo, "Undoing move should restore original Zobrist hash");
+    }
+
+    #[test]
+    fn test_zobrist_hash_castling() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place king and rook
+        let king = Piece { kind: PieceType::King, colour: Colour::White };
+        let rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        let king_from = Coords::new(1, File::E);
+        let king_to = Coords::new(1, File::G);
+        let rook_from = Coords::new(1, File::H);
+        let rook_to = Coords::new(1, File::F);
+
+        game.board.set_coords(&king_from, Some(king));
+        game.board.set_coords(&rook_from, Some(rook));
+
+        let initial_hash = game.hash;
+
+        let castling_move = ChessMove::Castling(CastlingMove {
+            colour: Colour::White,
+            king_from,
+            king_to,
+            rook_from,
+            rook_to,
+        });
+
+        game.make_move(&castling_move);
+        assert_ne!(initial_hash, game.hash, "Zobrist hash should change after castling");
+
+        game.undo_last_move();
+        assert_eq!(initial_hash, game.hash, "Undoing castling should restore original hash");
+    }
+
+    #[test]
+    fn test_zobrist_hash_promotion() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // Place a white pawn ready to promote
+        let pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(7, File::A);
+        let to = Coords::new(8, File::A);
+        game.board.set_coords(&from, Some(pawn));
+
+        let initial_hash = game.hash;
+
+        let promotion_move = ChessMove::Promotion(PromotionMove {
+            colour: Colour::White,
+            from,
+            to,
+            promotion_piece_type: PieceType::Queen,
+        });
+
+        game.make_move(&promotion_move);
+        assert_ne!(initial_hash, game.hash, "Zobrist hash should change after promotion");
+
+        game.undo_last_move();
+        assert_eq!(initial_hash, game.hash, "Undoing promotion should restore original hash");
+    }
+
+    #[test]
+    fn test_zobrist_hash_en_passant() {
+        let mut game = Game::new();
+        game.clear_board();
+
+        // White pawn on e5
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(5, File::E);
+        game.board.set_coords(&from, Some(white_pawn));
+
+        // Black pawn on d5
+        let black_pawn = Piece { kind: PieceType::Pawn, colour: Colour::Black };
+        let captured = Coords::new(5, File::D);
+        game.board.set_coords(&captured, Some(black_pawn));
+
+        let to = Coords::new(6, File::D);
+        let en_passant_move = ChessMove::EnPassant(EnPassantMove {
+            colour: Colour::White,
+            from,
+            to,
+            captured_coords: captured,
+        });
+
+        let initial_hash = game.hash;
+
+        game.make_move(&en_passant_move);
+        assert_ne!(initial_hash, game.hash, "Zobrist hash should change after en passant");
+
+        game.undo_last_move();
+        assert_eq!(initial_hash, game.hash, "Undoing en passant should restore original hash");
+    }
+
+    #[test]
+    fn test_zobrist_unique_hashes_for_move_sequences() {
+        let mut game = Game::new();
+        let mut seen_hashes = std::collections::HashSet::new();
+
+        // Store initial position hash
+        seen_hashes.insert(game.hash);
+
+        // Define a small sequence of legal moves
+        let moves = vec![
+            ChessMove::Normal(NormalMove {
+                colour: Colour::White,
+                piece_type: PieceType::Pawn,
+                from: Coords::new(2, File::E),
+                to: Coords::new(4, File::E),
+            }),
+            ChessMove::Normal(NormalMove {
+                colour: Colour::Black,
+                piece_type: PieceType::Pawn,
+                from: Coords::new(7, File::D),
+                to: Coords::new(5, File::D),
+            }),
+            ChessMove::Normal(NormalMove {
+                colour: Colour::White,
+                piece_type: PieceType::Knight,
+                from: Coords::new(1, File::G),
+                to: Coords::new(3, File::F),
+            }),
+            ChessMove::Normal(NormalMove {
+                colour: Colour::Black,
+                piece_type: PieceType::Knight,
+                from: Coords::new(8, File::B),
+                to: Coords::new(6, File::C),
+            }),
+        ];
+
+        for mv in &moves {
+            game.make_move(&mv);
+
+            // Ensure the hash is unique
+            assert!(
+                seen_hashes.insert(game.hash),
+                "Zobrist hash collision detected for move sequence!"
+            );
+        }
+
+        // Undo all moves and ensure the original hash is restored
+        for _ in 0..moves.len() {
+            game.undo_last_move();
+        }
+
+        assert!(seen_hashes.contains(&game.hash), "Original hash should be restored after undo");
+    }
+
+    #[test]
+    fn test_knight_round_trip_hash() {
+        let mut game = Game::new();
+
+        let initial_hash = game.hash;
+
+        // White knight g1 → f3
+        let mv1 = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Knight,
+            from: Coords::new(1, File::G),
+            to: Coords::new(3, File::F),
+        });
+        game.make_move(&mv1);
+
+        // Black knight b8 → c6
+        let mv2 = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Knight,
+            from: Coords::new(8, File::B),
+            to: Coords::new(6, File::C),
+        });
+        game.make_move(&mv2);
+
+        // White knight f3 → g1 (back)
+        let mv3 = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Knight,
+            from: Coords::new(3, File::F),
+            to: Coords::new(1, File::G),
+        });
+        game.make_move(&mv3);
+
+        // Black knight c6 → b8 (back)
+        let mv4 = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Knight,
+            from: Coords::new(6, File::C),
+            to: Coords::new(8, File::B),
+        });
+        game.make_move(&mv4);
+
+        // After the round trip, the hash should match the initial
+        assert_eq!(game.hash, initial_hash, "Zobrist hash did not return to initial after round-trip knight moves");
+
+        // Re-calculate hash from scratch. Should match the other hash
+        let hash_after_moves = game.hash;
+        game.hash_position();
+        assert_eq!(game.hash, hash_after_moves, "Recalculating hash from scratch should result in the same value.");
     }
 
 }

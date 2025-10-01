@@ -1,13 +1,18 @@
+use bitflags::bitflags;
+
 use crate::enums::{ChessMove, Colour, ExecutedMove, File, PieceType};
 use crate::coords::Coords;
+use crate::game_classes::zobrist::Zobrist;
 use crate::game_classes::game::Game;
 
-#[derive(Debug, Clone)]
-struct CastlingRights {
-    white_kingside: bool,
-    white_queenside: bool,
-    black_kingside: bool,
-    black_queenside: bool,
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy)]
+    pub struct CastlingRights: u8 {
+        const WHITE_KINGSIDE  = 0b0001;
+        const WHITE_QUEENSIDE = 0b0010;
+        const BLACK_KINGSIDE  = 0b0100;
+        const BLACK_QUEENSIDE = 0b1000;
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -22,22 +27,14 @@ impl GameState {
     pub fn new() -> Self {
         Self {
             turn: Colour::White,
-            castling_rights: CastlingRights {
-                white_kingside: true,
-                white_queenside: true,
-                black_kingside: true,
-                black_queenside: true,
-            },
+            castling_rights: CastlingRights::all(),
             en_passant_target: None,
             en_passant_piece_coords: None
         }
     }
 
     pub fn set_castling_rights_from_fenstr(&mut self, castling_rights_fenstr: &str) {
-        self.castling_rights.white_kingside = false;
-        self.castling_rights.white_queenside = false;
-        self.castling_rights.black_kingside = false;
-        self.castling_rights.black_queenside = false;
+        self.castling_rights = CastlingRights::empty();
 
         if castling_rights_fenstr == "-" {
             return;
@@ -45,10 +42,10 @@ impl GameState {
 
         for ch in castling_rights_fenstr.chars() {
             match ch {
-                'K' => self.castling_rights.white_kingside = true,
-                'Q' => self.castling_rights.white_queenside = true,
-                'k' => self.castling_rights.black_kingside = true,
-                'q' => self.castling_rights.black_queenside = true,
+                'K' => self.castling_rights.insert(CastlingRights::WHITE_KINGSIDE),
+                'Q' => self.castling_rights.insert(CastlingRights::WHITE_QUEENSIDE),
+                'k' => self.castling_rights.insert(CastlingRights::BLACK_KINGSIDE),
+                'q' => self.castling_rights.insert(CastlingRights::BLACK_QUEENSIDE),
                 _ => panic!("Invalid castling rights character in FEN: {}", ch),
             }
         }
@@ -62,17 +59,8 @@ impl GameState {
         self.turn = colour;
     }
 
-    pub fn can_castle_white_kingside(&self) -> bool {
-        self.castling_rights.white_kingside
-    }
-    pub fn can_castle_white_queenside(&self) -> bool {
-        self.castling_rights.white_queenside
-    }
-    pub fn can_castle_black_kingside(&self) -> bool {
-        self.castling_rights.black_kingside
-    }
-    pub fn can_castle_black_queenside(&self) -> bool {
-        self.castling_rights.black_queenside
+    pub fn can_castle(&self, right: CastlingRights) -> bool {
+        self.castling_rights.contains(right)
     }
 
     pub fn get_en_passant_target(&self) -> Option<Coords> {
@@ -87,7 +75,7 @@ impl GameState {
         self.en_passant_target = target;
     }
 
-    pub fn update(&mut self, mv: &ChessMove) {
+    pub fn update(&mut self, mv: &ChessMove, hash: &mut u64, zobrist: &Zobrist) {
         if self.turn != mv.colour() {
             panic!(
                 "It's {:?}'s turn, but got move for {:?}",
@@ -97,33 +85,41 @@ impl GameState {
         }
 
         self.turn = self.turn.other();
+        zobrist.toggle_side_to_move(hash);
 
         // Update castling rights
+        let old_castling = self.castling_rights;
+
         if mv.piece() == PieceType::King {
             if mv.colour() == Colour::White {
-                self.castling_rights.white_kingside = false;
-                self.castling_rights.white_queenside = false;
+                self.castling_rights.remove(CastlingRights::WHITE_KINGSIDE | CastlingRights::WHITE_QUEENSIDE);
             } else {
-                self.castling_rights.black_kingside = false;
-                self.castling_rights.black_queenside = false;
+                self.castling_rights.remove(CastlingRights::BLACK_KINGSIDE | CastlingRights::BLACK_QUEENSIDE);
             }
         }
         if mv.piece() == PieceType::Rook {
             if mv.colour() == Colour::White {
                 if mv.from() == Coords::new(1, File::A) {
-                    self.castling_rights.white_queenside = false;
+                    self.castling_rights.remove(CastlingRights::WHITE_QUEENSIDE);
                 } else if mv.from() == Coords::new(1, File::H) {
-                    self.castling_rights.white_kingside = false;
+                    self.castling_rights.remove(CastlingRights::WHITE_KINGSIDE);
                 }
             } else {
                 if mv.from() == Coords::new(8, File::A) {
-                    self.castling_rights.black_queenside = false;
+                    self.castling_rights.remove(CastlingRights::BLACK_QUEENSIDE);
                 } else if mv.from() == Coords::new(8, File::H) {
-                    self.castling_rights.black_kingside = false;
+                    self.castling_rights.remove(CastlingRights::BLACK_KINGSIDE);
                 }
             }
         }
+
+        // Toggle old castling rights out of hash
+        zobrist.toggle_castle(hash, &old_castling);
+        // Toggle new castling rights into hash
+        zobrist.toggle_castle(hash, &self.castling_rights);
+
         // Update en passant target
+        let old_ep = self.en_passant_target;
         if mv.piece() == PieceType::Pawn && (mv.from().rank).abs_diff(mv.to().rank) == 2 {
             let ep_rank = (mv.from().rank + mv.to().rank) / 2;
             self.en_passant_target = Some(Coords::new(ep_rank, mv.from().file));
@@ -131,6 +127,12 @@ impl GameState {
         } else {
             self.en_passant_target = None;
             self.en_passant_piece_coords = None
+        }
+        if let Some(file) = old_ep.map(|c| c.file) {
+            zobrist.toggle_en_passant(hash, &file);
+        }
+        if let Some(file) = self.en_passant_target.map(|c| c.file) {
+            zobrist.toggle_en_passant(hash, &file);
         }
     }
 }
@@ -141,87 +143,142 @@ mod tests {
     use crate::enums::moves::NormalMove;
     use crate::enums::{ChessMove, Colour, File, PieceType};
     use crate::coords::Coords;
+    use crate::game_classes::zobrist::Zobrist;
 
-    fn make_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> ChessMove {
+    fn create_move(piece: PieceType, colour: Colour, from: Coords, to: Coords) -> ChessMove {
         ChessMove::Normal(NormalMove {
-            colour: colour,
+            colour,
             piece_type: piece,
-            from: from,
-            to: to,
+            from,
+            to,
         })
+    }
+
+    fn new_game_state_with_hash() -> (GameState, Zobrist, u64) {
+        let gs = GameState::new();
+        let zobrist = Zobrist::new();
+        let hash = 0u64; // start with empty hash
+        (gs, zobrist, hash)
     }
 
     #[test]
     fn test_new_initial_state() {
-        let gs = GameState::new();
+        let (gs, _, _) = new_game_state_with_hash();
         assert_eq!(gs.turn, Colour::White);
-        assert!(gs.castling_rights.white_kingside);
-        assert!(gs.castling_rights.white_queenside);
-        assert!(gs.castling_rights.black_kingside);
-        assert!(gs.castling_rights.black_queenside);
+        assert!(gs.can_castle(CastlingRights::WHITE_KINGSIDE));
+        assert!(gs.can_castle(CastlingRights::WHITE_QUEENSIDE));
+        assert!(gs.can_castle(CastlingRights::BLACK_KINGSIDE));
+        assert!(gs.can_castle(CastlingRights::BLACK_QUEENSIDE));
         assert!(gs.en_passant_target.is_none());
     }
 
     #[test]
     fn test_turn_alternates() {
-        let mut gs = GameState::new();
-        let mv = make_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
-        gs.update(&mv);
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let mv = create_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
         assert_eq!(gs.turn, Colour::Black);
     }
 
     #[test]
     fn test_castling_rights_removed_after_king_move() {
-        let mut gs = GameState::new();
-        let mv = make_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
-        gs.update(&mv);
-        assert!(!gs.castling_rights.white_kingside);
-        assert!(!gs.castling_rights.white_queenside);
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let mv = create_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
+        assert!(!gs.can_castle(CastlingRights::WHITE_KINGSIDE));
+        assert!(!gs.can_castle(CastlingRights::WHITE_QUEENSIDE));
     }
 
     #[test]
     fn test_castling_rights_removed_after_rook_move() {
-        let mut gs = GameState::new();
-
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
         // White rook A1 → A2 should disable queenside castling
-        let mv = make_move(PieceType::Rook, Colour::White, Coords::new(1, File::A), Coords::new(2, File::A));
-        gs.update(&mv);
-        assert!(!gs.castling_rights.white_queenside);
-        assert!(gs.castling_rights.white_kingside);
+        let mv = create_move(PieceType::Rook, Colour::White, Coords::new(1, File::A), Coords::new(2, File::A));
+        gs.update(&mv, &mut hash, &zobrist);
+        assert!(gs.can_castle(CastlingRights::WHITE_KINGSIDE));
+        assert!(!gs.can_castle(CastlingRights::WHITE_QUEENSIDE));
 
         // Reset game state
-        let mut gs = GameState::new();
-        // Black rook H8 → H7 should disable kingside castling
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
         gs.turn = Colour::Black;
-        let mv = make_move(PieceType::Rook, Colour::Black, Coords::new(8, File::H), Coords::new(7, File::H));
-        gs.update(&mv);
-        assert!(!gs.castling_rights.black_kingside);
-        assert!(gs.castling_rights.black_queenside);
+        // Black rook H8 → H7 should disable kingside castling
+        let mv = create_move(PieceType::Rook, Colour::Black, Coords::new(8, File::H), Coords::new(7, File::H));
+        gs.update(&mv, &mut hash, &zobrist);
+        assert!(!gs.can_castle(CastlingRights::BLACK_KINGSIDE));
+        assert!(gs.can_castle(CastlingRights::BLACK_QUEENSIDE));
     }
 
     #[test]
     fn test_en_passant_set_for_double_pawn_push() {
-        let mut gs = GameState::new();
-        let mv = make_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
-        gs.update(&mv);
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let mv = create_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
         assert_eq!(gs.en_passant_target, Some(Coords::new(3, File::E)));
     }
 
     #[test]
     fn test_en_passant_cleared_for_non_double_pawn_push() {
-        let mut gs = GameState::new();
-        let mv1 = make_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
-        gs.update(&mv1);
-        let mv2 = make_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::A), Coords::new(6, File::A));
-        gs.update(&mv2);
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let mv1 = create_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        gs.update(&mv1, &mut hash, &zobrist);
+        let mv2 = create_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::A), Coords::new(6, File::A));
+        gs.update(&mv2, &mut hash, &zobrist);
         assert!(gs.en_passant_target.is_none());
     }
 
     #[test]
     #[should_panic(expected = "It's White's turn")]
     fn test_wrong_turn_panics() {
-        let mut gs = GameState::new();
-        let mv = make_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
-        gs.update(&mv); // should panic
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let mv = create_move(PieceType::Pawn, Colour::Black, Coords::new(7, File::E), Coords::new(5, File::E));
+        gs.update(&mv, &mut hash, &zobrist); // should panic
+    }
+
+    #[test]
+    fn test_piece_move_changes_hash() {
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let initial_hash = hash;
+
+        let mv = create_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
+
+        // hash should change after a move
+        assert_ne!(hash, initial_hash);
+    }
+
+    #[test]
+    fn test_castling_rights_change_hash() {
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let initial_hash = hash;
+
+        let mv = create_move(PieceType::King, Colour::White, Coords::new(1, File::E), Coords::new(2, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
+
+        // Removing castling rights should modify hash
+        assert_ne!(hash, initial_hash);
+    }
+
+    #[test]
+    fn test_en_passant_change_hash() {
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let initial_hash = hash;
+
+        let mv = create_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(4, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
+
+        // Double pawn push sets en passant target -> hash changes
+        assert_ne!(hash, initial_hash);
+    }
+
+    #[test]
+    fn test_side_to_move_change_hash() {
+        let (mut gs, zobrist, mut hash) = new_game_state_with_hash();
+        let initial_hash = hash;
+
+        let mv = create_move(PieceType::Pawn, Colour::White, Coords::new(2, File::E), Coords::new(3, File::E));
+        gs.update(&mv, &mut hash, &zobrist);
+
+        // Side-to-move toggled -> hash changes
+        assert_ne!(hash, initial_hash);
     }
 }
