@@ -253,6 +253,8 @@ impl Game {
         }
 
         if let Some(snapshot) = self.history.pop() {
+            self.state_tracker.unrecord_position(self.hash);
+
             self.game_state = snapshot.state;
             self.hash = snapshot.hash;
         }

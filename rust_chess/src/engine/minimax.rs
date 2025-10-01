@@ -40,11 +40,11 @@ impl Minimax {
             }
         }
 
-        // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
+        move_scores.sort_by(|a, b| b.1.cmp(&a.1));
 
-        // for (mv, score) in &move_scores {
-        //     println!("{}: {}", mv, score);
-        // }
+        for (mv, score) in &move_scores {
+            println!("{}: {}", mv, score);
+        }
 
         best_move
     }
