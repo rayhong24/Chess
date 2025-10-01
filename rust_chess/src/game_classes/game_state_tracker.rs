@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_classes::game;
 use crate::game_classes::{board_classes::board::Board, game_state::GameState, zobrist::Zobrist};
-use crate::enums::colour::Colour;
 
 pub struct GameStateTracker {
     state_counts: HashMap<u64, u32>,
@@ -11,6 +9,10 @@ pub struct GameStateTracker {
 impl GameStateTracker {
     pub fn new() -> Self {
         Self{ state_counts: HashMap::new() }
+    }
+
+    pub fn clear(&mut self) {
+        self.state_counts.clear();
     }
 
     pub fn record_position(&mut self, hash: u64) {
