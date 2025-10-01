@@ -9,6 +9,7 @@ use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
 use crate::game_classes::game_state::{GameState, CastlingRights};
 
 
+#[derive(Debug)]
 pub enum GameResult {
     Checkmate(Colour),
     Stalemate,
@@ -54,8 +55,14 @@ impl Game {
         self.board = Board::new();
     }
 
+    pub fn clear_state_tracker(&mut self) {
+        self.state_tracker.clear();
+    }
+
     pub fn set_fenstr(&mut self, fenstr: &str) {
+        self.clear_state_tracker();
         let fenstr_parts: Vec<&str> = fenstr.split(' ').collect();
+
         if fenstr_parts.len() < 4 {
             panic!("Invalid FEN string: expected at least 4 fields, got {}", fenstr_parts.len());
         }
@@ -88,36 +95,22 @@ impl Game {
         }
 
         self.hash_position();
+        self.state_tracker.record_position(self.hash);
 
         // Halfmove clock and fullmove number not yet implemented
-        
-    }
-
-    pub fn is_game_over(&mut self) -> Option<GameResult> {
-        let player = self.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(self, player);
-
-        if moves.len() > 0 {
-            return None;
-        }
-
-
-        if self.is_player_in_check(player) {
-            return Some(GameResult::Checkmate(player))
-        }
-        else {
-            return Some(GameResult::Stalemate)
-        }
         
     }
 
     pub fn is_game_over_with_moves(&self, moves: &Vec<ChessMove>) -> Option<GameResult> {
         let player = self.get_game_state().get_turn();
 
+        if self.state_tracker.is_threefold_repetition(self.hash) {
+            return Some(GameResult::Draw);
+        }
+
         if moves.len() > 0 {
             return None;
         }
-
 
         if self.is_player_in_check(player) {
             return Some(GameResult::Checkmate(player))
@@ -126,7 +119,6 @@ impl Game {
             return Some(GameResult::Stalemate)
         }
     }
-
 
 
     pub fn get_board(&self) -> &Board {
@@ -326,41 +318,24 @@ impl Game {
     }
 
     pub fn hash_position(&mut self) {
-        let mut hash = 0u64;
-
+        self.hash = 0u64;
 
         for (piece, coords) in self.board.get_all_pieces() {
-            let colour_idx = piece.colour as usize;
-            let kind_idx = piece.kind as usize;
-            let coords_idx = coords.to_index();
-
+            self.zobrist.toggle_piece(&mut self.hash, &coords, &piece)
         }
 
         // Add castling rights
-        if self.game_state.can_castle(CastlingRights::WHITE_KINGSIDE) {
-            hash ^= self.zobrist.castling[0];
-        }
-        if self.game_state.can_castle(CastlingRights::WHITE_QUEENSIDE) {
-            hash ^= self.zobrist.castling[1];
-        }
-        if self.game_state.can_castle(CastlingRights::BLACK_KINGSIDE) {
-            hash ^= self.zobrist.castling[2];
-        }
-        if self.game_state.can_castle(CastlingRights::BLACK_QUEENSIDE) {
-            hash ^= self.zobrist.castling[3];
-        }
+        self.zobrist.toggle_castle(&mut self.hash,&CastlingRights::all());
 
         // En passant
         if let Some(coords) = self.game_state.get_en_passant_piece_coords() {
-            hash ^= self.zobrist.en_passant[coords.file.value()];
+            self.zobrist.toggle_en_passant(&mut self.hash, &coords.file);
         }
 
         // Side to move
         if self.game_state.get_turn() == Colour::Black {
-            hash ^= self.zobrist.side_to_move;
+            self.zobrist.toggle_side_to_move(&mut self.hash);
         }
-
-        self.hash = hash;
     }
 }
 
@@ -1034,5 +1009,136 @@ mod tests {
         assert_eq!(game.hash, hash_after_moves, "Recalculating hash from scratch should result in the same value.");
     }
 
+    #[test]
+    fn test_threefold_repetition_draw() {
+        let mut game = Game::new();
+        game.clear_board();
+        game.clear_state_tracker();
+
+        // Place only kings and rooks to simplify repeated moves
+        let white_king = Piece { kind: PieceType::King, colour: Colour::White };
+        let black_king = Piece { kind: PieceType::King, colour: Colour::Black };
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        let black_rook = Piece { kind: PieceType::Rook, colour: Colour::Black };
+
+        // Initial positions
+        let wk_pos = Coords::new(1, File::E);
+        let wr_pos = Coords::new(1, File::H);
+        let bk_pos = Coords::new(8, File::E);
+        let br_pos = Coords::new(8, File::H);
+
+        game.board.set_coords(&wk_pos, Some(white_king));
+        game.board.set_coords(&wr_pos, Some(white_rook));
+        game.board.set_coords(&bk_pos, Some(black_king));
+        game.board.set_coords(&br_pos, Some(black_rook));
+
+        // Moves to repeat
+        let white_rook_forward = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Rook,
+            from: wr_pos,
+            to: Coords::new(2, File::H),
+        });
+        let white_rook_back = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Rook,
+            from: Coords::new(2, File::H),
+            to: wr_pos,
+        });
+
+        let black_rook_forward = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Rook,
+            from: br_pos,
+            to: Coords::new(7, File::H),
+        });
+        let black_rook_back = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Rook,
+            from: Coords::new(7, File::H),
+            to: br_pos,
+        });
+
+        // Repeat a sequence 3 times
+        for _ in 0..3 {
+            game.make_move(&white_rook_forward);
+            game.make_move(&black_rook_forward);
+            game.make_move(&white_rook_back);
+            game.make_move(&black_rook_back);
+        }
+
+        // Generate legal moves for the current player
+        let to_move = game.get_game_state().get_turn();
+        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move);
+
+        // The game should now detect a draw by threefold repetition
+        let result = game.is_game_over_with_moves(&moves);
+        match result {
+            Some(GameResult::Draw) => (),
+            _ => panic!("Expected threefold repetition draw, got {:?}", result),
+        }
+    }
+
+    #[test]
+    fn test_threefold_repetition_not_triggered_before_third() {
+        let mut game = Game::new();
+        game.clear_board();
+        game.clear_state_tracker();
+
+        let white_king = Piece { kind: PieceType::King, colour: Colour::White };
+        let black_king = Piece { kind: PieceType::King, colour: Colour::Black };
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        let black_rook = Piece { kind: PieceType::Rook, colour: Colour::Black };
+
+        let wk_pos = Coords::new(1, File::E);
+        let wr_pos = Coords::new(1, File::H);
+        let bk_pos = Coords::new(8, File::E);
+        let br_pos = Coords::new(8, File::H);
+
+        game.board.set_coords(&wk_pos, Some(white_king));
+        game.board.set_coords(&wr_pos, Some(white_rook));
+        game.board.set_coords(&bk_pos, Some(black_king));
+        game.board.set_coords(&br_pos, Some(black_rook));
+
+        let white_rook_forward = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Rook,
+            from: wr_pos,
+            to: Coords::new(2, File::H),
+        });
+        let white_rook_back = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Rook,
+            from: Coords::new(2, File::H),
+            to: wr_pos,
+        });
+
+        let black_rook_forward = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Rook,
+            from: br_pos,
+            to: Coords::new(7, File::H),
+        });
+        let black_rook_back = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Rook,
+            from: Coords::new(7, File::H),
+            to: br_pos,
+        });
+
+        // Repeat sequence only twice
+        for _ in 0..2 {
+            game.make_move(&white_rook_forward);
+            game.make_move(&black_rook_forward);
+            game.make_move(&white_rook_back);
+            game.make_move(&black_rook_back);
+        }
+
+        let to_move = game.get_game_state().get_turn();
+        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move);
+
+        let result = game.is_game_over_with_moves(&moves);
+        assert!(result.is_none(), "Draw should not trigger before third repetition");
+    }
 }
 

@@ -20,6 +20,18 @@ impl GameStateTracker {
         *counter += 1;
     }
 
+    pub fn unrecord_position(&mut self, hash: u64) {
+        if let Some(counter) = self.state_counts.get_mut(&hash) {
+            *counter -= 1;
+            if *counter == 0 {
+                self.state_counts.remove(&hash);
+            }
+        } else {
+            panic!("Trying to unrecord a position that was never recorded: {}", hash);
+
+        }
+    }
+
     pub fn is_threefold_repetition(&self, hash: u64) -> bool {
         self.state_counts.get(&hash).cloned().unwrap_or(0) >= 3
     }
