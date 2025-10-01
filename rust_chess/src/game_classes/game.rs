@@ -327,7 +327,7 @@ impl Game {
         }
 
         // Add castling rights
-        self.zobrist.toggle_castle(&mut self.hash,&CastlingRights::all());
+        self.zobrist.toggle_castle(&mut self.hash, &self.game_state.get_castling_rights());
 
         // En passant
         if let Some(coords) = self.game_state.get_en_passant_piece_coords() {
