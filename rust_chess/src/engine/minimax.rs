@@ -50,20 +50,21 @@ impl Minimax {
     }
 
     fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
-        if depth == 0 || game.is_game_over().is_some() {
-            if self.selective_quiescence
-                && game
-                    .get_last_move()
-                    .map_or(false, |m| m.is_capture())
-            {
-                return self.quiescence(game, -INF, INF, self.quiescence_max_depth);
-            }
-            else {
-                return Evaluator::evaluate(game);
-            }
+        let moves = MoveGenerator::generate_legal_moves(game, colour);
+
+        if let Some(result) = game.is_game_over_with_moves(&moves) {
+            return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
         }
 
-        let moves = MoveGenerator::generate_legal_moves(game, colour);
+        if depth == 0 {
+            return if self.selective_quiescence {
+                self.quiescence(game, alpha, beta, self.quiescence_max_depth)
+            } else {
+                Evaluator::evaluate_game_result(game, None, depth, colour)
+            };
+        }
+        
+
         let mut best_score = i32::MIN;
 
         for mv in &moves {
@@ -83,28 +84,36 @@ impl Minimax {
 
 
     fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, max_depth: usize) -> i32 {
+        // Step 0: terminal positions
+        let to_move = game.get_game_state().get_turn();
+        let moves = MoveGenerator::generate_legal_moves(game, to_move);
+
+        if let Some(result) = game.is_game_over_with_moves(&moves) {
+            return Evaluator::evaluate_game_result(game, Some(result), self.max_depth, to_move);
+        }
+
         // Step 1: stand pat evaluation
-        let stand_pat = Evaluator::evaluate(game);
+        let stand_pat = Evaluator::evaluate_game_result(game, None, self.max_depth, to_move);
 
         if max_depth == 0 || stand_pat >= beta {
             return stand_pat;
         }
+
         if stand_pat > alpha {
             alpha = stand_pat;
         }
 
-        // Step 2: generate only "tactical" moves (captures/promotions)
+        // Step 2: generate only tactical moves (captures + promotions)
         let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn());
         order_moves(&mut moves, game);
 
-
         for mv in &moves {
-            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv)  {
+            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) {
                 continue;
             }
 
-            game.make_move(&mv);
-            let score = -self.quiescence(game, -beta, -alpha, max_depth-1);
+            game.make_move(mv);
+            let score = -self.quiescence(game, -beta, -alpha, max_depth - 1);
             game.undo_last_move();
 
             if score >= beta {

@@ -11,7 +11,8 @@ use crate::game_classes::game_state::{GameState, CastlingRights};
 
 pub enum GameResult {
     Checkmate(Colour),
-    Stalemate
+    Stalemate,
+    Draw
 }
 
 struct GameStateSnapshot {
@@ -25,9 +26,9 @@ pub struct Game {
     move_history: Vec<ExecutedMove>,
     history: Vec<GameStateSnapshot>,
     zobrist: Zobrist,
-    // state_tracker: GameStateTracker,
+    state_tracker: GameStateTracker,
     hash: u64,
-    ended: bool,
+    ended: Option<GameResult>,
 }
 
 impl Game {
@@ -38,12 +39,13 @@ impl Game {
             move_history: Vec::new(),
             history: Vec::new(),
             zobrist: Zobrist::new(),
-            // state_tracker: GameStateTracker::new(),
+            state_tracker: GameStateTracker::new(),
             hash: 0,
-            ended: false,
+            ended: None,
         };
 
         game.hash_position();
+        game.state_tracker.record_position(game.hash);
 
         game
     }
@@ -101,13 +103,31 @@ impl Game {
 
 
         if self.is_player_in_check(player) {
-            return Some(GameResult::Checkmate((player)))
+            return Some(GameResult::Checkmate(player))
         }
         else {
             return Some(GameResult::Stalemate)
         }
         
     }
+
+    pub fn is_game_over_with_moves(&self, moves: &Vec<ChessMove>) -> Option<GameResult> {
+        let player = self.get_game_state().get_turn();
+
+        if moves.len() > 0 {
+            return None;
+        }
+
+
+        if self.is_player_in_check(player) {
+            return Some(GameResult::Checkmate(player))
+        }
+        else {
+            return Some(GameResult::Stalemate)
+        }
+    }
+
+
 
     pub fn get_board(&self) -> &Board {
         &self.board
@@ -231,6 +251,8 @@ impl Game {
             }
             _ => unimplemented!("This move type is not yet implemented."),
         }
+
+        self.state_tracker.record_position(self.hash);
     }
 
     pub fn undo_last_move(&mut self) {

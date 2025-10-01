@@ -20,19 +20,17 @@ pub const KING_VALUE: i32 = 20000;
 pub struct Evaluator;
 
 impl Evaluator {
-    pub fn evaluate(game: &mut Game) -> i32 {
-        let colour = game.get_game_state().get_turn();
-
-        match game.is_game_over() {
+    pub fn evaluate_game_result(game: &mut Game, game_result: Option<GameResult>, depth: usize, to_move: Colour) -> i32 {
+        match game_result {
             Some(GameResult::Checkmate(loser)) => {
-                if loser == colour {
-                    -INF
+                if loser == to_move {
+                    -INF + depth as i32
                 }
                 else {
-                    INF
+                    INF - depth as i32
                 }
             }
-            Some(GameResult::Stalemate) => 0,
+            Some(GameResult::Stalemate) | Some(GameResult::Draw) => 0,
             None => Self::evaluate_pst(game)
         }
     }
