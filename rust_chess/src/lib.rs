@@ -89,6 +89,50 @@ impl PyMinimax {
         }
 
     }
+
+    /// Engine option setters
+    pub fn set_max_depth(&mut self, max_depth: usize) {
+        self.inner.engine_options.max_depth = max_depth;
+    }
+
+    pub fn set_quiescence_max_depth(&mut self, quiescence_max_depth: usize) {
+        self.inner.engine_options.quiescence_max_depth = quiescence_max_depth;
+    }
+
+    pub fn set_use_transposition_tables(&mut self, use_tt: bool) {
+        self.inner.engine_options.use_transposition_tables = use_tt;
+    }
+
+    /// Engine option getters
+    pub fn get_max_depth(&self) -> usize {
+        self.inner.engine_options.max_depth
+    }
+
+    pub fn get_quiescence_max_depth(&self) -> usize {
+        self.inner.engine_options.quiescence_max_depth
+    }
+
+    pub fn get_use_transposition_tables(&self) -> bool {
+        self.inner.engine_options.use_transposition_tables
+    }
+
+    /// Optional: reset the engine TT if you want to start fresh
+    pub fn clear_tt(&mut self) {
+        self.inner.tt.clear();
+    }
+
+    pub fn reset_minimax_nodes_and_tt_hits(&mut self) {
+        self.inner.nodes = 0;
+        self.inner.tt_hits = 0;
+    }
+
+    pub fn get_minimax_nodes(&self) -> usize {
+        self.inner.nodes
+    }
+
+    pub fn get_minimax_tt_hits(&self) -> usize {
+        self.inner.tt_hits
+    }
 }
 
 

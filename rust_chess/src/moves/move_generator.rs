@@ -14,7 +14,10 @@ impl MoveGenerator {
     pub fn generate_legal_moves(game: &mut Game, player: Colour) -> Vec<ChessMove> {
         let pseudo_legal_moves = Self::generate_pseudo_legal_moves(game, player);
 
-        let mut legal_moves: Vec<ChessMove> = pseudo_legal_moves.into_iter().filter(|&m| !Self::does_leave_player_in_check(game, &m)).collect();
+        let mut legal_moves: Vec<ChessMove> = pseudo_legal_moves
+            .into_iter()
+            .filter(|&m| !Self::does_leave_player_in_check(game, &m))
+            .collect();
 
         legal_moves.append(&mut Self::generate_castling_moves(game, player));
 
