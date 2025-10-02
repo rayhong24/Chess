@@ -167,7 +167,9 @@ impl Board {
         {
             let bitboard = self.get_bit_board(piece);
             if !bitboard.is_set(from) {
+                println!("Trying to move {:?} from {:?} to {:?}", piece, from , to);
                 panic!("No piece found at the source coordinates {:?}", from);
+
             }
         }
 
