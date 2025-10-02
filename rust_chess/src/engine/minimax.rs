@@ -46,6 +46,19 @@ impl Minimax {
         Self { engine_options: options, tt: HashMap::new(), nodes: 0, tt_hits: 0}
     }
 
+    pub fn evaluate_move(&mut self, game: &mut Game, mv: &ChessMove) -> i32 {
+        game.make_move(mv);
+
+        let to_move = game.get_game_state().get_turn();
+        let moves = MoveGenerator::generate_legal_moves(game,to_move); 
+        let game_result = game.is_game_over_with_moves(&moves);
+        let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
+
+        game.undo_last_move();
+
+        return out;
+    }
+
     pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
         let mut best_score: i32 = -INF;
         let mut best_move: Option<ChessMove> = None;
@@ -86,7 +99,7 @@ impl Minimax {
                 best_score = current_best_score;
             }
 
-            // println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
+            println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
         }
 
         // move_scores.sort_by(|a, b| b.1.cmp(&a.1));

@@ -87,7 +87,14 @@ impl PyMinimax {
                 self.game.make_move(&chess_move);
             }
         }
+    }
 
+    pub fn evaluate_move(&mut self, mv: &str) -> i32 {
+        if let Some(chess_move) = MoveParser::parse_str(&mv, &self.game) {
+            return self.inner.evaluate_move(&mut self.game, &chess_move);
+        }
+
+        panic!("Invalid move");
     }
 
     /// Engine option setters
