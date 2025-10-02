@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::game_classes::game::{Game, GameResult};
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour, ExecutedMove};
@@ -6,19 +8,43 @@ use crate::engine::evaluator::Evaluator;
 
 pub const INF: i32 = 30_000;
 
+#[derive(Clone, Copy)]
+pub enum Bound {
+    Exact,
+    Lower,
+    Upper,
+}
+
+#[derive(Clone, Copy)]
+pub struct TTEntry {
+    pub depth: usize,
+    pub value: i32,
+    pub bound: Bound,
+}
+
+
+pub struct EngineOptions {
+    max_depth: usize,
+    quiescence_max_depth: usize,
+    use_transposition_tables: bool,
+}
+
+
 pub struct Minimax {
-    pub max_depth: usize,
-    pub quiescence_max_depth: usize,
-    pub selective_quiescence: bool
+    pub engine_options: EngineOptions,
+    pub tt: HashMap<u64, TTEntry>
 }
 
 impl Minimax {
-    pub fn new(max_depth: usize, quiescence_max_depth: usize, selective_quiescence: bool) -> Self {
-        Self { max_depth, quiescence_max_depth, selective_quiescence}
+    pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool) -> Self {
+        let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables};
+        Self { engine_options: options, tt: HashMap::new()}
     }
 
-    pub fn find_best_move(&self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
-        let mut best_score = i32::MIN;
+    pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
+        self.tt.clear(); // clear TT for fresh search
+
+        let mut best_score = -INF;
         let mut best_move: Option<ChessMove> = None;
         
         let mut move_scores = vec![];
@@ -28,7 +54,7 @@ impl Minimax {
         for mv in moves {
             game.make_move(&mv);
 
-            let score = -self.minimax(game, self.max_depth - 1, -INF, INF, colour.other());
+            let score = -self.minimax(game, self.engine_options.max_depth - 1, -INF, INF, colour.other());
 
             game.undo_last_move();
 
@@ -40,16 +66,32 @@ impl Minimax {
             }
         }
 
-        move_scores.sort_by(|a, b| b.1.cmp(&a.1));
+        // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
 
-        for (mv, score) in &move_scores {
-            println!("{}: {}", mv, score);
-        }
+        // for (mv, score) in &move_scores {
+        //     println!("{}: {}", mv, score);
+        // }
 
         best_move
     }
 
-    fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
+    fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
+        let hash = game.get_current_hash();
+
+        if self.engine_options.use_transposition_tables {
+            if let Some(entry) = self.tt.get(&hash) {
+                if entry.depth >= depth {
+                    match entry.bound {
+                        Bound::Exact => return entry.value,
+                        Bound::Lower => alpha = alpha.max(entry.value),
+                        Bound::Upper => beta = beta.min(entry.value)
+                    }
+                    if alpha >= beta {
+                        return entry.value;
+                    }
+            }   }
+        }
+
         let moves = MoveGenerator::generate_legal_moves(game, colour);
 
         if let Some(result) = game.is_game_over_with_moves(&moves) {
@@ -57,15 +99,12 @@ impl Minimax {
         }
 
         if depth == 0 {
-            return if self.selective_quiescence {
-                self.quiescence(game, alpha, beta, self.quiescence_max_depth)
-            } else {
-                Evaluator::evaluate_game_result(game, None, depth, colour)
-            };
+            return self.quiescence(game, alpha, beta, self.engine_options.quiescence_max_depth);
         }
         
 
-        let mut best_score = i32::MIN;
+        let orig_alpha = alpha;
+        let mut best_score = -INF;
 
         for mv in &moves {
             game.make_move(&mv);
@@ -75,25 +114,56 @@ impl Minimax {
             best_score = best_score.max(score);
 
             if best_score >= beta {
-                return best_score;
+                break;
             }
+        }
+
+        if self.engine_options.use_transposition_tables {
+            let bound = if best_score <= orig_alpha {
+                Bound::Upper
+            }
+            else if  best_score >= beta {
+                Bound::Lower
+            }
+            else {
+                Bound::Exact
+            };
+
+            self.tt.insert(hash, TTEntry { depth: depth, value: best_score, bound: bound });
         }
         best_score
     }
 
 
 
-    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, max_depth: usize) -> i32 {
+    fn quiescence(&mut self, game: &mut Game, mut alpha: i32, mut beta: i32, max_depth: usize) -> i32 {
+        let hash = game.get_current_hash();
+
+        if self.engine_options.use_transposition_tables {
+            if let Some(entry) = self.tt.get(&hash) {
+                if entry.depth >= max_depth {
+                    match entry.bound {
+                        Bound::Exact => return entry.value,
+                        Bound::Lower => alpha = alpha.max(entry.value),
+                        Bound::Upper => beta = beta.min(entry.value),
+                    }
+                    if alpha >= beta {
+                        return entry.value;
+                    }
+                }
+            }
+        }
+
         // Step 0: terminal positions
         let to_move = game.get_game_state().get_turn();
         let moves = MoveGenerator::generate_legal_moves(game, to_move);
 
         if let Some(result) = game.is_game_over_with_moves(&moves) {
-            return Evaluator::evaluate_game_result(game, Some(result), self.max_depth, to_move);
+            return Evaluator::evaluate_game_result(game, Some(result), self.engine_options.quiescence_max_depth, to_move);
         }
 
         // Step 1: stand pat evaluation
-        let stand_pat = Evaluator::evaluate_game_result(game, None, self.max_depth, to_move);
+        let stand_pat = Evaluator::evaluate_game_result(game, None, self.engine_options.quiescence_max_depth, to_move);
 
         if max_depth == 0 || stand_pat >= beta {
             return stand_pat;
@@ -123,6 +193,18 @@ impl Minimax {
                 alpha = score;
             }
         }
+
+        if self.engine_options.use_transposition_tables {
+            let bound = if alpha <= stand_pat {
+                Bound::Upper
+            } else if alpha >= beta {
+                Bound::Lower
+            } else {
+                Bound::Exact
+            };
+            self.tt.insert(hash, TTEntry { depth: max_depth, value: alpha, bound: bound });
+        }
+
 
         alpha
     }
