@@ -4,7 +4,7 @@ use crate::enums::piece_types::PIECE_COUNT;
 use crate::enums::{Colour, PieceType};
 use crate::coords::Coords;
 use crate::piece::Piece;
-use crate::game_classes::board_classes::bit_board::{self, BitBoard};
+use crate::game_classes::board_classes::bit_board::BitBoard;
 // use crate::coords::Coords;
 // use crate::pieces::Piece;
 
@@ -153,7 +153,7 @@ impl Board {
         for colour in [Colour::White, Colour::Black] {
             for piece_type in PieceType::iter() {
                 let piece = Piece { kind: piece_type, colour: colour };
-                let mut bitboard = self.get_bit_board_mut(&piece);
+                let bitboard = self.get_bit_board_mut(&piece);
 
                 let set = maybe_piece.is_some_and(
                     |p| p.colour == colour && p.kind == piece_type

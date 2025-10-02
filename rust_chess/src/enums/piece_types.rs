@@ -1,7 +1,6 @@
 use std::fmt;
 
 use strum_macros::EnumIter;
-use crate::{enums::Colour, piece};
 
 #[derive(EnumIter, Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]

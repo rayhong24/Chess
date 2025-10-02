@@ -2,13 +2,13 @@ use std::time::Instant;
 
 use rust_chess::PyMinimax;
 
-const startpos: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 #[test]
 fn test_start_search() {
     let mut mini = PyMinimax::new(2, 4, true);
 
-    mini.set_position(startpos, vec![]);
+    mini.set_position(STARTPOS, vec![]);
 
 
     mini.go();
@@ -27,7 +27,7 @@ fn test_minimax() {
 
 
 
-    mini.set_position(startpos, moves);
+    mini.set_position(STARTPOS, moves);
 
 
     mini.go();
@@ -45,8 +45,8 @@ fn test_transposition_tables() {
         .collect();
 
 
-    no_tt.set_position(startpos, moves.clone());
-    tt.set_position(startpos, moves.clone());
+    no_tt.set_position(STARTPOS, moves.clone());
+    tt.set_position(STARTPOS, moves.clone());
 
 
     // Measure no_tt runtime
