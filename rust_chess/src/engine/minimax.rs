@@ -99,7 +99,7 @@ impl Minimax {
                 best_score = current_best_score;
             }
 
-            println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
+            // println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
         }
 
         // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
