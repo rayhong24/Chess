@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::game_classes::game::{Game, GameResult};
+use crate::game_classes::game::Game;
 use crate::moves::move_generator::MoveGenerator;
-use crate::enums::{ChessMove, Colour, ExecutedMove};
+use crate::enums::{ChessMove, Colour};
 use crate::move_ordering::order_moves;
 use crate::engine::evaluator::Evaluator;
 

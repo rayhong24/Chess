@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::{coords::Coords, enums::File, piece::{self, Piece}};
+use crate::{coords::Coords, enums::File, piece::Piece};
 use crate::game_classes::game_state::CastlingRights;
 
 pub struct Zobrist {

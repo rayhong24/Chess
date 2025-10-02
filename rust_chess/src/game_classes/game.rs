@@ -1,12 +1,11 @@
-use crate::enums::moves::{NormalMove, PromotionMove};
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
 use crate::game_classes::game_state_tracker::GameStateTracker;
 use crate::game_classes::zobrist::Zobrist;
 use crate::moves::move_generator::MoveGenerator;
 use crate::piece::Piece;
-use crate::enums::{Colour, PieceType, File, ChessMove, ExecutedMove};
-use crate::game_classes::game_state::{GameState, CastlingRights};
+use crate::enums::{Colour, PieceType, ChessMove, ExecutedMove};
+use crate::game_classes::game_state::{GameState};
 
 
 #[derive(Debug)]
@@ -29,7 +28,7 @@ pub struct Game {
     zobrist: Zobrist,
     state_tracker: GameStateTracker,
     hash: u64,
-    ended: Option<GameResult>,
+    // ended: Option<GameResult>,
 }
 
 impl Game {
@@ -42,7 +41,7 @@ impl Game {
             zobrist: Zobrist::new(),
             state_tracker: GameStateTracker::new(),
             hash: 0,
-            ended: None,
+            // ended: None,
         };
 
         game.hash_position();
@@ -245,7 +244,6 @@ impl Game {
                 self.board.set_coords(&mv.captured_coords, None);
 
             }
-            _ => unimplemented!("This move type is not yet implemented."),
         }
 
         self.state_tracker.record_position(self.hash);
@@ -291,7 +289,6 @@ impl Game {
                 let captured_pawn = Piece { kind: PieceType::Pawn, colour: mv.colour.other() };
                 self.board.set_coords(&mv.captured_coords, Some(captured_pawn));
             }
-            _ => unimplemented!("This move type is not yet implemented."),
         }
     }
 
@@ -351,7 +348,6 @@ mod tests {
     use super::*;
     use crate::enums::moves::{NormalMove, CastlingMove, PromotionMove, EnPassantMove};
     use crate::enums::{Colour, PieceType, File, ChessMove};
-    use crate::game_classes::zobrist;
 
     // Helper to create a normal move
     fn make_normal_move(colour: Colour, piece: PieceType, from: Coords, to: Coords) -> ChessMove {
@@ -364,7 +360,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic()]
+    #[should_panic]
     fn test_move_from_empty_square_panics() {
         let mut game = Game::new();
         let mv = make_normal_move(Colour::White, PieceType::Pawn, Coords::new(3, File::E), Coords::new(4, File::E));
@@ -372,7 +368,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic()]
+    #[should_panic]
     fn test_move_wrong_piece_panics() {
         let mut game = Game::new();
         // Try to move a rook from E2 (actually has a pawn)

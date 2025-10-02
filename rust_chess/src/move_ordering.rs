@@ -6,12 +6,6 @@ fn mvv_lva_score(attacker: PieceType, victim: PieceType) -> i32 {
     Evaluator::get_piece_value(victim) - Evaluator::get_piece_value(attacker)
 }
 
-fn is_recapture(mv: &ChessMove, last_move: Option<&ChessMove>) -> bool {
-    if let Some(last) = last_move {
-        return mv.to() == last.to(); // same square as last captured/moved piece
-    }
-    false
-}
 
 fn move_order_score(mv: &ChessMove, game: &Game) -> i32 {
     // Captures: use MVV-LVA

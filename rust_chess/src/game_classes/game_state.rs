@@ -1,9 +1,6 @@
-use bitflags::bitflags;
-
-use crate::enums::{ChessMove, Colour, ExecutedMove, File, PieceType};
+use crate::enums::{ChessMove, Colour, File, PieceType};
 use crate::coords::Coords;
 use crate::game_classes::zobrist::Zobrist;
-use crate::game_classes::game::Game;
 
 bitflags::bitflags! {
     #[derive(Debug, Clone, Copy)]

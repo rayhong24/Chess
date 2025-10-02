@@ -1,5 +1,3 @@
-use std::iter::Filter;
-
 use strum::IntoEnumIterator;
 
 use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove, CastlingMove};
@@ -123,7 +121,6 @@ impl MoveGenerator {
 
     pub fn generate_castling_moves(game: &Game, colour: Colour) -> Vec<ChessMove> {
         let mut moves = Vec::new();
-        let state = game.get_game_state();
 
         // King and starting square
         let rank = if colour == Colour::White { 1 } else { 8 };
@@ -260,7 +257,7 @@ mod tests {
         let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
 
         // At the start, white pawns can move 1 or 2 squares forward
-        let mut pawn_moves = moves.iter().filter(|mv| {
+        let pawn_moves = moves.iter().filter(|mv| {
             match mv {
                 ChessMove::Normal(nm) => nm.piece_type == PieceType::Pawn && nm.colour == Colour::White,
                 _ => false

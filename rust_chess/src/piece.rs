@@ -1,4 +1,3 @@
-use std::fmt;
 use crate::enums::{Colour, PieceType};
 use crate::moves::move_ray::MoveRay;
 use crate::coords::Coords;
@@ -38,7 +37,6 @@ impl Piece {
             PieceType::King => {
                 Self::king_move_rays(&self, coords)
             }
-            _ => {panic!("Invalid PieceType: {:?}", self.kind)}
         }
     }
 

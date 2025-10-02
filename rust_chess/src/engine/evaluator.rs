@@ -1,7 +1,3 @@
-use std::fmt::Binary;
-
-use strum::IntoEnumIterator;
-
 use crate::engine::piece_square_tables::{BISHOP_PST, KING_PST, KNIGHT_PST, PAWN_PST, QUEEN_PST, ROOK_PST};
 use crate::enums::{Colour, PieceType};
 use crate::coords::Coords;
