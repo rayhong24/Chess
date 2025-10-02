@@ -25,21 +25,25 @@ pub struct TTEntry {
 
 
 pub struct EngineOptions {
-    max_depth: usize,
-    quiescence_max_depth: usize,
-    use_transposition_tables: bool,
+    pub max_depth: usize,
+    pub quiescence_max_depth: usize,
+    pub use_transposition_tables: bool,
 }
 
 
 pub struct Minimax {
     pub engine_options: EngineOptions,
-    pub tt: HashMap<u64, TTEntry>
+    pub tt: HashMap<u64, TTEntry>,
+
+    // Debugging counters
+    pub nodes: usize,
+    pub tt_hits: usize,
 }
 
 impl Minimax {
     pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool) -> Self {
         let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables};
-        Self { engine_options: options, tt: HashMap::new()}
+        Self { engine_options: options, tt: HashMap::new(), nodes: 0, tt_hits: 0}
     }
 
     pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
@@ -55,6 +59,14 @@ impl Minimax {
 
             let mut moves = MoveGenerator::generate_legal_moves(game, colour);
             order_moves(&mut moves, game);
+
+            // Try to promote previous iteration best (PV) to front for ordering:
+            if let Some(prev_best) = &best_move {
+                if let Some(idx) = moves.iter().position(|m| m == prev_best) {
+                    let pv = moves.remove(idx);
+                    moves.insert(0, pv);
+                }
+            }
 
             for mv in moves {
                 game.make_move(&mv);
@@ -74,7 +86,7 @@ impl Minimax {
                 best_score = current_best_score;
             }
 
-            println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
+            // println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
         }
 
         // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
@@ -88,11 +100,13 @@ impl Minimax {
     }
 
     fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
+        self.nodes += 1;
         let hash = game.get_current_hash();
 
         if self.engine_options.use_transposition_tables {
             if let Some(entry) = self.tt.get(&hash) {
                 if !entry.is_quiescence && entry.depth >= depth {
+                    self.tt_hits += 1;
                     match entry.bound {
                         Bound::Exact => return entry.value,
                         Bound::Lower => alpha = alpha.max(entry.value),
@@ -164,11 +178,14 @@ impl Minimax {
 
 
     fn quiescence(&mut self, game: &mut Game, mut alpha: i32, mut beta: i32, max_depth: usize) -> i32 {
+        self.nodes += 1;
+
         let hash = game.get_current_hash();
 
         if self.engine_options.use_transposition_tables {
             if let Some(entry) = self.tt.get(&hash) {
                 if entry.is_quiescence && entry.depth >= max_depth {
+                    self.tt_hits += 1;
                     match entry.bound {
                         Bound::Exact => return entry.value,
                         Bound::Lower => alpha = alpha.max(entry.value),
