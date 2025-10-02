@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::game_classes::game::{Game, GameResult};
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour, ExecutedMove};
@@ -6,18 +8,37 @@ use crate::engine::evaluator::Evaluator;
 
 pub const INF: i32 = 30_000;
 
+#[derive(Clone, Copy)]
+pub enum Bound {
+    Exact,
+    Lower,
+    Upper,
+}
+
+#[derive(Clone, Copy)]
+pub struct TTEntry {
+    pub depth: usize,
+    pub value: i32,
+    pub bound: Bound,
+}
+
+
+
 pub struct Minimax {
     pub max_depth: usize,
     pub quiescence_max_depth: usize,
-    pub selective_quiescence: bool
+    pub selective_quiescence: bool,
+    pub tt: HashMap<u64, TTEntry>
 }
 
 impl Minimax {
     pub fn new(max_depth: usize, quiescence_max_depth: usize, selective_quiescence: bool) -> Self {
-        Self { max_depth, quiescence_max_depth, selective_quiescence}
+        Self { max_depth, quiescence_max_depth, selective_quiescence, tt: HashMap::new()}
     }
 
-    pub fn find_best_move(&self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
+    pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
+        self.tt.clear(); // clear TT for fresh search
+
         let mut best_score = i32::MIN;
         let mut best_move: Option<ChessMove> = None;
         
@@ -40,16 +61,31 @@ impl Minimax {
             }
         }
 
-        move_scores.sort_by(|a, b| b.1.cmp(&a.1));
+        // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
 
-        for (mv, score) in &move_scores {
-            println!("{}: {}", mv, score);
-        }
+        // for (mv, score) in &move_scores {
+        //     println!("{}: {}", mv, score);
+        // }
 
         best_move
     }
 
-    fn minimax(&self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
+    fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour) -> i32 {
+        let hash = game.get_current_hash();
+
+        if let Some(entry) = self.tt.get(&hash) {
+            if entry.depth >= depth {
+                match entry.bound {
+                    Bound::Exact => return entry.value,
+                    Bound::Lower => alpha = alpha.max(entry.value),
+                    Bound::Upper => beta = beta.min(entry.value)
+                }
+                if alpha >= beta {
+                    return entry.value;
+                }
+            }
+        }
+
         let moves = MoveGenerator::generate_legal_moves(game, colour);
 
         if let Some(result) = game.is_game_over_with_moves(&moves) {
@@ -75,15 +111,41 @@ impl Minimax {
             best_score = best_score.max(score);
 
             if best_score >= beta {
-                return best_score;
+                break;
             }
         }
+
+        let bound = if best_score <= alpha {
+            Bound::Upper
+        }
+        else if  best_score >= beta {
+            Bound::Lower
+        }
+        else {
+            Bound::Exact
+        };
+
+        self.tt.insert(hash, TTEntry { depth: depth, value: best_score, bound: bound });
         best_score
     }
 
 
 
-    fn quiescence(&self, game: &mut Game, mut alpha: i32, beta: i32, max_depth: usize) -> i32 {
+    fn quiescence(&mut self, game: &mut Game, mut alpha: i32, mut beta: i32, max_depth: usize) -> i32 {
+        let hash = game.get_current_hash();
+
+        if let Some(entry) = self.tt.get(&hash) {
+            if entry.depth >= max_depth {
+                match entry.bound {
+                    Bound::Exact => return entry.value,
+                    Bound::Lower => alpha = alpha.max(entry.value),
+                    Bound::Upper => beta = beta.min(entry.value),
+                }
+                if alpha >= beta {
+                    return entry.value;
+                }
+            }
+        }
         // Step 0: terminal positions
         let to_move = game.get_game_state().get_turn();
         let moves = MoveGenerator::generate_legal_moves(game, to_move);
@@ -123,6 +185,16 @@ impl Minimax {
                 alpha = score;
             }
         }
+
+        let bound = if stand_pat <= alpha {
+            Bound::Upper
+        } else if stand_pat >= beta {
+            Bound::Lower
+        } else {
+            Bound::Exact
+        };
+        self.tt.insert(hash, TTEntry { depth: self.max_depth, value: stand_pat, bound: bound });
+
 
         alpha
     }

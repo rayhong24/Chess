@@ -141,6 +141,10 @@ impl Game {
         self.game_state.set_turn(colour);
     }
 
+    pub fn get_current_hash(&self) -> u64 {
+        self.hash
+    }
+
     pub fn get_player_pieces(&self, player: Colour) -> Vec<(Piece, Coords)> {
         self.board.get_player_pieces(player)
     }
