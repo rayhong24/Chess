@@ -1,5 +1,8 @@
+use once_cell::sync::Lazy;
 use crate::game_classes::board_classes::bit_board::BitBoard;
 use std::mem::MaybeUninit;
+
+pub static MAGIC_TABLES: Lazy<MagicTables> = Lazy::new(|| MagicTables::new());
 
 pub struct MagicBitboard {
     pub mask: u64,             // Mask of relevant squares (ray squares)
@@ -69,6 +72,14 @@ impl MagicTables {
         unsafe { std::mem::transmute::<_, [MagicBitboard; 64]>(table) }
     }
 
+    pub fn get_rook_attacks(&self, square: usize, occ: &BitBoard) -> BitBoard {
+        self.rook_magics[square].get_attacks(occ)
+    }
+
+    pub fn get_bishop_attacks(&self, square: usize, occ: &BitBoard) -> BitBoard {
+        self.bishop_magics[square].get_attacks(occ)
+    }
+
     fn rook_mask(square: usize) -> u64 {
         let mut mask = 0u64;
         let rank = (square / 8) as i32;
@@ -125,7 +136,7 @@ impl MagicTables {
         occupancy
     }
 
-    fn rook_attacks(square: usize, blockers: u64) -> u64 {
+    pub fn rook_attacks(square: usize, blockers: u64) -> u64 {
         let mut attacks = 0u64;
         let rank = (square / 8) as i32;
         let file = (square % 8) as i32;
@@ -153,7 +164,7 @@ impl MagicTables {
 
         attacks
     }
-    fn bishop_attacks(square: usize, blockers: u64) -> u64 {
+    pub fn bishop_attacks(square: usize, blockers: u64) -> u64 {
         let mut attacks = 0u64;
         let rank = (square / 8) as i32;
         let file = (square % 8) as i32;
@@ -391,8 +402,6 @@ mod tests {
             Coords { rank: 5, file: File::E }, Coords { rank: 6, file: File::F },
             Coords { rank: 7, file: File::G }, Coords { rank: 8, file: File::H },
         ];
-
-        let c3 = Coords { rank: 3, file: File::C };
 
         for c in expected_coords.iter() {
             if c.rank != 3 || c.file != File::C { // exclude own square

@@ -1,5 +1,6 @@
 use strum::IntoEnumIterator;
 
+use crate::game_classes::board_classes::magic_bitboard::{MagicTables, MAGIC_TABLES};
 use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove, CastlingMove};
 use crate::enums::{ChessMove, PieceType, Colour, File};
 use crate::game_classes::game::Game;
@@ -23,6 +24,77 @@ impl MoveGenerator {
 
 
         legal_moves
+    }
+
+    pub fn generate_legal_moves_magic_bitboards(game: &mut Game, player: Colour) -> Vec<ChessMove> {
+        let mut moves = Vec::new();
+
+
+        let all_occ = game.get_board().all_occ().bits();
+        let own_occ = game.get_board().get_colour_occ(player).bits();
+        let opp_occ = game.get_board().get_colour_occ(player.other()).bits();
+
+        for (piece, coords) in game.get_player_pieces(player) {
+            let sq = coords.to_index();
+
+            let attacks = match piece.kind {
+                // PieceType::Pawn => Self::generate_pawn_moves_bitboard(game, player, sq),
+                // PieceType::Knight
+                PieceType::Bishop => MAGIC_TABLES.get_bishop_attacks(sq, all_occ),
+                PieceType::Rook => MAGIC_TABLES.get_rook_attacks(sq, all_occ),
+                PieceType::Queen => {
+                    MAGIC_TABLES.get_bishop_attacks(sq, all_occ) | MAGIC_TABLES.get_rook_attacks(sq, all_occ)
+                }
+                _ => {0}
+            };
+
+            let legal_targets = attacks & !own_occ;
+
+            let mut targets = legal_targets;
+            while targets != 0 {
+                let to_sq = targets.trailing_zeros() as usize;
+                targets &= targets - 1;
+
+                let from = coords;
+                let to = Coords::from_index(to_sq);
+
+                // Handle promotions
+                if piece.kind == PieceType::Pawn && (to.rank == 1 || to.rank == 8) {
+                    for promotion_type in PieceType::iter() {
+                        if promotion_type != PieceType::Pawn && promotion_type != PieceType::King {
+                            moves.push(ChessMove::Promotion(PromotionMove {
+                                colour: player,
+                                from,
+                                to,
+                                promotion_piece_type: promotion_type,
+                            }));
+                        }
+                    }
+                } 
+                else {
+                    moves.push(ChessMove::Normal(NormalMove {
+                        colour: player,
+                        piece_type: piece.kind,
+                        from,
+                        to,
+                    }));
+                }
+            }
+
+        }
+
+        // Filter out moves that leave player in check
+        let legal_moves: Vec<ChessMove> = moves
+            .into_iter()
+            .filter(|m| !Self::does_leave_player_in_check(game, m))
+            .collect();
+
+        // Add castling
+        let mut castle_moves = Self::generate_castling_moves(game, player);
+        let mut all_moves = legal_moves;
+        all_moves.append(&mut castle_moves);
+
+        all_moves
     }
 
     fn does_leave_player_in_check(game: &mut Game, chess_move: &ChessMove) -> bool {
@@ -564,6 +636,22 @@ mod tests {
         assert!(
             !legal_moves.iter().any(|m| m.to() == Coords::new(3, File::E)),
             "Pawn move to e3 should be illegal because it leaves the king in check"
+        );
+    }
+
+    #[test]
+    fn test_magic_and_classic_move_generation_equivalence() {
+        let mut game = Game::new();
+        let mut magic_game = Game::new();
+
+        let moves_classic = MoveGenerator::generate_legal_moves(&mut game, Colour::White);
+        let moves_magic = MoveGenerator::generate_legal_moves_magic_bitboards(&mut magic_game, Colour::White);
+
+        println!("{:?}", moves_magic);
+        assert_eq!(
+            moves_classic.len(),
+            moves_magic.len(),
+            "Move counts should match between classic and magic bitboard generator"
         );
     }
 }

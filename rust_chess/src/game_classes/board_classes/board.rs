@@ -260,6 +260,14 @@ impl Board {
 
     pub fn white_occ(&self) -> BitBoard { self.white_occ }
     pub fn black_occ(&self) -> BitBoard { self.black_occ }
+    pub fn get_colour_occ(&self, colour: Colour) -> BitBoard {
+        if colour == Colour::White {
+            self.white_occ
+        }
+        else {
+            self.black_occ
+        }
+    }
     pub fn all_occ(&self) -> BitBoard { self.all_occ }
 }
 

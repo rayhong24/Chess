@@ -11,6 +11,12 @@ impl Coords {
         assert!((1..=8).contains(&rank));
         Self { rank, file }
     }
+    pub fn from_index(idx: usize) -> Self {
+        assert!((0..=63).contains(&idx));
+        let rank = (idx / 8) as u8;
+        let file = File::from_usize(idx % 8).unwrap();
+        Self { rank, file }
+    }
 
     pub fn from_str(s: &str) -> Option<Self> {
         if s.len() != 2 { return None; }
@@ -40,6 +46,7 @@ impl Coords {
     pub fn to_index(&self) -> usize {
         ((self.rank - 1) as usize) * 8 + (self.file.value() as usize)
     }
+
 }
 
 impl std::fmt::Display for Coords {
