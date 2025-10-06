@@ -19,6 +19,10 @@ impl BitBoard {
         self.bits == 0
     }
 
+    pub fn bits(&self) -> u64 {
+        self.bits
+    }
+
     pub fn set_bit(&mut self, coords: &Coords, filled: bool) {
         let index = coords.to_index();
         self.bits = if filled {

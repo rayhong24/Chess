@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+use crate::game_classes::board_classes::magic_bitboard;
 use crate::moves::move_generator;
 use crate::game_classes::game::Game;
 use crate::moves::move_parser::MoveParser;
@@ -54,7 +55,7 @@ impl PyGame {
             _ => panic!("Invalid colour"),
         };
 
-        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour);
+        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour, false);
         moves.iter().map(|m| m.to_string()).collect()
     }
 }
@@ -68,8 +69,8 @@ pub struct PyMinimax {
 #[pymethods]
 impl PyMinimax {
     #[new]
-    pub fn new(max_depth:usize, quiescence_max_depth: usize, selective_quiescence: bool) -> Self {
-        Self { inner: Minimax::new(max_depth, quiescence_max_depth, selective_quiescence) , game: Game::new() }
+    pub fn new(max_depth:usize, quiescence_max_depth: usize, selective_quiescence: bool, magic_bitboard: bool) -> Self {
+        Self { inner: Minimax::new(max_depth, quiescence_max_depth, selective_quiescence, magic_bitboard) , game: Game::new() }
     }
 
     pub fn go(&mut self) -> String {
@@ -108,6 +109,10 @@ impl PyMinimax {
 
     pub fn set_use_transposition_tables(&mut self, use_tt: bool) {
         self.inner.engine_options.use_transposition_tables = use_tt;
+    }
+
+    pub fn set_use_magic_bitboards(&mut self, use_magic_bitboards: bool) {
+        self.inner.engine_options.magic_bitboards = use_magic_bitboards;
     }
 
     /// Engine option getters

@@ -28,6 +28,7 @@ pub struct EngineOptions {
     pub max_depth: usize,
     pub quiescence_max_depth: usize,
     pub use_transposition_tables: bool,
+    pub magic_bitboards: bool,
 }
 
 
@@ -41,8 +42,11 @@ pub struct Minimax {
 }
 
 impl Minimax {
-    pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool) -> Self {
-        let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables};
+    pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool, magic_bitboard: bool) -> Self {
+        if magic_bitboard {
+            MoveGenerator::init();
+        }
+        let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables, magic_bitboards: magic_bitboard};
         Self { engine_options: options, tt: HashMap::new(), nodes: 0, tt_hits: 0}
     }
 
@@ -50,8 +54,8 @@ impl Minimax {
         game.make_move(mv);
 
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(game,to_move); 
-        let game_result = game.is_game_over_with_moves(&moves);
+        let moves = MoveGenerator::generate_legal_moves(game,to_move, self.engine_options.magic_bitboards); 
+        let game_result = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
         game.undo_last_move();
@@ -70,7 +74,7 @@ impl Minimax {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
 
-            let mut moves = MoveGenerator::generate_legal_moves(game, colour);
+            let mut moves = MoveGenerator::generate_legal_moves(game, colour, self.engine_options.magic_bitboards);
             order_moves(&mut moves, game);
 
             // Try to promote previous iteration best (PV) to front for ordering:
@@ -99,7 +103,7 @@ impl Minimax {
                 best_score = current_best_score;
             }
 
-            println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
+            // println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
         }
 
         // move_scores.sort_by(|a, b| b.1.cmp(&a.1));
@@ -131,9 +135,9 @@ impl Minimax {
             }   }
         }
 
-        let moves = MoveGenerator::generate_legal_moves(game, colour);
+        let moves = MoveGenerator::generate_legal_moves(game, colour, false);
 
-        if let Some(result) = game.is_game_over_with_moves(&moves) {
+        if let Some(result) = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
         }
 
@@ -213,9 +217,9 @@ impl Minimax {
 
         // Step 0: terminal positions
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(game, to_move);
+        let moves = MoveGenerator::generate_legal_moves(game, to_move, false);
 
-        if let Some(result) = game.is_game_over_with_moves(&moves) {
+        if let Some(result) = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), self.engine_options.quiescence_max_depth, to_move);
         }
 
@@ -252,7 +256,7 @@ impl Minimax {
         }
 
         // Step 2: generate only tactical moves (captures + promotions)
-        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn());
+        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn(), false);
         order_moves(&mut moves, game);
 
         let mut best_score = stand_pat;

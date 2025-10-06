@@ -100,7 +100,7 @@ impl Game {
         
     }
 
-    pub fn is_game_over_with_moves(&self, moves: &Vec<ChessMove>) -> Option<GameResult> {
+    pub fn is_game_over_with_moves(&self, moves: &Vec<ChessMove>, magic_bitboard: bool) -> Option<GameResult> {
         let player = self.get_game_state().get_turn();
 
         if self.state_tracker.is_threefold_repetition(self.hash) {
@@ -111,7 +111,7 @@ impl Game {
             return None;
         }
 
-        if self.is_player_in_check(player) {
+        if self.is_player_in_check(player, magic_bitboard) {
             return Some(GameResult::Checkmate(player))
         }
         else {
@@ -296,7 +296,7 @@ impl Game {
         self.board.get_coords(&chess_move.to()).is_some()
     }
 
-    pub fn is_player_in_check(&self, player: Colour) -> bool {
+    pub fn is_player_in_check(&self, player: Colour, magic_bitboard: bool) -> bool {
         let player_king = Piece {kind: PieceType::King, colour: player };
         let player_king_coords = self.board.get_piece_coords(player_king);
 
@@ -306,13 +306,13 @@ impl Game {
 
         let king_coords = player_king_coords[0];
 
-        MoveGenerator::is_square_under_attack(self, &player.other(), &king_coords)
+        MoveGenerator::is_square_under_attack(self, &player.other(), &king_coords, magic_bitboard)
     }
 
-    pub fn is_check(&mut self, chess_move: &ChessMove) -> bool {
+    pub fn is_check(&mut self, chess_move: &ChessMove, magic_bitboard: bool) -> bool {
         self.make_move(chess_move);
 
-        let out = self.is_player_in_check(chess_move.colour().other()); 
+        let out = self.is_player_in_check(chess_move.colour().other(), magic_bitboard); 
 
         self.undo_last_move();
 
@@ -740,8 +740,10 @@ mod tests {
         });
 
         // Check if is_check detects check
-        let is_check = game.is_check(&mv);
+        let is_check = game.is_check(&mv, false);
+        let is_check2 = game.is_check(&mv, true);
         assert!(is_check, "Expected move to put Black in check");
+        assert!(is_check2, "Expected move to put Black in check");
     }
 
     #[test]
@@ -767,8 +769,10 @@ mod tests {
             to: Coords::new(2, File::D),
         });
 
-        let is_check = game.is_check(&mv);
+        let is_check = game.is_check(&mv, false);
+        let is_check2 = game.is_check(&mv, true);
         assert!(!is_check, "Expected move not to put Black in check");
+        assert!(!is_check2, "Expected move not to put Black in check");
     }
 
     #[test]
@@ -1071,11 +1075,17 @@ mod tests {
 
         // Generate legal moves for the current player
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move);
+        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move, false);
 
         // The game should now detect a draw by threefold repetition
-        let result = game.is_game_over_with_moves(&moves);
+        let result = game.is_game_over_with_moves(&moves, false);
+        let result2 = game.is_game_over_with_moves(&moves, true);
         match result {
+            Some(GameResult::Draw) => (),
+            _ => panic!("Expected threefold repetition draw, got {:?}", result),
+        }
+
+        match result2 {
             Some(GameResult::Draw) => (),
             _ => panic!("Expected threefold repetition draw, got {:?}", result),
         }
@@ -1137,10 +1147,12 @@ mod tests {
         }
 
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move);
+        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move, false);
 
-        let result = game.is_game_over_with_moves(&moves);
+        let result = game.is_game_over_with_moves(&moves, false);
+        let result2 = game.is_game_over_with_moves(&moves, true);
         assert!(result.is_none(), "Draw should not trigger before third repetition");
+        assert!(result2.is_none(), "Draw should not trigger before third repetition");
     }
 }
 

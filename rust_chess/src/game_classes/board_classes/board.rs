@@ -12,6 +12,10 @@ use crate::game_classes::board_classes::bit_board::BitBoard;
 pub struct Board {
     white_bit_boards: [BitBoard; PIECE_COUNT],
     black_bit_boards: [BitBoard; PIECE_COUNT],
+
+    white_occ: BitBoard,
+    black_occ: BitBoard,
+    all_occ: BitBoard
 }
 
 impl Board {
@@ -19,7 +23,28 @@ impl Board {
         Self {
             white_bit_boards: [BitBoard::new(); PIECE_COUNT],
             black_bit_boards: [BitBoard::new(); PIECE_COUNT],
+
+            white_occ: BitBoard::new(),
+            black_occ: BitBoard::new(),
+            all_occ: BitBoard::new(),
         }   
+    }
+
+    pub fn recompute_occupancy(&mut self) {
+        let mut white_bits = 0u64;
+        let mut black_bits = 0u64;
+
+        for bb in &self.white_bit_boards {
+            white_bits |= bb.bits();
+        }
+
+        for bb in &self.black_bit_boards {
+            black_bits |= bb.bits();
+        }
+
+        self.white_occ = BitBoard::from_bits(white_bits);
+        self.black_occ = BitBoard::from_bits(black_bits);
+        self.all_occ = BitBoard::from_bits(white_bits | black_bits);
     }
 
     pub fn setup_startposition() -> Self {
@@ -51,6 +76,8 @@ impl Board {
         for file in crate::enums::File::iter() {
             board.black_bit_boards[PieceType::Pawn as usize].set_bit(&Coords::new(7, file), true);
         }
+
+        board.recompute_occupancy();
 
         board
     }
@@ -146,21 +173,44 @@ impl Board {
                 panic!("Invalid FEN string: incorrect number of files in rank {}", rank_index + 1);
             }
         }
+
+        self.recompute_occupancy();
     }
 
     pub fn set_coords(&mut self, coords: &Coords, maybe_piece: Option<Piece>) {
-        // Remove any piece (white or black) from these coords
+        let index = coords.to_index();
+        let mask = 1u64 << index;
+
+
+        self.white_occ = BitBoard::from_bits(self.white_occ.bits() & !mask);
+        self.black_occ = BitBoard::from_bits(self.black_occ.bits() & !mask);
+
+
+        // Clear all bitboards first
         for colour in [Colour::White, Colour::Black] {
             for piece_type in PieceType::iter() {
-                let piece = Piece { kind: piece_type, colour: colour };
+                let piece = Piece { kind: piece_type, colour };
                 let bitboard = self.get_bit_board_mut(&piece);
-
-                let set = maybe_piece.is_some_and(
-                    |p| p.colour == colour && p.kind == piece_type
-                );
-                bitboard.set_bit(coords, set);
+                bitboard.set_bit(coords, false);
             }
         }
+
+        // If we're setting a new piece
+        if let Some(piece) = maybe_piece {
+            self.get_bit_board_mut(&piece).set_bit(coords, true);
+
+            match piece.colour {
+                Colour::White => {
+                    self.white_occ = BitBoard::from_bits(self.white_occ.bits() | mask);
+                }
+                Colour::Black => {
+                    self.black_occ = BitBoard::from_bits(self.black_occ.bits() | mask);
+                }
+            }
+        }
+
+        // Always recompute all_occ
+        self.all_occ = BitBoard::from_bits(self.white_occ.bits() | self.black_occ.bits());
     }
 
     pub fn move_piece(&mut self, piece: &Piece, from: &Coords, to: &Coords) {
@@ -207,6 +257,18 @@ impl Board {
 
         bitboards[piece.kind as usize].get_set_coords()
     }
+
+    pub fn white_occ(&self) -> BitBoard { self.white_occ }
+    pub fn black_occ(&self) -> BitBoard { self.black_occ }
+    pub fn get_colour_occ(&self, colour: Colour) -> BitBoard {
+        if colour == Colour::White {
+            self.white_occ
+        }
+        else {
+            self.black_occ
+        }
+    }
+    pub fn all_occ(&self) -> BitBoard { self.all_occ }
 }
 
 #[cfg(test)]
@@ -343,4 +405,86 @@ mod tests {
         assert!(white_pieces.contains(&(Piece { kind: PieceType::Knight, colour: Colour::White }, knight_coord)));
         assert!(white_pieces.contains(&(Piece { kind: PieceType::Rook, colour: Colour::White }, rook_coord)));
     }
+
+    #[test]
+    fn test_occ_boards_start_position() {
+        let board = Board::setup_startposition();
+
+        // Each side starts with 16 pieces
+        assert_eq!(board.white_occ().num_set_bits(), 16);
+        assert_eq!(board.black_occ().num_set_bits(), 16);
+
+        // Total occupancy = white + black
+        assert_eq!(board.all_occ.num_set_bits(), 32);
+
+        // Check that white and black occupancies don’t overlap
+        assert_eq!(board.white_occ().bits() & board.black_occ().bits(), 0);
+    }
+
+    #[test]
+    fn test_occ_boards_after_piece_move() {
+        let mut board = Board::setup_startposition();
+        let pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        let from = Coords::new(2, File::E);
+        let to = Coords::new(4, File::E);
+
+        board.move_piece(&pawn, &from, &to);
+
+        // The moved square should no longer be occupied
+        assert!(!board.white_occ().is_set(&from));
+        // The destination should be occupied
+        assert!(board.white_occ().is_set(&to));
+        // Total count remains the same (no capture)
+        assert_eq!(board.white_occ().num_set_bits(), 16);
+        assert_eq!(board.all_occ().num_set_bits(), 32);
+    }
+
+    #[test]
+    fn test_occ_boards_after_capture() {
+        let mut board = Board::new();
+
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        let black_pawn = Piece { kind: PieceType::Pawn, colour: Colour::Black };
+        let from = Coords::new(2, File::A);
+        let to = Coords::new(3, File::A);
+
+        // Place white rook and black pawn
+        board.set_coords(&from, Some(white_rook));
+        board.set_coords(&to, Some(black_pawn));
+
+        // Check initial occupancy
+        assert!(board.white_occ().is_set(&from));
+        assert!(board.black_occ().is_set(&to));
+        assert!(board.all_occ().is_set(&from) && board.all_occ().is_set(&to));
+
+        // White captures black pawn
+        board.move_piece(&white_rook, &from, &to);
+
+        // After capture, black’s occupancy should lose one bit
+        assert!(!board.black_occ().is_set(&to));
+        // White occupies destination
+        assert!(board.white_occ().is_set(&to));
+        // Source is now empty
+        assert!(!board.white_occ().is_set(&from));
+
+        // No overlap
+        assert_eq!(board.white_occ().bits() & board.black_occ().bits(), 0);
+    }
+
+    #[test]
+    fn test_occ_boards_fen_loading() {
+        let mut board = Board::new();
+        // A simple position: white king + rook vs black king
+        board.set_board_from_fenstr("4k3/8/8/8/8/8/8/4KR2");
+
+        assert_eq!(board.white_occ().num_set_bits(), 2);
+        assert_eq!(board.black_occ().num_set_bits(), 1);
+        assert_eq!(board.all_occ().num_set_bits(), 3);
+
+        // Check exact squares
+        assert!(board.white_occ().is_set(&Coords::new(1, File::E)));
+        assert!(board.white_occ().is_set(&Coords::new(1, File::F)));
+        assert!(board.black_occ().is_set(&Coords::new(8, File::E)));
+    }
+
 }

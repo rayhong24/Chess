@@ -5,7 +5,7 @@ const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 #[test]
 fn test_start_search() {
-    let mut mini = PyMinimax::new(2, 4, true);
+    let mut mini = PyMinimax::new(2, 4, true, true);
     mini.set_position(STARTPOS, vec![]);
     let best_move = mini.go();
     println!("Best move from start pos: {}", best_move);
@@ -13,7 +13,7 @@ fn test_start_search() {
 
 #[test]
 fn test_minimax() {
-    let mut mini = PyMinimax::new(2, 4, true);
+    let mut mini = PyMinimax::new(2, 4, true, true);
 
     let moves_str = "g1h3 d7d5 h1g1 c8h3 g2h3 e7e5 g1g4 h7h5 g4g1 b8c6 g1g3 g7g6 g3g1 d8f6 \
                      g1g3 f8c5 g3g2 f6f5 b1c3 g8f6 a1b1 e8c8 b1a1 e5e4 a1b1 c6b4 b1a1 e4e3 f2e3 d8e8";
@@ -26,7 +26,7 @@ fn test_minimax() {
 
 #[test]
 fn test_repetition_draw_detection() {
-    let mut mini = PyMinimax::new(2, 4, true);
+    let mut mini = PyMinimax::new(2, 4, true, true);
 
     // Moves in long algebraic notation
     let moves_str = "g1f3 c7c5 d2d4 c5d4 f3d4 g7g6 b1c3 g8f6 e2e4 f8g7 e4e5 f6g8 c1f4 e7e6 f1c4 g6g5 \
@@ -57,8 +57,8 @@ fn test_repetition_draw_detection() {
 
 #[test]
 fn test_transposition_tables() {
-    let mut no_tt = PyMinimax::new(2, 4, false);
-    let mut tt = PyMinimax::new(2, 4, true);
+    let mut no_tt = PyMinimax::new(2, 4, false, true);
+    let mut tt = PyMinimax::new(2, 4, true, true);
 
     let moves_str = "g1h3 d7d5 h1g1 c8h3 g2h3 e7e5 g1g4 h7h5 g4g1 b8c6 g1g3 g7g6 g3g1 d8f6 \
                      g1g3 f8c5 g3g2 f6f5 b1c3 g8f6 a1b1 e8c8 b1a1 e5e4 a1b1 c6b4 b1a1 e4e3 f2e3 d8e8";
@@ -84,7 +84,7 @@ fn test_transposition_tables() {
 
 #[test]
 fn test_iterative_deepening_consistency() {
-    let mut mini = PyMinimax::new(1, 4, true);
+    let mut mini = PyMinimax::new(1, 4, true, true);
     mini.set_position(STARTPOS, vec![]);
 
     let mut last_best_move: Option<String> = None;
@@ -107,7 +107,7 @@ fn test_iterative_deepening_consistency() {
 
 #[test]
 fn test_iterative_deepening_tt_usage() {
-    let mut mini = PyMinimax::new(3, 4, true);
+    let mut mini = PyMinimax::new(3, 4, true, true);
     mini.set_position(STARTPOS, vec![]);
     
     mini.clear_tt();  // Ensure TT is empty
@@ -122,8 +122,8 @@ fn test_iterative_deepening_tt_usage() {
 
 #[test]
 fn test_iterative_deepening_speedup() {
-    let mut no_tt = PyMinimax::new(3, 4, false);
-    let mut tt = PyMinimax::new(3, 4, true);
+    let mut no_tt = PyMinimax::new(3, 4, false, true);
+    let mut tt = PyMinimax::new(3, 4, true, true);
 
     no_tt.set_position(STARTPOS, vec![]);
     tt.set_position(STARTPOS, vec![]);
@@ -142,7 +142,7 @@ fn test_iterative_deepening_speedup() {
 
 #[test]
 fn test_iterative_deepening_tt_hits() {
-    let mut mini = PyMinimax::new(3, 4, true);
+    let mut mini = PyMinimax::new(3, 4, true, true);
     mini.set_position(STARTPOS, vec![]);
 
     for depth in 1..=4 {
@@ -164,8 +164,33 @@ fn test_iterative_deepening_tt_hits() {
 #[test]
 fn test_nodes_per_second_comparison() {
     let mut engines = vec![
-        ("No TT", PyMinimax::new(3, 4, false)),
-        ("TT", PyMinimax::new(3, 4, true)),
+        ("No TT", PyMinimax::new(2, 4, false, false)),
+        ("TT", PyMinimax::new(2, 4, true, false)),
+    ];
+
+    for (name, engine) in &mut engines {
+        engine.set_position(STARTPOS, vec![]);
+        engine.reset_minimax_nodes_and_tt_hits();
+
+        let start = Instant::now();
+        engine.go();
+        let duration = start.elapsed();
+
+        let nodes = engine.get_minimax_nodes();
+        let nps = nodes as f64 / duration.as_secs_f64();
+
+        println!(
+            "{}: nodes = {}, time = {:.3?}, nodes/sec = {:.2}",
+            name, nodes, duration, nps
+        );
+    }
+}
+
+#[test]
+fn test_nodes_per_second_comparison_magic_bitboards() {
+    let mut engines = vec![
+        ("Move Rays", PyMinimax::new(2, 4, false, false)),
+        // ("Magic Bitboards", PyMinimax::new(2, 4, false, true)),
     ];
 
     for (name, engine) in &mut engines {
