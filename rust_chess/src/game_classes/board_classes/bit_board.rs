@@ -23,11 +23,6 @@ impl BitBoard {
         self.bits
     }
 
-    pub fn get_bit(&self, sq: usize) -> bool {
-        assert!((0..64).contains(&sq));
-        self.bits & (1 << sq) == 1
-    }
-
     pub fn set_bit(&mut self, coords: &Coords, filled: bool) {
         let index = coords.to_index();
         self.bits = if filled {
