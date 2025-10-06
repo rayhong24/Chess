@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+use crate::game_classes::board_classes::magic_bitboard;
 use crate::moves::move_generator;
 use crate::game_classes::game::Game;
 use crate::moves::move_parser::MoveParser;
@@ -68,8 +69,8 @@ pub struct PyMinimax {
 #[pymethods]
 impl PyMinimax {
     #[new]
-    pub fn new(max_depth:usize, quiescence_max_depth: usize, selective_quiescence: bool) -> Self {
-        Self { inner: Minimax::new(max_depth, quiescence_max_depth, selective_quiescence) , game: Game::new() }
+    pub fn new(max_depth:usize, quiescence_max_depth: usize, selective_quiescence: bool, magic_bitboard: bool) -> Self {
+        Self { inner: Minimax::new(max_depth, quiescence_max_depth, selective_quiescence, magic_bitboard) , game: Game::new() }
     }
 
     pub fn go(&mut self) -> String {

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::game_classes::board_classes::magic_bitboard;
 use crate::game_classes::game::Game;
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour};
@@ -28,6 +29,7 @@ pub struct EngineOptions {
     pub max_depth: usize,
     pub quiescence_max_depth: usize,
     pub use_transposition_tables: bool,
+    pub magic_bitboards: bool,
 }
 
 
@@ -41,8 +43,8 @@ pub struct Minimax {
 }
 
 impl Minimax {
-    pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool) -> Self {
-        let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables};
+    pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool, magic_bitboard: bool) -> Self {
+        let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables, magic_bitboards: magic_bitboard};
         Self { engine_options: options, tt: HashMap::new(), nodes: 0, tt_hits: 0}
     }
 
@@ -51,7 +53,7 @@ impl Minimax {
 
         let to_move = game.get_game_state().get_turn();
         let moves = MoveGenerator::generate_legal_moves(game,to_move, false); 
-        let game_result = game.is_game_over_with_moves(&moves);
+        let game_result = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
         game.undo_last_move();
@@ -133,7 +135,7 @@ impl Minimax {
 
         let moves = MoveGenerator::generate_legal_moves(game, colour, false);
 
-        if let Some(result) = game.is_game_over_with_moves(&moves) {
+        if let Some(result) = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
         }
 
@@ -215,7 +217,7 @@ impl Minimax {
         let to_move = game.get_game_state().get_turn();
         let moves = MoveGenerator::generate_legal_moves(game, to_move, false);
 
-        if let Some(result) = game.is_game_over_with_moves(&moves) {
+        if let Some(result) = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), self.engine_options.quiescence_max_depth, to_move);
         }
 
