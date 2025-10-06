@@ -202,7 +202,7 @@ impl MoveGenerator {
 
         game.undo_last_move();
 
-        false
+        out
     }
 
     pub fn generate_pseudo_legal_moves(game: &Game, player: Colour) -> Vec<ChessMove> {
