@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use crate::game_classes::board_classes::magic_bitboard;
 use crate::game_classes::game::Game;
 use crate::moves::move_generator::MoveGenerator;
 use crate::enums::{ChessMove, Colour};
@@ -44,6 +43,9 @@ pub struct Minimax {
 
 impl Minimax {
     pub fn new(max_depth: usize, quiescence_max_depth: usize, tt_tables: bool, magic_bitboard: bool) -> Self {
+        if magic_bitboard {
+            MoveGenerator::init();
+        }
         let options = EngineOptions { max_depth: max_depth, quiescence_max_depth: quiescence_max_depth, use_transposition_tables: tt_tables, magic_bitboards: magic_bitboard};
         Self { engine_options: options, tt: HashMap::new(), nodes: 0, tt_hits: 0}
     }
@@ -52,7 +54,7 @@ impl Minimax {
         game.make_move(mv);
 
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(game,to_move, false); 
+        let moves = MoveGenerator::generate_legal_moves(game,to_move, self.engine_options.magic_bitboards); 
         let game_result = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
@@ -72,7 +74,7 @@ impl Minimax {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
 
-            let mut moves = MoveGenerator::generate_legal_moves(game, colour, false);
+            let mut moves = MoveGenerator::generate_legal_moves(game, colour, self.engine_options.magic_bitboards);
             order_moves(&mut moves, game);
 
             // Try to promote previous iteration best (PV) to front for ordering:
@@ -101,7 +103,7 @@ impl Minimax {
                 best_score = current_best_score;
             }
 
-            println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
+            // println!("Depth {}: best move = {:?}, score = {}", depth, best_move, best_score);
         }
 
         // move_scores.sort_by(|a, b| b.1.cmp(&a.1));

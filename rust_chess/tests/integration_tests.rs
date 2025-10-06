@@ -185,3 +185,28 @@ fn test_nodes_per_second_comparison() {
         );
     }
 }
+
+#[test]
+fn test_nodes_per_second_comparison_magic_bitboards() {
+    let mut engines = vec![
+        ("Move Rays", PyMinimax::new(2, 4, false, false)),
+        // ("Magic Bitboards", PyMinimax::new(2, 4, false, true)),
+    ];
+
+    for (name, engine) in &mut engines {
+        engine.set_position(STARTPOS, vec![]);
+        engine.reset_minimax_nodes_and_tt_hits();
+
+        let start = Instant::now();
+        engine.go();
+        let duration = start.elapsed();
+
+        let nodes = engine.get_minimax_nodes();
+        let nps = nodes as f64 / duration.as_secs_f64();
+
+        println!(
+            "{}: nodes = {}, time = {:.3?}, nodes/sec = {:.2}",
+            name, nodes, duration, nps
+        );
+    }
+}

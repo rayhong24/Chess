@@ -1,6 +1,5 @@
 use crate::game_classes::board_classes::board::Board;
 use crate::coords::Coords;
-use crate::game_classes::board_classes::magic_bitboard;
 use crate::game_classes::game_state_tracker::GameStateTracker;
 use crate::game_classes::zobrist::Zobrist;
 use crate::moves::move_generator::MoveGenerator;

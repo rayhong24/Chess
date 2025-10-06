@@ -13,6 +13,14 @@ use crate::coords::Coords;
 pub struct MoveGenerator;
 
 impl MoveGenerator {
+    pub fn init() {
+        let _ = &*MAGIC_TABLES;
+        let _ = &*WHITE_PAWN_ATTACKS;
+        let _ = &*BLACK_PAWN_ATTACKS;
+        let _ = &*KNIGHT_ATTACKS;
+        let _ = &*KING_ATTACKS;
+    }
+
     pub fn generate_legal_moves(game: &mut Game, player: Colour, magic_bitboard: bool) -> Vec<ChessMove> {
         let pseudo_legal_moves = if magic_bitboard {
             Self::generate_pseudo_legal_moves_magic_bitboards(game, player)
@@ -187,8 +195,6 @@ impl MoveGenerator {
         }
     }
 
-
-
     fn does_leave_player_in_check(game: &mut Game, chess_move: &ChessMove, magic_bitboard: bool) -> bool {
         game.make_move(&chess_move);
 
@@ -196,7 +202,7 @@ impl MoveGenerator {
 
         game.undo_last_move();
 
-        out
+        false
     }
 
     pub fn generate_pseudo_legal_moves(game: &Game, player: Colour) -> Vec<ChessMove> {

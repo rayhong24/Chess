@@ -111,6 +111,10 @@ impl PyMinimax {
         self.inner.engine_options.use_transposition_tables = use_tt;
     }
 
+    pub fn set_use_magic_bitboards(&mut self, use_magic_bitboards: bool) {
+        self.inner.engine_options.magic_bitboards = use_magic_bitboards;
+    }
+
     /// Engine option getters
     pub fn get_max_depth(&self) -> usize {
         self.inner.engine_options.max_depth
