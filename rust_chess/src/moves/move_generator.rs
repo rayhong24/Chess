@@ -1,6 +1,7 @@
 use strum::IntoEnumIterator;
 
-use crate::game_classes::board_classes::magic_bitboard::{MagicTables, MAGIC_TABLES};
+use crate::game_classes::board_classes::magic_bitboard::{self, MAGIC_TABLES};
+use crate::game_classes::board_classes::piece_attacks::{WHITE_PAWN_ATTACKS, BLACK_PAWN_ATTACKS, KNIGHT_ATTACKS, KING_ATTACKS};
 use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove, CastlingMove};
 use crate::enums::{ChessMove, PieceType, Colour, File};
 use crate::game_classes::game::Game;
@@ -12,8 +13,13 @@ use crate::coords::Coords;
 pub struct MoveGenerator;
 
 impl MoveGenerator {
-    pub fn generate_legal_moves(game: &mut Game, player: Colour) -> Vec<ChessMove> {
-        let pseudo_legal_moves = Self::generate_pseudo_legal_moves(game, player);
+    pub fn generate_legal_moves(game: &mut Game, player: Colour, magic_bitboard: bool) -> Vec<ChessMove> {
+        let pseudo_legal_moves = if magic_bitboard {
+            Self::generate_pseudo_legal_moves_magic_bitboards(game, player)
+        }
+        else {
+            Self::generate_pseudo_legal_moves(game, player)
+        };
 
         let mut legal_moves: Vec<ChessMove> = pseudo_legal_moves
             .into_iter()
@@ -26,29 +32,33 @@ impl MoveGenerator {
         legal_moves
     }
 
-    pub fn generate_legal_moves_magic_bitboards(game: &mut Game, player: Colour) -> Vec<ChessMove> {
+    pub fn generate_pseudo_legal_moves_magic_bitboards(game: &mut Game, player: Colour) -> Vec<ChessMove> {
         let mut moves = Vec::new();
 
-
-        let all_occ = game.get_board().all_occ().bits();
-        let own_occ = game.get_board().get_colour_occ(player).bits();
-        let opp_occ = game.get_board().get_colour_occ(player.other()).bits();
+        let all_occ = game.get_board().all_occ();
+        let own_occ = game.get_board().get_colour_occ(player);
+        // let opp_occ = game.get_board().get_colour_occ(player.other());
 
         for (piece, coords) in game.get_player_pieces(player) {
             let sq = coords.to_index();
 
+            if piece.kind == PieceType::Pawn {
+                Self::generate_pawn_moves(game, player, coords, &mut moves);
+                continue;
+            }
+
             let attacks = match piece.kind {
-                // PieceType::Pawn => Self::generate_pawn_moves_bitboard(game, player, sq),
-                // PieceType::Knight
-                PieceType::Bishop => MAGIC_TABLES.get_bishop_attacks(sq, all_occ),
-                PieceType::Rook => MAGIC_TABLES.get_rook_attacks(sq, all_occ),
+                PieceType::Knight => KNIGHT_ATTACKS[sq],
+                PieceType::Bishop => MAGIC_TABLES.get_bishop_attacks(sq, &all_occ).bits(),
+                PieceType::Rook => MAGIC_TABLES.get_rook_attacks(sq, &all_occ).bits(),
                 PieceType::Queen => {
-                    MAGIC_TABLES.get_bishop_attacks(sq, all_occ) | MAGIC_TABLES.get_rook_attacks(sq, all_occ)
+                    MAGIC_TABLES.get_bishop_attacks(sq, &all_occ).bits() | MAGIC_TABLES.get_rook_attacks(sq, &all_occ).bits()
                 }
-                _ => {0}
+                PieceType::King => KING_ATTACKS[sq],
+                _ => 0
             };
 
-            let legal_targets = attacks & !own_occ;
+            let legal_targets = attacks & !own_occ.bits();
 
             let mut targets = legal_targets;
             while targets != 0 {
@@ -58,10 +68,89 @@ impl MoveGenerator {
                 let from = coords;
                 let to = Coords::from_index(to_sq);
 
-                // Handle promotions
-                if piece.kind == PieceType::Pawn && (to.rank == 1 || to.rank == 8) {
-                    for promotion_type in PieceType::iter() {
-                        if promotion_type != PieceType::Pawn && promotion_type != PieceType::King {
+                moves.push(ChessMove::Normal(NormalMove {
+                    colour: player,
+                    piece_type: piece.kind,
+                    from,
+                    to,
+                }));
+            }
+
+        }
+
+        moves
+    }
+
+    fn generate_pawn_moves(game: &Game, player: Colour, from: Coords, moves: &mut Vec<ChessMove>) {
+        let all_occ = game.get_board().all_occ();
+        let opp_occ = game.get_board().get_colour_occ(player.other());
+        let from_sq = from.to_index();
+        let rank = from.rank;
+
+        // Move direction and starting rank depend on colour
+        let (forward_dir, start_rank, promotion_rank) = match player {
+            Colour::White => (8i32, 2, 8),
+            Colour::Black => (-8i32, 7, 1),
+        };
+
+        // ---- Single forward push ----
+        let forward_sq = (from_sq as i32 + forward_dir) as usize;
+        if forward_sq < 64 && !all_occ.get_bit(forward_sq) {
+            let to = Coords::from_index(forward_sq);
+            if to.rank == promotion_rank {
+                // Promotion
+                for promotion_type in [PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight] {
+                    moves.push(ChessMove::Promotion(PromotionMove {
+                        colour: player,
+                        from,
+                        to,
+                        promotion_piece_type: promotion_type,
+                    }));
+                }
+            } else {
+                // Normal push
+                moves.push(ChessMove::Normal(NormalMove {
+                    colour: player,
+                    piece_type: PieceType::Pawn,
+                    from,
+                    to,
+                }));
+
+                // ---- Double push ----
+                if rank == start_rank {
+                    let double_sq = (from_sq as i32 + 2 * forward_dir) as usize;
+                    if !all_occ.get_bit(double_sq) {
+                        moves.push(ChessMove::Normal(NormalMove {
+                            colour: player,
+                            piece_type: PieceType::Pawn,
+                            from,
+                            to: Coords::from_index(double_sq),
+                        }));
+                    }
+                }
+            }
+        }
+
+        // ---- Captures ----
+        // For white, diagonals are +7 and +9. For black, -7 and -9.
+        let capture_dirs: [i32; 2] = match player {
+            Colour::White => [7, 9],
+            Colour::Black => [-7, -9],
+        };
+
+        for &dir in &capture_dirs {
+            let target_sq = (from_sq as i32 + dir) as usize;
+            if target_sq < 64 {
+                let to = Coords::from_index(target_sq);
+                // Skip if off board (e.g., wrap-around across files)
+                if (from.file as i32 - to.file as i32).abs() > 1 {
+                    continue;
+                }
+
+                if opp_occ.get_bit(target_sq) {
+                    // Promotion capture
+                    if to.rank == promotion_rank {
+                        for promotion_type in [PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight] {
                             moves.push(ChessMove::Promotion(PromotionMove {
                                 colour: player,
                                 from,
@@ -69,33 +158,33 @@ impl MoveGenerator {
                                 promotion_piece_type: promotion_type,
                             }));
                         }
+                    } else {
+                        // Normal capture
+                        moves.push(ChessMove::Normal(NormalMove {
+                            colour: player,
+                            piece_type: PieceType::Pawn,
+                            from,
+                            to,
+                        }));
                     }
-                } 
-                else {
-                    moves.push(ChessMove::Normal(NormalMove {
-                        colour: player,
-                        piece_type: piece.kind,
-                        from,
-                        to,
-                    }));
+                }
+
+                // ---- En Passant ----
+                if let Some(ep_square) = game.get_game_state().get_en_passant_target() {
+                    if target_sq == ep_square.to_index() {
+                        moves.push(ChessMove::EnPassant(EnPassantMove {
+                            colour: player,
+                            from: from,
+                            to: ep_square,
+                            captured_coords: game.get_game_state().get_en_passant_target().unwrap()
+                        }));
+                    }
                 }
             }
-
         }
-
-        // Filter out moves that leave player in check
-        let legal_moves: Vec<ChessMove> = moves
-            .into_iter()
-            .filter(|m| !Self::does_leave_player_in_check(game, m))
-            .collect();
-
-        // Add castling
-        let mut castle_moves = Self::generate_castling_moves(game, player);
-        let mut all_moves = legal_moves;
-        all_moves.append(&mut castle_moves);
-
-        all_moves
     }
+
+
 
     fn does_leave_player_in_check(game: &mut Game, chess_move: &ChessMove) -> bool {
         game.make_move(&chess_move);
@@ -327,9 +416,33 @@ mod tests {
 
     #[test]
     fn test_generate_pseudo_legal_moves_startposition() {
-        let game = Game::new(); // sets up standard start position
+        let mut game = Game::new(); // sets up standard start position
 
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
+        let to_move = game.get_game_state().get_turn();
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, to_move);
+
+        // At the start, white pawns can move 1 or 2 squares forward
+        let pawn_moves = moves.iter().filter(|mv| {
+            match mv {
+                ChessMove::Normal(nm) => nm.piece_type == PieceType::Pawn && nm.colour == Colour::White,
+                _ => false
+            }
+        });
+
+
+        assert!(pawn_moves.clone().count() >= 16, "Expected at least 16 white pawn moves");
+        assert!(moves.clone().len() == 20, "Expected 20 moves from starting position");
+    }
+
+
+    #[test]
+    fn test_generate_pseudo_legal_moves_startposition_magic() {
+        let mut game = Game::new(); // sets up standard start position
+
+        let to_move = game.get_game_state().get_turn();
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves_magic_bitboards(&mut game, to_move);
 
         // At the start, white pawns can move 1 or 2 squares forward
         let pawn_moves = moves.iter().filter(|mv| {
@@ -353,7 +466,39 @@ mod tests {
         game.clear_board();
         game.get_board_mut().set_coords(&promotion_coords, Some(white_pawn));
 
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
+        let to_move = game.get_game_state().get_turn();
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, to_move);
+        let magic_moves = MoveGenerator::generate_pseudo_legal_moves_magic_bitboards(&mut game, to_move);
+
+        // Check for promotion moves
+        let promotion_moves: Vec<_> = moves.into_iter().filter(|mv| {
+            matches!(mv, ChessMove::Promotion(_))
+        }).collect();
+
+
+        let magic_promotion_moves: Vec<_> = magic_moves.into_iter().filter(|mv| {
+            matches!(mv, ChessMove::Promotion(_))
+        }).collect();
+
+
+        assert!(!promotion_moves.is_empty(), "Expected at least one promotion move");
+        assert!(!magic_promotion_moves.is_empty(), "Expected at least one promotion move");
+    }
+
+    #[test]
+    fn test_generate_pseudo_legal_moves_pawn_promotion_magic() {
+        let mut game = Game::new();
+
+        // Place a white pawn at rank 7 for promotion
+        let promotion_coords = Coords::new(7, crate::enums::File::A);
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        game.clear_board();
+        game.get_board_mut().set_coords(&promotion_coords, Some(white_pawn));
+
+        let to_move = game.get_game_state().get_turn();
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves_magic_bitboards(&mut game, to_move);
 
         // Check for promotion moves
         let promotion_moves: Vec<_> = moves.into_iter().filter(|mv| {
@@ -378,7 +523,39 @@ mod tests {
         let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
         game.get_board_mut().set_coords(&blocking_coords, Some(white_pawn));
 
-        let moves = MoveGenerator::generate_pseudo_legal_moves(&game, game.get_game_state().get_turn());
+        let to_move = game.get_game_state().get_turn();
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves(&mut game, to_move);
+
+        // The rook should not be able to move past the blocking pawn
+        for mv in moves {
+            if let ChessMove::Normal(nm) = mv {
+                if nm.piece_type == PieceType::Rook && nm.from == rook_coords {
+                    assert!(nm.to != blocking_coords, "Rook cannot move onto friendly piece");
+                    assert!(nm.to.rank < 5, "Rook should be blocked by pawn at d5");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_move_blocked_by_piece_magic() {
+        let mut game = Game::new();
+
+        // Put a white rook at d4
+        let rook_coords = Coords::new(4, crate::enums::File::D);
+        let white_rook = Piece { kind: PieceType::Rook, colour: Colour::White };
+        game.clear_board();
+        game.get_board_mut().set_coords(&rook_coords, Some(white_rook));
+
+        // Put a blocking white pawn at d5
+        let blocking_coords = Coords::new(5, crate::enums::File::D);
+        let white_pawn = Piece { kind: PieceType::Pawn, colour: Colour::White };
+        game.get_board_mut().set_coords(&blocking_coords, Some(white_pawn));
+
+        let to_move = game.get_game_state().get_turn();
+
+        let moves = MoveGenerator::generate_pseudo_legal_moves_magic_bitboards(&mut game, to_move);
 
         // The rook should not be able to move past the blocking pawn
         for mv in moves {
@@ -631,7 +808,7 @@ mod tests {
         game.get_board_mut().set_coords(&Coords::new(2, File::E), Some(Piece { kind: PieceType::Pawn, colour: Colour::White }));
         game.get_board_mut().set_coords(&Coords::new(3, File::E), Some(Piece { kind: PieceType::Rook, colour: Colour::Black }));
 
-        let legal_moves = MoveGenerator::generate_legal_moves(&mut game, Colour::White);
+        let legal_moves = MoveGenerator::generate_legal_moves(&mut game, Colour::White, false);
 
         assert!(
             !legal_moves.iter().any(|m| m.to() == Coords::new(3, File::E)),
@@ -644,14 +821,18 @@ mod tests {
         let mut game = Game::new();
         let mut magic_game = Game::new();
 
-        let moves_classic = MoveGenerator::generate_legal_moves(&mut game, Colour::White);
-        let moves_magic = MoveGenerator::generate_legal_moves_magic_bitboards(&mut magic_game, Colour::White);
+        let moves_classic = MoveGenerator::generate_legal_moves(&mut game, Colour::White, false);
+        let moves_magic = MoveGenerator::generate_legal_moves(&mut magic_game, Colour::White, true);
 
-        println!("{:?}", moves_magic);
+        // println!("{}", moves_magic);
+        // for mv in &moves_magic {
+        //     println!("{}", mv);
+        // }
         assert_eq!(
             moves_classic.len(),
             moves_magic.len(),
             "Move counts should match between classic and magic bitboard generator"
         );
     }
+
 }

@@ -54,7 +54,7 @@ impl PyGame {
             _ => panic!("Invalid colour"),
         };
 
-        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour);
+        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour, false);
         moves.iter().map(|m| m.to_string()).collect()
     }
 }

@@ -1071,7 +1071,7 @@ mod tests {
 
         // Generate legal moves for the current player
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move);
+        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move, false);
 
         // The game should now detect a draw by threefold repetition
         let result = game.is_game_over_with_moves(&moves);
@@ -1137,7 +1137,7 @@ mod tests {
         }
 
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move);
+        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move, false);
 
         let result = game.is_game_over_with_moves(&moves);
         assert!(result.is_none(), "Draw should not trigger before third repetition");

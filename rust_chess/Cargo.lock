@@ -199,6 +199,7 @@ name = "rust_chess"
 version = "0.1.0"
 dependencies = [
  "bitflags",
+ "once_cell",
  "pyo3",
  "rand",
  "strum",

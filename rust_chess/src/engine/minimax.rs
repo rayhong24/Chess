@@ -50,7 +50,7 @@ impl Minimax {
         game.make_move(mv);
 
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(game,to_move); 
+        let moves = MoveGenerator::generate_legal_moves(game,to_move, false); 
         let game_result = game.is_game_over_with_moves(&moves);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
@@ -70,7 +70,7 @@ impl Minimax {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
 
-            let mut moves = MoveGenerator::generate_legal_moves(game, colour);
+            let mut moves = MoveGenerator::generate_legal_moves(game, colour, false);
             order_moves(&mut moves, game);
 
             // Try to promote previous iteration best (PV) to front for ordering:
@@ -131,7 +131,7 @@ impl Minimax {
             }   }
         }
 
-        let moves = MoveGenerator::generate_legal_moves(game, colour);
+        let moves = MoveGenerator::generate_legal_moves(game, colour, false);
 
         if let Some(result) = game.is_game_over_with_moves(&moves) {
             return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
@@ -213,7 +213,7 @@ impl Minimax {
 
         // Step 0: terminal positions
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(game, to_move);
+        let moves = MoveGenerator::generate_legal_moves(game, to_move, false);
 
         if let Some(result) = game.is_game_over_with_moves(&moves) {
             return Evaluator::evaluate_game_result(game, Some(result), self.engine_options.quiescence_max_depth, to_move);
@@ -252,7 +252,7 @@ impl Minimax {
         }
 
         // Step 2: generate only tactical moves (captures + promotions)
-        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn());
+        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn(), false);
         order_moves(&mut moves, game);
 
         let mut best_score = stand_pat;

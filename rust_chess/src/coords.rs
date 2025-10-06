@@ -13,7 +13,8 @@ impl Coords {
     }
     pub fn from_index(idx: usize) -> Self {
         assert!((0..=63).contains(&idx));
-        let rank = (idx / 8) as u8;
+
+        let rank = ((idx / 8)+1) as u8;
         let file = File::from_usize(idx % 8).unwrap();
         Self { rank, file }
     }
