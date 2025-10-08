@@ -18,13 +18,8 @@ pub struct Evaluator;
 impl Evaluator {
     pub fn evaluate_game_result(game: &mut Game, game_result: Option<GameResult>, depth: usize, to_move: Colour) -> i32 {
         match game_result {
-            Some(GameResult::Checkmate(loser)) => {
-                if loser == to_move {
-                    -INF + depth as i32
-                }
-                else {
-                    INF - depth as i32
-                }
+            Some(GameResult::Checkmate(_)) => {
+                -INF + 100 + depth as i32
             }
             Some(GameResult::Stalemate) | Some(GameResult::Draw) => 0,
             None => Self::evaluate_pst(game)

@@ -24,6 +24,7 @@ fn move_order_score(mv: &ChessMove, game: &Game) -> i32 {
 }
 
 pub fn order_moves(moves: &mut Vec<ChessMove>, game: &Game) {
-    moves.sort_by_key(|mv| move_order_score(mv, game));
+    moves.sort_unstable_by_key(|mv| move_order_score(mv, game));
     moves.reverse(); // highest score first
+
 }

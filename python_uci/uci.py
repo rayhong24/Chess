@@ -12,7 +12,7 @@ class Uci():
     def __init__(self):
         # self.engine = Minimax()
         # self.mode = Mode.python_minimax
-        self.engine = rust_chess.PyMinimax(2, 4, True)
+        self.engine = rust_chess.PyMinimax(3, 4, True, True)
         self.mode = Mode.rust_minimax
         self.debug_mode = False
         self.running = False
@@ -27,6 +27,8 @@ class Uci():
         # Send engine info to GUI
         print(f"id name FairyPenguin")
         print(f"id author RayHong")
+
+        self.engine.print_engine_options()
 
         # Send engine options here
         # None so far

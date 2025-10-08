@@ -100,7 +100,7 @@ impl Game {
         
     }
 
-    pub fn is_game_over_with_moves(&self, moves: &Vec<ChessMove>, magic_bitboard: bool) -> Option<GameResult> {
+    pub fn is_game_over_with_moves(&mut self, moves: &Vec<ChessMove>, magic_bitboard: bool) -> Option<GameResult> {
         let player = self.get_game_state().get_turn();
 
         if self.state_tracker.is_threefold_repetition(self.hash) {
@@ -296,7 +296,7 @@ impl Game {
         self.board.get_coords(&chess_move.to()).is_some()
     }
 
-    pub fn is_player_in_check(&self, player: Colour, magic_bitboard: bool) -> bool {
+    pub fn is_player_in_check(&mut self, player: Colour, magic_bitboard: bool) -> bool {
         let player_king = Piece {kind: PieceType::King, colour: player };
         let player_king_coords = self.board.get_piece_coords(player_king);
 
@@ -306,7 +306,9 @@ impl Game {
 
         let king_coords = player_king_coords[0];
 
+        // let 
         MoveGenerator::is_square_under_attack(self, &player.other(), &king_coords, magic_bitboard)
+        // false
     }
 
     pub fn is_check(&mut self, chess_move: &ChessMove, magic_bitboard: bool) -> bool {
@@ -1075,7 +1077,9 @@ mod tests {
 
         // Generate legal moves for the current player
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move, false);
+
+        let mut moves = Vec::new();
+        MoveGenerator::generate_legal_moves_into(&mut game, to_move, false, &mut moves);
 
         // The game should now detect a draw by threefold repetition
         let result = game.is_game_over_with_moves(&moves, false);
@@ -1147,7 +1151,8 @@ mod tests {
         }
 
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(&mut game, to_move, false);
+        let mut moves = Vec::new();
+        MoveGenerator::generate_legal_moves_into(&mut game, to_move, false, &mut moves);
 
         let result = game.is_game_over_with_moves(&moves, false);
         let result2 = game.is_game_over_with_moves(&moves, true);

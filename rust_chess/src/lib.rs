@@ -1,6 +1,5 @@
 use pyo3::prelude::*;
 
-use crate::game_classes::board_classes::magic_bitboard;
 use crate::moves::move_generator;
 use crate::game_classes::game::Game;
 use crate::moves::move_parser::MoveParser;
@@ -18,7 +17,6 @@ pub mod move_ordering;
 fn rust_chess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyGame>()?;
     m.add_class::<PyMinimax>()?;
-    // m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
 
     Ok(())
 }
@@ -55,7 +53,8 @@ impl PyGame {
             _ => panic!("Invalid colour"),
         };
 
-        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour, false);
+        let mut moves = Vec::new();
+        move_generator::MoveGenerator::generate_legal_moves_into(&mut self.inner, colour, false, &mut moves);
         moves.iter().map(|m| m.to_string()).collect()
     }
 }
@@ -69,15 +68,28 @@ pub struct PyMinimax {
 #[pymethods]
 impl PyMinimax {
     #[new]
-    pub fn new(max_depth:usize, quiescence_max_depth: usize, selective_quiescence: bool, magic_bitboard: bool) -> Self {
-        Self { inner: Minimax::new(max_depth, quiescence_max_depth, selective_quiescence, magic_bitboard) , game: Game::new() }
+    pub fn new(max_depth:usize, quiescence_max_depth: usize, use_tt: bool, magic_bitboard: bool) -> Self {
+        Self { inner: Minimax::new(max_depth, quiescence_max_depth, use_tt, magic_bitboard) , game: Game::new() }
+    }
+
+    pub fn print_engine_options(&self) {
+        println!("max depth: {}", self.inner.engine_options.max_depth);
+        println!("quiescence depth: {}", self.inner.engine_options.quiescence_max_depth);
+        println!("use_tt: {}", self.inner.engine_options.use_transposition_tables);
+        println!("use_magic_bb: {}", self.inner.engine_options.magic_bitboards);
     }
 
     pub fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
         // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
-        let best = self.inner.find_best_move(&mut self.game, colour);
-        return best.unwrap().to_string();
+        // let best = self.inner.find_best_move(&mut self.game, colour);
+        let moves = self.inner.find_sorted_moves(&mut self.game, colour);
+
+        for (mv, eval) in moves.iter().take(5) {
+            println!("{}: {}", mv, eval);
+        }
+        return moves[0].0.to_string();
+        // return best.unwrap().to_string();
     }
 
     pub fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {
