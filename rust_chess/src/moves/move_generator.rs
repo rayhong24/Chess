@@ -1127,5 +1127,31 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_castle_into_pawn_check() {
+        let mut game = setup_simple_game();
+
+        // Place white rook on a1
+        game.get_board_mut().set_coords(&Coords::new(1, File::A), Some(Piece { kind: PieceType::Rook, colour: Colour::White }));
+        // Place black pawn on b2
+        game.get_board_mut().set_coords(&Coords::new(2, File::B), Some(Piece { kind: PieceType::Pawn, colour: Colour::Black }));
+
+
+        let moves = MoveGenerator::generate_legal_moves(&mut game, Colour::White, false);
+
+        for mv in &moves {
+            println!("{}", mv);
+        }
+
+        assert!(!moves.contains(&ChessMove::Castling(CastlingMove { 
+            colour: Colour::White, 
+            king_from: Coords { rank: 1, file: File::E },
+            king_to: Coords { rank: 1, file: File::C },
+            rook_from: Coords { rank: 1, file: File::A },
+            rook_to: Coords { rank: 1, file: File::D } })),
+            "Should not be able to castle queenside"
+        )
+    }
+
 
 }
