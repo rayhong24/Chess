@@ -55,7 +55,8 @@ impl PyGame {
             _ => panic!("Invalid colour"),
         };
 
-        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour, false);
+        let mut moves = Vec::new();
+        move_generator::MoveGenerator::generate_legal_moves_into(&mut self.inner, colour, false, &mut moves);
         moves.iter().map(|m| m.to_string()).collect()
     }
 }
