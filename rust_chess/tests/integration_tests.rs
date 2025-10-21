@@ -210,3 +210,48 @@ fn test_nodes_per_second_comparison_magic_bitboards() {
         );
     }
 }
+
+#[test]
+fn test_nodes_per_second_comparison_magic_bitboards_complicated() {
+    let mut engines = vec![
+        ("Move Rays", PyMinimax::new(3, 4, false, false)),
+        ("Magic Bitboards", PyMinimax::new(3, 4, false, true)),
+    ];
+
+
+    let moves_str = "g1h3 d7d5 h1g1 c8h3 g2h3 e7e5 g1g4 h7h5 g4g1 b8c6 g1g3 g7g6 g3g1 d8f6 \
+                     g1g3 f8c5 g3g2 f6f5 b1c3 g8f6 a1b1 e8c8 b1a1 e5e4 a1b1 c6b4 b1a1 e4e3 f2e3 d8e8";
+    let moves: Vec<String> = moves_str.split_whitespace().map(|m| m.to_string()).collect();
+
+    for (name, engine) in &mut engines {
+        engine.set_position(STARTPOS, moves.clone());
+        engine.reset_minimax_nodes_and_tt_hits();
+
+        let start = Instant::now();
+        engine.go();
+        let duration = start.elapsed();
+
+        let nodes = engine.get_minimax_nodes();
+        let nps = nodes as f64 / duration.as_secs_f64();
+
+        println!(
+            "{}: nodes = {}, time = {:.3?}, nodes/sec = {:.2}",
+            name, nodes, duration, nps
+        );
+    }
+}
+
+
+#[test]
+fn test_regular_game() {
+    let moves: Vec<String> = "g1f3 c7c5 b1c3 b8c6 d2d4 c5d4 f3d4 e7e6 d4c6 b7c6 c1f4 g8f6 e2e4 d7d5 e4e5 f6d7 d1f3 h7h5 f1d3 d5d4".split(' ').map(|s| s.to_string()).collect();
+
+    let mut engine = PyMinimax::new(3, 4, true, false);
+
+    engine.set_position(STARTPOS, moves);
+
+    let moves = engine.go();
+
+    // Ensure there is at least one move
+    assert!(!moves.is_empty(), "There should be at least one legal move for White");
+}
