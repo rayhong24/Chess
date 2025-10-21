@@ -101,11 +101,11 @@ impl PyMinimax {
 
     /// Engine option setters
     pub fn set_max_depth(&mut self, max_depth: usize) {
-        self.inner.engine_options.max_depth = max_depth;
+        self.inner.update_max_depth(max_depth);
     }
 
     pub fn set_quiescence_max_depth(&mut self, quiescence_max_depth: usize) {
-        self.inner.engine_options.quiescence_max_depth = quiescence_max_depth;
+        self.inner.update_quiescnece_max_depth(quiescence_max_depth);
     }
 
     pub fn set_use_transposition_tables(&mut self, use_tt: bool) {
