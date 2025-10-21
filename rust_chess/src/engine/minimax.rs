@@ -187,7 +187,7 @@ impl Minimax {
         }
 
         self.move_buffers[ply].clear();
-        MoveGenerator::generate_legal_moves_into(game, colour, false, &mut self.move_buffers[ply]);
+        MoveGenerator::generate_legal_moves_into(game, colour, self.engine_options.magic_bitboards, &mut self.move_buffers[ply]);
 
         if let Some(result) = game.is_game_over_with_moves(&self.move_buffers[ply], self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
@@ -275,7 +275,7 @@ impl Minimax {
         // Step 0: terminal positions
         let to_move = game.get_game_state().get_turn();
         self.tactical_move_buffers[tact_ply].clear();
-        MoveGenerator::generate_legal_moves_into(game, to_move, false, &mut self.tactical_move_buffers[tact_ply]);
+        MoveGenerator::generate_legal_moves_into(game, to_move, self.engine_options.magic_bitboards, &mut self.tactical_move_buffers[tact_ply]);
 
         if let Some(result) = game.is_game_over_with_moves(&self.tactical_move_buffers[tact_ply], self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), self.engine_options.quiescence_max_depth, to_move);

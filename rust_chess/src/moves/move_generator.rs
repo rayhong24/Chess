@@ -386,10 +386,11 @@ impl MoveGenerator {
     }
 
     pub fn is_square_under_attack(game: &mut Game, attacker: &Colour, coords: &Coords, magic_bitboard: bool) -> bool {
-        let mut temp_moves = Vec::with_capacity(MAX_MOVES);
+        let mut temp_moves: Vec<ChessMove> = Vec::with_capacity(MAX_MOVES);
         if magic_bitboard {
             Self::generate_pseudo_legal_moves_magic_bitboards_into(game, *attacker, &mut temp_moves);
-        } else {
+        }
+        else {
             Self::generate_pseudo_legal_moves_into(game, *attacker, &mut temp_moves);
         }
         temp_moves.iter().any(|m| m.to() == *coords)
