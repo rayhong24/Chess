@@ -94,10 +94,10 @@ impl Minimax {
         let buf_count = new_max_depth + 2;
         let mut move_buf = Vec::with_capacity(buf_count);
         for _ in 0..buf_count {
-            move_buf.push(Vec::with_capacity(256));
-        }
+            move_buf.push(Vec::with_capacity(64));
+        }                                                                                                                                         
 
-        self.tactical_move_buffers = move_buf;
+        self.tactical_move_buffers = move_buf; 
     }
 
     pub fn evaluate_move(&mut self, game: &mut Game, mv: &ChessMove) -> i32 {
@@ -322,7 +322,8 @@ impl Minimax {
         for i in 0..len {
             let mv = self.tactical_move_buffers[tact_ply][i].clone();
 
-            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(&mv) && !game.is_check(&mv, self.engine_options.magic_bitboards) {
+            // if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(&mv) && !game.is_check(&mv, self.engine_options.magic_bitboards) {
+            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(&mv) {
                 continue;
             }
 

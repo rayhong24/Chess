@@ -214,8 +214,8 @@ fn test_nodes_per_second_comparison_magic_bitboards() {
 #[test]
 fn test_nodes_per_second_comparison_magic_bitboards_complicated() {
     let mut engines = vec![
-        ("Move Rays", PyMinimax::new(3, 4, false, false)),
-        ("Magic Bitboards", PyMinimax::new(3, 4, false, true)),
+        ("Move Rays", PyMinimax::new(2, 4, false, false)),
+        ("Magic Bitboards", PyMinimax::new(2, 4, false, true)),
     ];
 
 
