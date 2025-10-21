@@ -76,9 +76,16 @@ impl PyMinimax {
 
     pub fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
-        // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
-        let best = self.inner.find_best_move(&mut self.game, colour);
-        return best.unwrap().to_string();
+        // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
+        // let best = self.inner.find_best_move(&mut self.game, colour);
+        // return best.unwrap().to_string();
+
+        let moves = self.inner.find_sorted_moves(&mut self.game, colour);
+        for (mv, eval) in moves.iter().take(100) {
+            println!("{mv}: {eval}");
+        }
+
+        return moves[0].0.to_string();
     }
 
     pub fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {
@@ -101,11 +108,11 @@ impl PyMinimax {
 
     /// Engine option setters
     pub fn set_max_depth(&mut self, max_depth: usize) {
-        self.inner.update_max_depth(max_depth);
+        // self.inner.update_max_depth(max_depth);
     }
 
     pub fn set_quiescence_max_depth(&mut self, quiescence_max_depth: usize) {
-        self.inner.update_quiescnece_max_depth(quiescence_max_depth);
+        // self.inner.update_quiescnece_max_depth(quiescence_max_depth);
     }
 
     pub fn set_use_transposition_tables(&mut self, use_tt: bool) {
