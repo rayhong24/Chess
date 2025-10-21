@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::collections::HashMap;
 
 use crate::game_classes::game::Game;
@@ -135,7 +136,7 @@ impl Minimax {
             }   }
         }
 
-        let moves = MoveGenerator::generate_legal_moves(game, colour, false);
+        let moves = MoveGenerator::generate_legal_moves(game, colour, self.engine_options.magic_bitboards);
 
         if let Some(result) = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
@@ -217,7 +218,7 @@ impl Minimax {
 
         // Step 0: terminal positions
         let to_move = game.get_game_state().get_turn();
-        let moves = MoveGenerator::generate_legal_moves(game, to_move, false);
+        let moves = MoveGenerator::generate_legal_moves(game, to_move, self.engine_options.magic_bitboards);
 
         if let Some(result) = game.is_game_over_with_moves(&moves, self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), self.engine_options.quiescence_max_depth, to_move);
@@ -256,13 +257,13 @@ impl Minimax {
         }
 
         // Step 2: generate only tactical moves (captures + promotions)
-        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn(), false);
+        let mut moves = MoveGenerator::generate_legal_moves(game, game.get_game_state().get_turn(), self.engine_options.magic_bitboards);
         order_moves(&mut moves, game);
 
         let mut best_score = stand_pat;
 
         for mv in &moves {
-            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) {
+            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(mv) && !game.is_check(mv, self.engine_options.magic_bitboards) {
                 continue;
             }
 
