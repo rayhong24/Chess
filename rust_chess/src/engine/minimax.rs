@@ -153,7 +153,7 @@ impl Minimax {
 
                 if score > current_best_score {
                     current_best_score = score;
-                    current_best = Some(mv.clone());
+                    current_best = Some(mv);
                 }
             }
 
@@ -188,6 +188,7 @@ impl Minimax {
 
         self.move_buffers[ply].clear();
         MoveGenerator::generate_legal_moves_into(game, colour, self.engine_options.magic_bitboards, &mut self.move_buffers[ply]);
+        order_moves(&mut self.move_buffers[ply], game);
 
         if let Some(result) = game.is_game_over_with_moves(&self.move_buffers[ply], self.engine_options.magic_bitboards) {
             return Evaluator::evaluate_game_result(game, Some(result), depth, colour);
@@ -322,8 +323,7 @@ impl Minimax {
         for i in 0..len {
             let mv = self.tactical_move_buffers[tact_ply][i].clone();
 
-            // if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(&mv) && !game.is_check(&mv, self.engine_options.magic_bitboards) {
-            if !matches!(mv, ChessMove::Promotion(_)) && !game.is_capture(&mv) {
+            if !MoveGenerator::is_tactical_move(game, &mv, self.engine_options.magic_bitboards) {
                 continue;
             }
 
