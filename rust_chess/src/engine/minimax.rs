@@ -341,9 +341,11 @@ impl Minimax {
         let mut best_score = stand_pat;
         let len = self.tactical_buffers[ply].len();
 
+        let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
+
         for i in 0..len {
             let mv = self.tactical_buffers[ply][i].clone();
-            if !MoveGenerator::is_tactical_move(game, &mv, self.engine_options.magic_bitboards) {
+            if !escape_check && !MoveGenerator::is_tactical_move(game, &mv, self.engine_options.magic_bitboards) {
                 continue
             }
             game.make_move(&mv);
