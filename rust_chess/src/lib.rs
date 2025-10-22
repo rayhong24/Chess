@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+use crate::enums::ChessMove;
 use crate::game_classes::board_classes::magic_bitboard;
 use crate::moves::move_generator;
 use crate::game_classes::game::Game;
@@ -55,7 +56,8 @@ impl PyGame {
             _ => panic!("Invalid colour"),
         };
 
-        let moves = move_generator::MoveGenerator::generate_legal_moves(&mut self.inner, colour, false);
+        let mut moves = Vec::new();
+        move_generator::MoveGenerator::generate_legal_moves_into(&mut self.inner, colour, false, &mut moves);
         moves.iter().map(|m| m.to_string()).collect()
     }
 }
@@ -75,9 +77,28 @@ impl PyMinimax {
 
     pub fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
-        // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
-        let best = self.inner.find_best_move(&mut self.game, colour);
-        return best.unwrap().to_string();
+        // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
+        // let best = self.inner.find_best_move(&mut self.game, colour);
+        // return best.unwrap().to_string();
+
+        let moves = self.inner.find_sorted_moves(&mut self.game, colour);
+        for (mv, eval) in moves.iter().take(100) {
+            println!("{mv}: {eval}");
+        }
+
+        return moves[0].0.to_string();
+    }
+
+    pub fn evaluate_moves(&mut self) -> Vec<(String, i32)> {
+        let colour = self.game.get_game_state().get_turn();
+        // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
+        // let best = self.inner.find_best_move(&mut self.game, colour);
+        // return best.unwrap().to_string();
+
+        self.inner.find_sorted_moves(&mut self.game, colour)
+            .iter()                          // iterate over & (ChessMove, i32)
+            .map(|(mv, score)| (mv.to_string(), *score))  // convert ChessMove -> String, copy the i32
+            .collect()
     }
 
     pub fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {
@@ -100,11 +121,11 @@ impl PyMinimax {
 
     /// Engine option setters
     pub fn set_max_depth(&mut self, max_depth: usize) {
-        self.inner.engine_options.max_depth = max_depth;
+        // self.inner.update_max_depth(max_depth);
     }
 
     pub fn set_quiescence_max_depth(&mut self, quiescence_max_depth: usize) {
-        self.inner.engine_options.quiescence_max_depth = quiescence_max_depth;
+        // self.inner.update_quiescnece_max_depth(quiescence_max_depth);
     }
 
     pub fn set_use_transposition_tables(&mut self, use_tt: bool) {
