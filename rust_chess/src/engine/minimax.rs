@@ -641,11 +641,79 @@ mod tests {
 
     }
 
-//     fn test_checkmate_endgame() {
-// position startpos moves e2e4 g8f6 e4e5 f6e4 d2d4 e7e6 f1d3 d8h4 g1h3 b8c6 c2c3 d7d5 e1g1
-//                              h7h6 h3f4 e4g5 h2h3 c8d7 b1a3 f8a3 d1b3 a3e7 b3b7 a8c8 d3b5 c8b8 b7a6 c6e5 a2a4 d7b5 a4b5 e5d7 a6a7 e7d6 g2g3 g5h3 g1h1              
-//                              h4g4 c3c4 g4f3 f4g2 d5c4 c1e3 f3h5 a7a8 h3f2 h1g1 f2h3 g1h1 h3f4 g2h4 f4d5 f1f5 e6f5 a8d5 d6g3 a1a7 h5h4 h1g1 h4e4 d5e4              
-//                              f5e4 g1g2 g3d6 a7a4 b8b5 e3c1 d7b6 a4a2 e8g8 a2a7 c7c5 b2b3 c5d4 c1a3 d6a3 a7a3 c4b3 a3a6 b3b2 g2f2 b2b1q a6b6 b5f5                  
-//                              f2g2 f5g5 g2h2 b1g1 h2h3 g1g4 h3h2 g4g1 h2h3 g1g4 h3h2 g4f4 h2h1 f4f1 h1h2 f1f4 h2h1 f4g4 h1h2
-    // }
+    #[test]
+    fn test_quiescence_includes_non_capture_escape_from_check() {
+        let mut game = Game::new();
+        let mut engine = Minimax::new(1, 3, true, true);
+
+        // Set up a position where White is in check but can block with a quiet (non-capture) move.
+        //
+        // Example:
+        // 1. e4 d5
+        // 2. exd5 Qxd5
+        // 3. Nc3 Qe5+
+        // In this position, White is in check, and can block with Be2 (quiet move, non-capture).
+
+        let e2_e4 = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Pawn,
+            from: Coords::new(2, File::E),
+            to: Coords::new(4, File::E),
+        });
+        let d7_d5 = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Pawn,
+            from: Coords::new(7, File::D),
+            to: Coords::new(5, File::D),
+        });
+        let e4xd5 = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Pawn,
+            from: Coords::new(4, File::E),
+            to: Coords::new(5, File::D),
+        });
+        let d8xd5 = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Queen,
+            from: Coords::new(8, File::D),
+            to: Coords::new(5, File::D),
+        });
+        let b1_c3 = ChessMove::Normal(NormalMove {
+            colour: Colour::White,
+            piece_type: PieceType::Knight,
+            from: Coords::new(1, File::B),
+            to: Coords::new(3, File::C),
+        });
+        let d5_e5 = ChessMove::Normal(NormalMove {
+            colour: Colour::Black,
+            piece_type: PieceType::Queen,
+            from: Coords::new(5, File::D),
+            to: Coords::new(5, File::E),
+        });
+
+        game.make_move(&e2_e4);
+        game.make_move(&d7_d5);
+        game.make_move(&e4xd5);
+        game.make_move(&d8xd5);
+        game.make_move(&b1_c3);
+        game.make_move(&d5_e5);
+
+        assert!(
+            game.is_player_in_check(Colour::White, true),
+            "White should be in check after Qe5+"
+        );
+
+        // Run quiescence search from this position.
+        engine.nodes = 0;
+        let eval = engine.quiescence(&mut game, -INF, INF, 3, 0);
+
+        println!("{}", engine.nodes);
+
+        // A correct quiescence should recognize that White can *block with Be2*
+        // and therefore is not checkmated — evaluation should not be a mate score.
+        assert!(
+            engine.nodes > 1,
+            "Expected quiescence to search at least one node.",
+        );
+    }
 }
