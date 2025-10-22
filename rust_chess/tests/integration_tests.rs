@@ -347,3 +347,32 @@ fn test_false_beta_pruning() {
     assert!(actual_score < -25000, "{} should be losing (mate in 2).", bad_move_str);
 }
 
+
+
+#[test]
+fn test_mate_trick() {
+    // Check if engine captures a piece and blunders back rank mate
+    let moves: Vec<String> = "e2e4 g8f6 b1c3 d7d5 e4e5 d5d4 e5f6 d4c3 f6e7 c3d2 c1d2 f8e7 g1f3 b8c6 f1c4 c8f5 e1g1 d8d7 d1e2 f5c2 d2c3 c2g6 c3g7 h8g8 g7f6 e8c8 f6e7 d7e7 e2e7 c6e7 f3e5 g6e4 f2f3 e4d5 f1c1 d5c4 c1c4 d8d2 g2g4 f7f6 e5f7 g8f8 f7h6 d2b2 c4e4 e7d5 a1d1 d5c3 d1e1 c3e4 e1e4 b2a2 e4e3 a2a1 g1g2 a1a2 g2g3 c8b8 h6f5 f8d8 f5d4".split(' ').map(|s| s.to_string()).collect();
+
+    let mut engine = PyMinimax::new(2, 8, true, true);
+
+    engine.set_position(STARTPOS, moves);
+
+    let moves = engine.evaluate_moves();
+
+    let bad_move_str = "d8d4";
+
+    let found = moves.iter().any(|(s, _)| s == bad_move_str);
+    assert!(found, "Move {} was not found in the list", bad_move_str);
+
+    for (mv, eval) in moves.iter().take(100) {
+        println!("{mv}: {eval}");
+    }
+
+    let actual_score = moves
+        .iter()
+        .find(|(s, _)| s == bad_move_str)
+        .map(|(_, score)| *score)
+        .unwrap();
+    assert!(actual_score < -25000, "{} should be losing (mate in 2).", bad_move_str);
+}

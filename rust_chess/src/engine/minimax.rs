@@ -316,15 +316,6 @@ impl Minimax {
         let to_move = game.get_game_state().get_turn();
         let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
 
-        // stand pat
-        let stand_pat = Evaluator::evaluate_game_result(game, None, ply, to_move);
-        if max_depth == 0 || (!escape_check && stand_pat >= beta) {
-            return stand_pat;
-        }
-        if stand_pat > alpha {
-            alpha = stand_pat;
-        }
-
         // generate only tactical moves into the tactical buffer for this ply
         self.tactical_buffers[ply].clear();
         MoveGenerator::generate_legal_moves_into(
@@ -339,7 +330,17 @@ impl Minimax {
             return Evaluator::evaluate_game_result(game, Some(result), ply, to_move);
         }
 
-        let mut best_score = stand_pat;
+        // stand pat
+        let stand_pat = Evaluator::evaluate_game_result(game, None, ply, to_move);
+        if max_depth == 0 || (!escape_check && stand_pat >= beta) {
+            return stand_pat;
+        }
+        if stand_pat > alpha {
+            alpha = stand_pat;
+        }
+
+
+        let mut best_score = if !escape_check {stand_pat} else {-INF};
         let len = self.tactical_buffers[ply].len();
 
 
@@ -353,7 +354,7 @@ impl Minimax {
             game.undo_last_move();
 
             if score >= beta {
-                return beta;
+                return score;
             }
             if score > best_score {
                 best_score = score;
