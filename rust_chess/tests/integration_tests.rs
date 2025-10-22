@@ -382,7 +382,7 @@ fn test_find_mate_in_one() {
     // Check if engine finds mate in 1 quickly
     let moves: Vec<String> = "g1f3 c7c5 d2d4 c5d4 f3d4 g7g6 b1c3 f8g7 e2e4 g8f6 e4e5 f6g8 c1f4 b8c6 d4c6 b7c6 f1c4 c8b7 e1g1 e7e6 c3e4 g8e7 e4d6 e8f8 d6b7 d8b6 d1d7 a8b8 b7d6 b6b2 f4g5 f7f6 d7e6 e7d5".split(' ').map(|s| s.to_string()).collect();
 
-    let mut engine = PyMinimax::new(2, 8, true, false);
+    let mut engine = PyMinimax::new(2, 5, true, true);
 
     engine.set_position(STARTPOS, moves);
 
