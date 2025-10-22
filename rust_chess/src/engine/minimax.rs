@@ -314,10 +314,11 @@ impl Minimax {
         }
 
         let to_move = game.get_game_state().get_turn();
+        let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
 
         // stand pat
         let stand_pat = Evaluator::evaluate_game_result(game, None, ply, to_move);
-        if max_depth == 0 || stand_pat >= beta {
+        if max_depth == 0 || (!escape_check && stand_pat >= beta) {
             return stand_pat;
         }
         if stand_pat > alpha {
@@ -341,7 +342,6 @@ impl Minimax {
         let mut best_score = stand_pat;
         let len = self.tactical_buffers[ply].len();
 
-        let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
 
         for i in 0..len {
             let mv = self.tactical_buffers[ply][i].clone();

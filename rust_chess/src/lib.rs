@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+use crate::enums::ChessMove;
 use crate::game_classes::board_classes::magic_bitboard;
 use crate::moves::move_generator;
 use crate::game_classes::game::Game;
@@ -86,6 +87,18 @@ impl PyMinimax {
         }
 
         return moves[0].0.to_string();
+    }
+
+    pub fn evaluate_moves(&mut self) -> Vec<(String, i32)> {
+        let colour = self.game.get_game_state().get_turn();
+        // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
+        // let best = self.inner.find_best_move(&mut self.game, colour);
+        // return best.unwrap().to_string();
+
+        self.inner.find_sorted_moves(&mut self.game, colour)
+            .iter()                          // iterate over & (ChessMove, i32)
+            .map(|(mv, score)| (mv.to_string(), *score))  // convert ChessMove -> String, copy the i32
+            .collect()
     }
 
     pub fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {

@@ -243,7 +243,7 @@ fn test_nodes_per_second_comparison_magic_bitboards_complicated() {
 
 
 #[test]
-fn test_regular_game() {
+fn test_castling_through_pawn_attack_real_game() {
     let moves: Vec<String> = "g1f3 c7c5 b1c3 b8c6 d2d4 c5d4 f3d4 e7e6 d4c6 b7c6 c1f4 g8f6 e2e4 d7d5 e4e5 f6d7 d1f3 h7h5 f1d3 d5d4".split(' ').map(|s| s.to_string()).collect();
 
     let mut engine = PyMinimax::new(3, 4, true, false);
@@ -257,7 +257,7 @@ fn test_regular_game() {
 }
 
 #[test]
-fn test_check_evals() {
+fn test_() {
     let moves: Vec<String> = "g1f3 g8f6 b1c3 d7d5 d2d4 c8f5 c1f4 b8c6 e2e3 f6e4 c3e4 f5e4 f1b5 f7f6 b5c6 b7c6 e1g1 a8b8 a1b1 h7h5 d1e2 e8f7 f4g3 e7e6 f1e1 f8d6 g3d6 d8d6 e1d1 c6c5 d4c5 d6c5 f3d4 e4g6 e2a6 c5d6 a6a7 b8a8 a7b7 h8b8 b7c6 e6e5 c6d6 c7d6 d4c6 b8b6 d1d5 f7e6 d5a5 a8h8 c6a7 g6c2 b1e1 b6b2 a7c6 h8c8 a5a6 c2d3 a6a3 d3e4 c6a5 b2e2".split(' ').map(|s| s.to_string()).collect();
 
     let mut engine = PyMinimax::new(2, 2, true, true);
@@ -303,7 +303,7 @@ fn real_test2() {
 }
 
 #[test]
-fn real_test3() {
+fn test_detects_threefold_repetition() {
     let moves: Vec<String> = "g1f3 d7d5 b1c3 d5d4 c3b5 c7c5 e2e4 c8g4 h2h3 g4f3 d1f3 b8c6 f1c4 g8h6 d2d3 e7e6 c1h6 g7h6 e1g1 a7a6 b5a3 f8d6 c4b3 b7b5 f1e1 c6e5 f3g3 e8d7 g3g7 d8g8 g7g8 a8g8 g1h1 e5c6 a3b1 a6a5 c2c4 c6b4 c4b5 b4d3 e1f1 g8b8 a2a4 h8g8 a1a2 d3b4 a2a3 b4d3 b3e6 d7e6 a3d3 h6h5 h1g1 d6e7 f1e1 h5h4 d3d1 g8g7 f2f4 e7d6 e4e5 d6c7 b1d2 e6f5 d1c1 b8g8 e1e2 g7g3 c1c5 d4d3 e5e6 f5f6 d2e4 f6g7 e4g3 d3e2 c5g5 g7f6 g3e2 g8g5 f4g5 f6e7 e6f7 c7d6 f7f8b e7f8 e2c3 d6g3 b5b6 f8f7 c3e4 g3e5 b6b7 f7g6 g1f2 g6h5 f2f1 e5f4 f1g1 f4c7 g1h1 h5g6 h1g1 g6f5 e4f6 f5g5 f6d7 h7h6 b7b8n c7f4 b8c6 f4d2 d7e5 g5f6 e5c4 d2f4 c6a5 f6f7 a5c6 f7g6 c6e5 f4e5 c4e5 g6f6 e5f3 f6e6 f3h4 e6d5 h4f5 d5e4 f5h6 e4e3 h6f5  e3e4 f5d6 e4d5 d6f5 d5c5 b2b3 c5b6 f5d4 b6c5 d4e6 c5b4 e6f4 b4b3 a4a5 b3c2 a5a6 c2d2 a6a7 d2e3 f4d5 e3d2 a7a8q d2d1 a8c8 d1d2 c8c7 d2d3 c7c8 d3e4 c8e6 e4d3 e6c8 d3d4 c8c6 d4e4 c6e6 e4d3".split(' ').map(|s| s.to_string()).collect();
 
 
@@ -316,3 +316,34 @@ fn real_test3() {
     // Ensure there is at least one move
     // assert!(!moves.contains(ChessMove::), "There should be at least one legal move for White");
 }
+
+
+#[test]
+fn test_false_beta_pruning() {
+    // In this game, d3d2 is evaluated as the best move. It doesn't realize it is getting mated because the stand-pat evaluation in quiescence is inaccurate.
+    // This causes improper beta-pruning. Can be fixed with better evaluation.
+    let moves: Vec<String> = "d2d4 g8f6 c1g5 b8c6 c2c3 f6e4 g5h4 d7d5 f2f4 d8d6 e2e3 c8e6 f1d3 e8c8 g1f3 c8b8 b2b4 h8g8 b4b5 c6a5 d1a4 a5c4 d3c4 d5c4 f3g5 e4g5 f4g5 d6d5 e1f2 d5e4 h4g3 e4f5 f2g1 f5g5 g3f4 g5f6 h2h4 f6f5 b1d2 f5d3 b5b6 d3d2 a4a7 b8c8 b6c7".split(' ').map(|s| s.to_string()).collect();
+
+    let mut engine = PyMinimax::new(2, 8, true, true);
+
+    engine.set_position(STARTPOS, moves);
+
+    let moves = engine.evaluate_moves();
+
+    let bad_move_str = "d8d5";
+
+    let found = moves.iter().any(|(s, _)| s == bad_move_str);
+    assert!(found, "Move {} was not found in the list", bad_move_str);
+
+    for (mv, eval) in moves.iter().take(100) {
+        println!("{mv}: {eval}");
+    }
+
+    let actual_score = moves
+        .iter()
+        .find(|(s, _)| s == bad_move_str)
+        .map(|(_, score)| *score)
+        .unwrap();
+    assert!(actual_score < -25000, "{} should be losing (mate in 2).", bad_move_str);
+}
+
