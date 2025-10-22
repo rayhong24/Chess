@@ -1,6 +1,5 @@
-use strum::IntoEnumIterator;
-
 use crate::game_classes::board_classes::magic_bitboard::{self, MAGIC_TABLES};
+use crate::game_classes::board_classes::bit_board::BitBoard;
 use crate::game_classes::board_classes::piece_attacks::{WHITE_PAWN_ATTACKS, BLACK_PAWN_ATTACKS, KNIGHT_ATTACKS, KING_ATTACKS};
 use crate::enums::moves::{EnPassantMove, NormalMove, PromotionMove, CastlingMove};
 use crate::enums::{ChessMove, PieceType, Colour, File};
@@ -385,14 +384,103 @@ impl MoveGenerator {
         true
     }
 
-    pub fn is_square_under_attack(game: &mut Game, attacker: &Colour, coords: &Coords, magic_bitboard: bool) -> bool {
-        let mut temp_moves = Vec::with_capacity(MAX_MOVES);
-        if magic_bitboard {
-            Self::generate_pseudo_legal_moves_magic_bitboards_into(game, *attacker, &mut temp_moves);
-        } else {
-            Self::generate_pseudo_legal_moves_into(game, *attacker, &mut temp_moves);
+    pub fn get_attacked_squares(game: &Game, attacker: Colour) -> Vec<Coords> {
+        let mut attacked_squares = Vec::new();
+
+        for (piece, coords) in game.get_player_pieces(attacker) {
+            attacked_squares.extend(Self::move_rays_to_attacked_coords(game, &piece, &coords, &piece.get_move_rays(&coords)))
         }
-        temp_moves.iter().any(|m| m.to() == *coords)
+
+
+        return attacked_squares;
+    }
+
+    pub fn get_attacked_squares_magic_bitboard(game: &Game, attacker: Colour) -> Vec<Coords> {
+        let mut attacked_coords = Vec::new();
+
+        let all_occ = game.get_board().all_occ();
+        let own_occ = game.get_board().get_colour_occ(attacker);
+
+        for (piece, coords) in game.get_player_pieces(attacker) {
+            let sq = coords.to_index();
+
+            let attacks = match piece.kind {
+                PieceType::Pawn => Self::get_pawn_attack_coords(attacker, &coords),
+                PieceType::Knight => KNIGHT_ATTACKS[sq],
+                PieceType::Bishop => MAGIC_TABLES.get_bishop_attacks(sq, &all_occ).bits(),
+                PieceType::Rook => MAGIC_TABLES.get_rook_attacks(sq, &all_occ).bits(),
+                PieceType::Queen => {
+                    MAGIC_TABLES.get_bishop_attacks(sq, &all_occ).bits() | MAGIC_TABLES.get_rook_attacks(sq, &all_occ).bits()
+                }
+                PieceType::King => KING_ATTACKS[sq],
+                _ => 0
+            };
+
+            let legal_targets = attacks & !own_occ.bits();
+
+            let mut targets = legal_targets;
+            while targets != 0 {
+                let to_sq = targets.trailing_zeros() as usize;
+                targets &= targets - 1;
+
+                let to = Coords::from_index(to_sq);
+
+                attacked_coords.push(to);
+            }
+        }
+
+        return attacked_coords;
+    }
+
+    fn get_pawn_attack_coords(attacker: Colour, from: &Coords) -> u64 {
+        let from_sq = from.to_index();
+
+        let capture_dirs: [i32; 2] = match attacker {
+            Colour::White => [7, 9],
+            Colour::Black => [-7, -9],
+        };
+
+        let mut attack_board = BitBoard::new();
+
+        for &dir in &capture_dirs {
+            let target_sq = (from_sq as i32 + dir) as usize;
+            if target_sq < 64 {
+                let to = Coords::from_index(target_sq);
+                attack_board.set_bit(&to, true);
+            }
+        }
+
+        return attack_board.bits();
+    }
+    fn move_rays_to_attacked_coords(game: &Game, piece: &Piece, start_coords: &Coords, move_rays: &Vec<MoveRay>) -> Vec<Coords> {
+        let mut attacked_coords = Vec::new();
+
+        for move_ray in move_rays {
+            for end_coords in move_ray.generate_coords(start_coords) {
+                if let Some(blocking_piece) = game.get_board().get_coords(&end_coords) {
+                    if move_ray.capture_allowed && blocking_piece.colour != piece.colour {
+                        attacked_coords.push(end_coords);
+                    }
+                    break;
+                }
+                else {
+                    attacked_coords.push(end_coords);
+                }
+            }
+        }
+        
+        return attacked_coords;
+    }
+
+    pub fn is_square_under_attack(game: &Game, attacker: &Colour, coords: &Coords, magic_bitboard: bool) -> bool {
+        let moves = if magic_bitboard {
+            Self::get_attacked_squares_magic_bitboard(game, *attacker)
+        }
+        else {
+            Self::get_attacked_squares(game, *attacker)
+        };
+
+        moves.iter().any(|m| *m == *coords)
     }
 }
 
