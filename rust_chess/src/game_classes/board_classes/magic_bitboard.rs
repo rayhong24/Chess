@@ -1,9 +1,9 @@
 use once_cell::sync::Lazy;
 use crate::game_classes::board_classes::bit_board::BitBoard;
+use crate::game_classes::board_classes::magics_precomputed::{BISHOP_MAGICS, ROOK_MAGICS};
 use std::mem::MaybeUninit;
 
 pub static MAGIC_TABLES: Lazy<MagicTables> = Lazy::new(|| MagicTables::new());
-
 pub struct MagicBitboard {
     pub mask: u64,             // Mask of relevant squares (ray squares)
     pub magic: u64,            // Magic multiplier for hashing
@@ -43,20 +43,15 @@ impl MagicTables {
         let mut table: [MaybeUninit<MagicBitboard>; 64] = unsafe { MaybeUninit::uninit().assume_init() };
 
         for sq in 0..64 {
-            let mask = if is_bishop {
-                Self::bishop_mask(sq)
-            } else {
-                Self::rook_mask(sq)
-            };
-
-            let bits = mask.count_ones() as usize;
-            let magic = Self::find_magic(sq, bits, is_bishop);
-            let shift = 64 - bits as u8;
-            let num_entries = 1 << bits;
+            let precomputed = if is_bishop { &BISHOP_MAGICS[sq] } else { &ROOK_MAGICS[sq] };
+            let mask = precomputed.mask;
+            let magic = precomputed.magic;
+            let shift = precomputed.shift;
+            let num_entries = 1 << (64 - shift as usize);
             let mut attacks = vec![0u64; num_entries];
 
             for index in 0..num_entries {
-                let blockers = Self::set_occupancy(index as u64, bits, mask);
+                let blockers = Self::set_occupancy(index as u64, 64 - shift as usize, mask);
                 let attack = if is_bishop {
                     Self::bishop_attacks(sq, blockers)
                 } else {
@@ -80,7 +75,7 @@ impl MagicTables {
         self.bishop_magics[square].get_attacks(occ)
     }
 
-    fn rook_mask(square: usize) -> u64 {
+    pub fn rook_mask(square: usize) -> u64 {
         let mut mask = 0u64;
         let rank = (square / 8) as i32;
         let file = (square % 8) as i32;
@@ -93,7 +88,7 @@ impl MagicTables {
         mask
     }
 
-    fn bishop_mask(square: usize) -> u64 {
+    pub fn bishop_mask(square: usize) -> u64 {
         let mut mask = 0u64;
         let rank = (square / 8) as i32;
         let file = (square % 8) as i32;
@@ -211,7 +206,8 @@ impl MagicTables {
         attacks
     }
 
-    fn find_magic(square: usize, relevant_bits: usize, bishop: bool) -> u64 {
+
+    pub fn find_magic(square: usize, relevant_bits: usize, bishop: bool) -> u64 {
         let mask = if bishop { MagicTables::bishop_mask(square) } else { MagicTables::rook_mask(square) };
         let occupancy_variations = 1 << relevant_bits;
 
