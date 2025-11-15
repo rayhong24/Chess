@@ -166,6 +166,45 @@ impl PyMinimax {
     pub fn get_minimax_tt_hits(&self) -> usize {
         self.inner.tt_hits
     }
+
+    pub fn generate_legal_moves(&mut self) -> Vec<String> {
+        let colour = self.game.get_game_state().get_turn();
+        let mut moves = Vec::new();
+        move_generator::MoveGenerator::generate_legal_moves_into(&mut self.game, colour, self.inner.engine_options.magic_bitboards, &mut moves);
+        moves.iter().map(|m| m.to_string()).collect()
+    }
+
+    pub fn make_move(&mut self, mv: &str) {
+        if let Some(chess_move) = MoveParser::parse_str(mv, &self.game) {
+            self.game.make_move(&chess_move);
+        }
+    }
+
+    pub fn unmake_move(&mut self) {
+        self.game.undo_last_move();
+    }
+
+    pub fn perft(&mut self, depth: u32) -> u64 {
+        if depth == 0 {
+            return 1;
+        }
+
+        let moves = self.generate_legal_moves();
+
+        if depth == 1 {
+            return moves.len() as u64;
+        }
+
+        let mut nodes = 0;
+
+        for mv in moves {
+            self.make_move(&mv);
+            nodes += self.perft(depth - 1);
+            self.unmake_move();
+        }
+
+        nodes
+    }
 }
 
 
