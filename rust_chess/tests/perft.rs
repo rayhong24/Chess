@@ -1,5 +1,5 @@
 use std::time::Instant;
-use rust_chess::{enums::moves, PyMinimax};
+use rust_chess::PyMinimax;
 
 const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
