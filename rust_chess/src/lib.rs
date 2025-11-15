@@ -180,7 +180,7 @@ impl PyMinimax {
         }
     }
 
-    pub fn unmake_move(&mut self, _mv: &str) {
+    pub fn unmake_move(&mut self) {
         self.game.undo_last_move();
     }
 
@@ -200,7 +200,7 @@ impl PyMinimax {
         for mv in moves {
             self.make_move(&mv);
             nodes += self.perft(depth - 1);
-            self.unmake_move(&mv);
+            self.unmake_move();
         }
 
         nodes
