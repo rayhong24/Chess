@@ -3,60 +3,40 @@ use rust_chess::PyMinimax;
 
 const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-#[test]
-fn test_perft_startpos_depth1() {
+fn run_perft_startpos(depth: u32, expected_nodes: u64) {
     let mut engine = PyMinimax::new(0, 4, false, true); // Depth not used, disable TT for pure gen
     engine.set_position(STARTPOS, vec![]);
 
     let start = Instant::now();
-    let nodes = engine.perft(1);
+    let nodes = engine.perft(depth);
     let duration = start.elapsed();
 
     let nps = nodes as f64 / duration.as_secs_f64();
-    println!("Perft depth 1: {} nodes in {:.3?}, {:.2} nodes/sec", nodes, duration, nps);
-    assert_eq!(nodes, 20); // Standard perft value for startpos depth 1
+    println!(
+        "Perft depth {}: {} nodes in {:.3?}, {:.2} nodes/sec",
+        depth, nodes, duration, nps
+    );
+    assert_eq!(nodes, expected_nodes, "Perft node count mismatch at depth {}", depth);
+}
+
+#[test]
+fn test_perft_startpos_depth1() {
+    run_perft_startpos(1, 20); // Standard perft value for startpos depth 1
 }
 
 #[test]
 fn test_perft_startpos_depth2() {
-    let mut engine = PyMinimax::new(0, 4, false, true);
-    engine.set_position(STARTPOS, vec![]);
-
-    let start = Instant::now();
-    let nodes = engine.perft(2);
-    let duration = start.elapsed();
-
-    let nps = nodes as f64 / duration.as_secs_f64();
-    println!("Perft depth 2: {} nodes in {:.3?}, {:.2} nodes/sec", nodes, duration, nps);
-    assert_eq!(nodes, 400); // Standard perft value
+    run_perft_startpos(2, 400); // Standard perft value
 }
 
 #[test]
 fn test_perft_startpos_depth3() {
-    let mut engine = PyMinimax::new(0, 4, false, true);
-    engine.set_position(STARTPOS, vec![]);
-
-    let start = Instant::now();
-    let nodes = engine.perft(3);
-    let duration = start.elapsed();
-
-    let nps = nodes as f64 / duration.as_secs_f64();
-    println!("Perft depth 3: {} nodes in {:.3?}, {:.2} nodes/sec", nodes, duration, nps);
-    assert_eq!(nodes, 8902); // Standard perft value
+    run_perft_startpos(3, 8902); // Standard perft value
 }
 
 #[test]
 fn test_perft_startpos_depth4() {
-    let mut engine = PyMinimax::new(0, 4, false, true);
-    engine.set_position(STARTPOS, vec![]);
-
-    let start = Instant::now();
-    let nodes = engine.perft(4);
-    let duration = start.elapsed();
-
-    let nps = nodes as f64 / duration.as_secs_f64();
-    println!("Perft depth 4: {} nodes in {:.3?}, {:.2} nodes/sec", nodes, duration, nps);
-    assert_eq!(nodes, 197281); // Standard perft value
+    run_perft_startpos(4, 197281); // Standard perft value
 }
 
 #[test]
