@@ -77,16 +77,16 @@ impl PyMinimax {
 
     pub fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
-        // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
-        // let best = self.inner.find_best_move(&mut self.game, colour);
-        // return best.unwrap().to_string();
+        // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
+        let best = self.inner.find_best_move(&mut self.game, colour);
+        return best.unwrap().to_string();
 
-        let moves = self.inner.find_sorted_moves(&mut self.game, colour);
-        for (mv, eval) in moves.iter().take(100) {
-            println!("{mv}: {eval}");
-        }
+        // let moves = self.inner.find_sorted_moves(&mut self.game, colour);
+        // for (mv, eval) in moves.iter().take(100) {
+        //     println!("{mv}: {eval}");
+        // }
 
-        return moves[0].0.to_string();
+        // return moves[0].0.to_string();
     }
 
     pub fn evaluate_moves(&mut self) -> Vec<(String, i32)> {
