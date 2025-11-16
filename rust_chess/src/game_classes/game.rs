@@ -101,7 +101,7 @@ impl Game {
         
     }
 
-    pub fn is_game_over_with_moves(&mut self, moves: &Vec<ChessMove>, magic_bitboard: bool) -> Option<GameResult> {
+    pub fn is_game_over_with_moves(&mut self, moves: &[ChessMove], magic_bitboard: bool) -> Option<GameResult> {
         let player = self.get_game_state().get_turn();
 
         if self.state_tracker.is_threefold_repetition(self.hash) {

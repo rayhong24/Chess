@@ -8,6 +8,7 @@ use crate::move_ordering::order_moves;
 use crate::engine::evaluator::Evaluator;
 
 pub const INF: i32 = 30_000;
+pub const MAX_MOVES: usize = 2048;
 
 #[derive(Clone, Copy)]
 pub enum Bound {
@@ -39,10 +40,7 @@ pub struct Minimax {
     pub nodes: usize,
     pub tt_hits: usize,
 
-    // move buffers: one Vec<ChessMove> per ply (0..=max_depth)
-    pub move_buffers: Vec<Vec<ChessMove>>,
-    // tactical buffers for quiescence (captures/promotions) per ply
-    pub tactical_buffers: Vec<Vec<ChessMove>>,
+    pub move_buffer: Vec<ChessMove>,
 }
 
 impl Minimax {
@@ -57,26 +55,13 @@ impl Minimax {
             magic_bitboards: magic_bitboard,
         };
 
-        // preallocate per-ply buffers: need max_depth + 2 to be safe (root + depths)
-        let buffer_count = max_depth + 2;
-        let mut move_buffers = Vec::with_capacity(buffer_count);
-        for _ in 0..buffer_count {
-            move_buffers.push(Vec::with_capacity(256));     // ~MAX_MOVES
-        }
-
-        let tact_buffer_count = quiescence_max_depth + 2;
-        let mut tactical_buffers = Vec::with_capacity(tact_buffer_count);
-        for _ in 0..tact_buffer_count {
-            tactical_buffers.push(Vec::with_capacity(64));  // fewer tactical moves typically
-        }
-
+        let move_buffer = Vec::with_capacity(MAX_MOVES);
         Self {
             engine_options: options,
             tt: HashMap::new(),
             nodes: 0,
             tt_hits: 0,
-            move_buffers,
-            tactical_buffers,
+            move_buffer,
         }
     }
 
@@ -84,17 +69,14 @@ impl Minimax {
         game.make_move(mv);
         let to_move = game.get_game_state().get_turn();
 
-        // use ply 0 buffer for this temporary generation
-        let ply = 0;
-        self.move_buffers[ply].clear();
         MoveGenerator::generate_legal_moves_into(
             game,
             to_move,
             self.engine_options.magic_bitboards,
-            &mut self.move_buffers[ply],
+            &mut self.move_buffer,
         );
 
-        let game_result = game.is_game_over_with_moves(&self.move_buffers[ply], self.engine_options.magic_bitboards);
+        let game_result = game.is_game_over_with_moves(&self.move_buffer, self.engine_options.magic_bitboards);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
         game.undo_last_move();
@@ -105,33 +87,29 @@ impl Minimax {
         let mut best_move: Option<ChessMove> = None;
         let mut best_score: i32 = -INF;
 
+        self.move_buffer.clear();
+        MoveGenerator::generate_legal_moves_into(
+            game,
+            colour,
+            self.engine_options.magic_bitboards,
+            &mut self.move_buffer,
+        );
+        order_moves(&mut self.move_buffer[..], game);
+
         for depth in 1..=self.engine_options.max_depth {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
 
-            // root is ply 0
-            let root_ply = 0;
-            self.move_buffers[root_ply].clear();
-            MoveGenerator::generate_legal_moves_into(
-                game,
-                colour,
-                self.engine_options.magic_bitboards,
-                &mut self.move_buffers[root_ply],
-            );
-            order_moves(&mut self.move_buffers[root_ply], game);
 
             // PV move promotion
             if let Some(prev_best) = &best_move {
-                if let Some(idx) = self.move_buffers[root_ply].iter().position(|m| m == prev_best) {
-                    let mv = self.move_buffers[root_ply].remove(idx);
-                    self.move_buffers[root_ply].insert(0, mv);
+                if let Some(idx) = self.move_buffer.iter().position(|m| m == prev_best) {
+                    let mv = self.move_buffer.remove(idx);
+                    self.move_buffer.push(mv);
                 }
             }
 
-            let len = self.move_buffers[root_ply].len();
-            for i in 0..len {
-                // clone the move out (requires ChessMove: Clone)
-                let mv = self.move_buffers[root_ply][i].clone();
+            for mv in self.move_buffer.clone() {
                 game.make_move(&mv);
 
                 // recurse: pass ply = 1 for child
@@ -159,20 +137,16 @@ impl Minimax {
         // Use the configured max depth
         let depth = self.engine_options.max_depth;
 
-        // root is ply 0
-        let root_ply = 0;
-        self.move_buffers[root_ply].clear();
+        self.move_buffer.clear();
         MoveGenerator::generate_legal_moves_into(
             game,
             colour,
             self.engine_options.magic_bitboards,
-            &mut self.move_buffers[root_ply],
+            &mut self.move_buffer,
         );
-        order_moves(&mut self.move_buffers[root_ply], game);
+        order_moves(&mut self.move_buffer, game);
 
-        let len = self.move_buffers[root_ply].len();
-        for i in 0..len {
-            let mv = self.move_buffers[root_ply][i].clone();
+        while let Some(mv) = self.move_buffer.pop()  {
             game.make_move(&mv);
 
             // Recurse with minimax at ply 1
@@ -210,30 +184,32 @@ impl Minimax {
             }
         }
 
+        let move_start_index = self.move_buffer.len();
+
         // generate moves into buffer for this ply
-        self.move_buffers[ply].clear();
         MoveGenerator::generate_legal_moves_into(
             game,
             colour,
             self.engine_options.magic_bitboards,
-            &mut self.move_buffers[ply],
+            &mut self.move_buffer,
         );
-        order_moves(&mut self.move_buffers[ply], game);
+        order_moves(&mut self.move_buffer[move_start_index..], game);
 
-        if let Some(result) = game.is_game_over_with_moves(&self.move_buffers[ply], self.engine_options.magic_bitboards) {
+        if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
+            self.move_buffer.truncate(move_start_index);
             return Evaluator::evaluate_game_result(game, Some(result), ply, colour);
         }
 
         if depth == 0 {
+            self.move_buffer.truncate(move_start_index);
             return self.quiescence(game, alpha, beta, self.engine_options.quiescence_max_depth, 0);
         }
 
         let orig_alpha = alpha;
         let mut best_score = -INF;
 
-        let len = self.move_buffers[ply].len();
-        for i in 0..len {
-            let mv = self.move_buffers[ply][i].clone();
+        while self.move_buffer.len() > move_start_index {
+            let mv = self.move_buffer.pop().unwrap();
             game.make_move(&mv);
 
             // recursive call will generate into move_buffers[ply + 1]
@@ -282,6 +258,7 @@ impl Minimax {
             }
         }
 
+        self.move_buffer.truncate(move_start_index);
         best_score
     }
 
@@ -316,7 +293,6 @@ impl Minimax {
         let to_move = game.get_game_state().get_turn();
         let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
 
-
         // stand pat
         let stand_pat = Evaluator::evaluate_game_result(game, None, ply, to_move);
         if max_depth == 0 || (!escape_check && stand_pat >= beta) {
@@ -326,26 +302,24 @@ impl Minimax {
             alpha = stand_pat;
         }
 
+        let move_start_index = self.move_buffer.len();
         // generate only tactical moves into the tactical buffer for this ply
-        self.tactical_buffers[ply].clear();
         MoveGenerator::generate_legal_moves_into(
             game,
             to_move,
             self.engine_options.magic_bitboards,
-            &mut self.tactical_buffers[ply],
+            &mut self.move_buffer,
         );
-        order_moves(&mut self.tactical_buffers[ply], game);
-
-        if let Some(result) = game.is_game_over_with_moves(&self.tactical_buffers[ply], self.engine_options.magic_bitboards) {
+        order_moves(&mut self.move_buffer[move_start_index..], game);
+        if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
+            self.move_buffer.truncate(move_start_index);
             return Evaluator::evaluate_game_result(game, Some(result), ply, to_move);
         }
 
         let mut best_score = if !escape_check {stand_pat} else {-INF};
-        let len = self.tactical_buffers[ply].len();
 
-
-        for i in 0..len {
-            let mv = self.tactical_buffers[ply][i].clone();
+        while self.move_buffer.len() > move_start_index {
+            let mv = self.move_buffer.pop().unwrap();
             if !escape_check && !MoveGenerator::is_tactical_move(game, &mv, self.engine_options.magic_bitboards) {
                 continue
             }
@@ -354,6 +328,7 @@ impl Minimax {
             game.undo_last_move();
 
             if score >= beta {
+                self.move_buffer.truncate(move_start_index);
                 return score;
             }
             if score > best_score {
@@ -392,6 +367,8 @@ impl Minimax {
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use super::*;
     use crate::coords::Coords;
     use crate::enums::moves::NormalMove;
@@ -409,16 +386,15 @@ mod tests {
         let mut engine = Minimax::new(3, 6, true, true);
 
         // Generate legal moves at the root
-        engine.move_buffers[0].clear();
         MoveGenerator::generate_legal_moves_into(
             &mut game,
             Colour::White,
             false,
-            &mut engine.move_buffers[0],
+            &mut engine.move_buffer,
         );
 
         // Pick the first move to evaluate
-        let mv = engine.move_buffers[0][0].clone();
+        let mv = engine.move_buffer[0].clone();
         let eval = engine.evaluate_move(&mut game, &mv);
 
         // Evaluation should be within reasonable bounds for starting position
@@ -450,14 +426,14 @@ mod tests {
 
         // Make sure the move is legal
         let mv = best_move.unwrap();
-        engine.move_buffers[0].clear();
+        let mut legal_moves = vec![];
         MoveGenerator::generate_legal_moves_into(
             &mut game,
             Colour::White,
             false,
-            &mut engine.move_buffers[0],
+            &mut legal_moves,
         );
-        assert!(engine.move_buffers[0].contains(&mv), "Best move is not legal");
+        assert!(legal_moves.contains(&mv), "Best move is not legal");
     }
 
     #[test]
@@ -466,14 +442,14 @@ mod tests {
         let mut engine = Minimax::new(1, 1, false, false);
 
         // Pick one move from root and evaluate using minimax
-        engine.move_buffers[0].clear();
+        engine.move_buffer.clear();
         MoveGenerator::generate_legal_moves_into(
             &mut game,
             Colour::White,
             false,
-            &mut engine.move_buffers[0],
+            &mut engine.move_buffer,
         );
-        let mv = engine.move_buffers[0][0].clone();
+        let mv = engine.move_buffer[0].clone();
 
         game.make_move(&mv);
         let score = -engine.minimax(&mut game, 0, -INF, INF, Colour::Black, 1);
