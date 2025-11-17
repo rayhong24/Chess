@@ -179,7 +179,7 @@ impl PyMinimax {
         }
     }
 
-    pub fn unmake_move(&mut self, _mv: &str) {
+    pub fn unmake_move(&mut self) {
         self.game.undo_last_move();
     }
 }
