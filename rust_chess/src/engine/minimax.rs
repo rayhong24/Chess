@@ -104,10 +104,11 @@ impl Minimax {
                 }
             }
 
-            for mv in self.move_buffer.clone() {
+            for i in (0..self.move_buffer.len()).rev() {
+                let mv = self.move_buffer[i]; 
+
                 game.make_move(&mv);
 
-                // recurse: pass ply = 1 for child
                 let score = -self.minimax(game, depth - 1, -INF, INF, colour.other(), 1);
 
                 game.undo_last_move();
