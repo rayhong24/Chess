@@ -88,13 +88,8 @@ impl Minimax {
         let mut best_score: i32 = -INF;
 
         self.move_buffer.clear();
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            colour,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffer,
-        );
-        order_moves(&mut self.move_buffer[..], game);
+
+        Self::generate_and_order_moves(self, game, colour, 0);
 
         for depth in 1..=self.engine_options.max_depth {
             let mut current_best: Option<ChessMove> = None;
@@ -138,13 +133,7 @@ impl Minimax {
         let depth = self.engine_options.max_depth;
 
         self.move_buffer.clear();
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            colour,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffer,
-        );
-        order_moves(&mut self.move_buffer, game);
+        Self::generate_and_order_moves(self, game, colour, 0);
 
         while let Some(mv) = self.move_buffer.pop()  {
             game.make_move(&mv);
@@ -186,14 +175,7 @@ impl Minimax {
 
         let move_start_index = self.move_buffer.len();
 
-        // generate moves into buffer for this ply
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            colour,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffer,
-        );
-        order_moves(&mut self.move_buffer[move_start_index..], game);
+        Self::generate_and_order_moves(self, game, colour, move_start_index);
 
         if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
             self.move_buffer.truncate(move_start_index);
@@ -303,14 +285,8 @@ impl Minimax {
         }
 
         let move_start_index = self.move_buffer.len();
-        // generate only tactical moves into the tactical buffer for this ply
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            to_move,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffer,
-        );
-        order_moves(&mut self.move_buffer[move_start_index..], game);
+        Self::generate_and_order_moves(self, game, to_move, move_start_index);
+
         if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
             self.move_buffer.truncate(move_start_index);
             return Evaluator::evaluate_game_result(game, Some(result), ply, to_move);
@@ -362,6 +338,17 @@ impl Minimax {
         }
 
         best_score
+    }
+
+    // Helper to generate and order moves starting from a given index in move_buffer
+    fn generate_and_order_moves(&mut self, game: &mut Game, colour: Colour, start_index: usize) {
+        MoveGenerator::generate_legal_moves_into(
+            game,
+            colour,
+            self.engine_options.magic_bitboards,
+            &mut self.move_buffer,
+        );
+        order_moves(&mut self.move_buffer[start_index..], game);
     }
 }
 
