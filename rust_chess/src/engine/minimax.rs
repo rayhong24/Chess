@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 
 use crate::game_classes::game::Game;
@@ -69,14 +68,10 @@ impl Minimax {
         game.make_move(mv);
         let to_move = game.get_game_state().get_turn();
 
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            to_move,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffer,
-        );
+        let move_start_index = self.move_buffer.len();
+        Self::generate_and_order_moves(self, game, to_move, move_start_index);
 
-        let game_result = game.is_game_over_with_moves(&self.move_buffer, self.engine_options.magic_bitboards);
+        let game_result = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
         game.undo_last_move();
@@ -84,22 +79,22 @@ impl Minimax {
     }
 
     pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
-        let mut best_move: Option<ChessMove> = None;
-        let mut best_score: i32 = -INF;
-
         self.move_buffer.clear();
 
         Self::generate_and_order_moves(self, game, colour, 0);
 
+        let mut best_move: Option<ChessMove> = None;
+        let mut best_score: i32 = -INF;
+
+        // Loop for iterative deepening
         for depth in 1..=self.engine_options.max_depth {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
 
-
             // PV move promotion
             if let Some(prev_best) = &best_move {
                 if let Some(idx) = self.move_buffer.iter().position(|m| m == prev_best) {
-                    let mv = self.move_buffer.remove(idx);
+                    let mv = self.move_buffer.swap_remove(idx);
                     self.move_buffer.push(mv);
                 }
             }
@@ -127,14 +122,17 @@ impl Minimax {
 
         best_move
     }
+    // Does not use iterative deepening
+    // Should be used for move ordering/evaluation and sanity checks. Not for actual move selection.
     pub fn find_sorted_moves(&mut self, game: &mut Game, colour: Colour) -> Vec<(ChessMove, i32)> {
+        self.move_buffer.clear();
+
+        Self::generate_and_order_moves(self, game, colour, 0);
+
         let mut move_scores: Vec<(ChessMove, i32)> = Vec::new();
 
         // Use the configured max depth
         let depth = self.engine_options.max_depth;
-
-        self.move_buffer.clear();
-        Self::generate_and_order_moves(self, game, colour, 0);
 
         while let Some(mv) = self.move_buffer.pop()  {
             game.make_move(&mv);
@@ -153,34 +151,65 @@ impl Minimax {
         move_scores
     }
 
-    // minimax now takes an explicit ply parameter so each level uses its own buffers
-    fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour, ply: usize) -> i32 {
-        self.nodes += 1;
-        let hash = game.get_current_hash();
-
-        if self.engine_options.use_transposition_tables {
-            if let Some(entry) = self.tt.get(&hash) {
-                if !entry.is_quiescence && entry.depth >= depth {
-                    self.tt_hits += 1;
-                    match entry.bound {
-                        Bound::Exact => return entry.value,
-                        Bound::Lower => alpha = alpha.max(entry.value),
-                        Bound::Upper => beta = beta.min(entry.value),
-                    }
-                    if alpha >= beta {
-                        return entry.value;
-                    }
+    // Helper: Probe the TT for a usable entry
+    fn tt_lookup(&mut self, hash: u64, depth: usize, is_quiescence: bool, alpha: &mut i32, beta: &mut i32) -> Option<i32> {
+        if !self.engine_options.use_transposition_tables {
+            return None;
+        }
+        if let Some(entry) = self.tt.get(&hash) {
+            if (!entry.is_quiescence && !is_quiescence && entry.depth >= depth)
+                || (entry.is_quiescence && is_quiescence && entry.depth >= depth) {
+                self.tt_hits += 1;
+                match entry.bound {
+                    Bound::Exact => return Some(entry.value),
+                    Bound::Lower => *alpha = (*alpha).max(entry.value),
+                    Bound::Upper => *beta = (*beta).min(entry.value),
+                }
+                if *alpha >= *beta {
+                    return Some(entry.value);
                 }
             }
         }
+        None
+    }
+
+    // Helper: Store a new entry in the TT with replacement logic
+    fn tt_store(&mut self, hash: u64, depth: usize, value: i32, bound: Bound, is_quiescence: bool) {
+        if !self.engine_options.use_transposition_tables {
+            return;
+        }
+        let new_entry = TTEntry { depth, value, bound, is_quiescence };
+        match self.tt.get(&hash) {
+            Some(existing) => {
+                let should_replace = (!existing.is_quiescence && !is_quiescence && new_entry.depth >= existing.depth)
+                    || (existing.is_quiescence && is_quiescence && new_entry.depth >= existing.depth)
+                    || (!existing.is_quiescence && is_quiescence);
+                if should_replace {
+                    self.tt.insert(hash, new_entry);
+                }
+            }
+            None => {
+                self.tt.insert(hash, new_entry);
+            }
+        }
+    }
+
+    // minimax now takes an explicit depth_level parameter so each level uses its own buffers
+    fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour, depth_level: usize) -> i32 {
+        self.nodes += 1;
+        let hash = game.get_current_hash();
+
+        // TT lookup
+        if let Some(tt_value) = self.tt_lookup(hash, depth, false, &mut alpha, &mut beta) {
+            return tt_value;
+        }
 
         let move_start_index = self.move_buffer.len();
-
         Self::generate_and_order_moves(self, game, colour, move_start_index);
 
         if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
             self.move_buffer.truncate(move_start_index);
-            return Evaluator::evaluate_game_result(game, Some(result), ply, colour);
+            return Evaluator::evaluate_game_result(game, Some(result), depth_level, colour);
         }
 
         if depth == 0 {
@@ -196,7 +225,7 @@ impl Minimax {
             game.make_move(&mv);
 
             // recursive call will generate into move_buffers[ply + 1]
-            let score = -self.minimax(game, depth - 1, -beta, -alpha, colour.other(), ply+1);
+            let score = -self.minimax(game, depth - 1, -beta, -alpha, colour.other(), depth_level + 1);
 
             game.undo_last_move();
 
@@ -211,73 +240,34 @@ impl Minimax {
             }
         }
 
-        if self.engine_options.use_transposition_tables {
-            let bound = if best_score <= orig_alpha {
-                Bound::Upper
-            } else if best_score >= beta {
-                Bound::Lower
-            } else {
-                Bound::Exact
-            };
-
-            let new_entry = TTEntry {
-                depth,
-                value: best_score,
-                bound,
-                is_quiescence: false,
-            };
-
-            match self.tt.get(&hash) {
-                Some(existing) => {
-                    let should_replace = (!existing.is_quiescence && new_entry.depth >= existing.depth)
-                        || (existing.is_quiescence && !new_entry.is_quiescence);
-                    if should_replace {
-                        self.tt.insert(hash, new_entry);
-                    }
-                }
-                None => {
-                    self.tt.insert(hash, new_entry);
-                }
-            }
-        }
+        // TT store
+        let bound = if best_score <= orig_alpha {
+            Bound::Upper
+        } else if best_score >= beta {
+            Bound::Lower
+        } else {
+            Bound::Exact
+        };
+        self.tt_store(hash, depth, best_score, bound, false);
 
         self.move_buffer.truncate(move_start_index);
         best_score
     }
 
-    // quiescence uses the tactical buffer for this ply
-    fn quiescence(
-        &mut self,
-        game: &mut Game,
-        mut alpha: i32,
-        mut beta: i32,
-        max_depth: usize,
-        ply: usize,
-    ) -> i32 {
+    fn quiescence(&mut self, game: &mut Game, mut alpha: i32, mut beta: i32, max_depth: usize, depth_level: usize) -> i32 {
         self.nodes += 1;
         let hash = game.get_current_hash();
 
-        if self.engine_options.use_transposition_tables {
-            if let Some(entry) = self.tt.get(&hash) {
-                if entry.is_quiescence && entry.depth >= max_depth {
-                    self.tt_hits += 1;
-                    match entry.bound {
-                        Bound::Exact => return entry.value,
-                        Bound::Lower => alpha = alpha.max(entry.value),
-                        Bound::Upper => beta = beta.min(entry.value),
-                    }
-                    if alpha >= beta {
-                        return entry.value;
-                    }
-                }
-            }
+        // TT lookup
+        if let Some(tt_value) = self.tt_lookup(hash, max_depth, true, &mut alpha, &mut beta) {
+            return tt_value;
         }
 
         let to_move = game.get_game_state().get_turn();
         let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
 
         // stand pat
-        let stand_pat = Evaluator::evaluate_game_result(game, None, ply, to_move);
+        let stand_pat = Evaluator::evaluate_game_result(game, None, depth_level, to_move);
         if max_depth == 0 || (!escape_check && stand_pat >= beta) {
             return stand_pat;
         }
@@ -290,9 +280,10 @@ impl Minimax {
 
         if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
             self.move_buffer.truncate(move_start_index);
-            return Evaluator::evaluate_game_result(game, Some(result), ply, to_move);
+            return Evaluator::evaluate_game_result(game, Some(result), depth_level, to_move);
         }
 
+        let orig_alpha = alpha;
         let mut best_score = if !escape_check {stand_pat} else {-INF};
 
         while self.move_buffer.len() > move_start_index {
@@ -301,7 +292,7 @@ impl Minimax {
                 continue
             }
             game.make_move(&mv);
-            let score = -self.quiescence(game, -beta, -alpha, max_depth - 1, ply + 1);
+            let score = -self.quiescence(game, -beta, -alpha, max_depth - 1, depth_level + 1);
             game.undo_last_move();
 
             if score >= beta {
@@ -316,27 +307,15 @@ impl Minimax {
             }
         }
 
-        // store quiescence result if using TT (same logic as before)
-        if self.engine_options.use_transposition_tables {
-            let new_entry = TTEntry {
-                depth: max_depth,
-                value: best_score,
-                bound: Bound::Exact,
-                is_quiescence: true,
-            };
-            match self.tt.get(&hash) {
-                Some(existing) => {
-                    let should_replace = (existing.is_quiescence && new_entry.depth >= existing.depth)
-                        || (!existing.is_quiescence);
-                    if should_replace {
-                        self.tt.insert(hash, new_entry);
-                    }
-                }
-                None => {
-                    self.tt.insert(hash, new_entry);
-                }
-            }
-        }
+        // TT store
+        let bound = if best_score <= orig_alpha {
+            Bound::Upper
+        } else if best_score >= beta {
+            Bound::Lower
+        } else {
+            Bound::Exact
+        };
+        self.tt_store(hash, max_depth, best_score, bound, true);
 
         best_score
     }
