@@ -78,18 +78,19 @@ impl Minimax {
         out
     }
 
-    pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
+    pub fn find_best_move(&mut self, game: &mut Game, colour: Colour, return_scores: bool) -> (Option<ChessMove>, Option<Vec<(ChessMove, i32)>>) {
         self.move_buffer.clear();
-
         Self::generate_and_order_moves(self, game, colour, 0);
 
         let mut best_move: Option<ChessMove> = None;
         let mut best_score: i32 = -INF;
+        let mut final_move_scores: Vec<(ChessMove, i32)> = Vec::new();  // To store scores at max depth
 
         // Loop for iterative deepening
         for depth in 1..=self.engine_options.max_depth {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
+            let mut current_move_scores: Vec<(ChessMove, i32)> = Vec::new();  // Collect scores for this depth
 
             // PV move promotion
             if let Some(prev_best) = &best_move {
@@ -100,13 +101,13 @@ impl Minimax {
             }
 
             for i in (0..self.move_buffer.len()).rev() {
-                let mv = self.move_buffer[i]; 
+                let mv = self.move_buffer[i];
 
                 game.make_move(&mv);
-
                 let score = -self.minimax(game, depth - 1, -INF, INF, colour.other(), 1);
-
                 game.undo_last_move();
+
+                current_move_scores.push((mv, score));
 
                 if score > current_best_score {
                     current_best_score = score;
@@ -118,37 +119,28 @@ impl Minimax {
                 best_move = Some(mv);
                 best_score = current_best_score;
             }
+
+            // At max depth, store and print the sorted scores
+            if depth == self.engine_options.max_depth {
+                final_move_scores = current_move_scores;
+                final_move_scores.sort_by(|a, b| b.1.cmp(&a.1));  // Sort descending by score
+                println!("Moves with scores at depth {}:", depth);
+                for (mv, score) in &final_move_scores {
+                    println!("{}: {}", mv, score);
+                }
+            }
         }
 
-        best_move
-    }
-    // Does not use iterative deepening
-    // Should be used for move ordering/evaluation and sanity checks. Not for actual move selection.
-    pub fn find_sorted_moves(&mut self, game: &mut Game, colour: Colour) -> Vec<(ChessMove, i32)> {
-        self.move_buffer.clear();
-
-        Self::generate_and_order_moves(self, game, colour, 0);
-
-        let mut move_scores: Vec<(ChessMove, i32)> = Vec::new();
-
-        // Use the configured max depth
-        let depth = self.engine_options.max_depth;
-
-        while let Some(mv) = self.move_buffer.pop()  {
-            game.make_move(&mv);
-
-            // Recurse with minimax at ply 1
-            let score = -self.minimax(game, depth - 1, -INF, INF, colour.other(), 1);
-
-            game.undo_last_move();
-
-            move_scores.push((mv, score));
+        if return_scores {
+            // At max depth, return final_move_scores instead of printing
+            (best_move, Some(final_move_scores))
+        } else {
+            println!("Moves with scores at depth {}:", self.engine_options.max_depth);
+            for (mv, score) in &final_move_scores {
+                println!("{}: {}", mv, score);
+            }
+            (best_move, None)
         }
-
-        // Sort descending by score
-        move_scores.sort_by(|a, b| b.1.cmp(&a.1));
-
-        move_scores
     }
 
     // Helper: Probe the TT for a usable entry
@@ -387,7 +379,7 @@ mod tests {
         let mut game = starting_game();
         let mut engine = Minimax::new(1, 1, false, false);
 
-        let best_move = engine.find_best_move(&mut game, Colour::White);
+        let (best_move, _) = engine.find_best_move(&mut game, Colour::White, false);
 
         assert!(best_move.is_some(), "Best move should not be None");
 
@@ -467,7 +459,6 @@ mod tests {
         assert!(eval < 0, "Evaluation should indicate checkmate loss for White");
     }
 
-
     #[test]
     fn test_black_gets_checkmated() {
         let mut game = Game::new();
@@ -499,7 +490,8 @@ mod tests {
 
 
         let to_move = game.get_game_state().get_turn();
-        let moves = engine.find_sorted_moves(&mut game, to_move);
+        let (_, scores_opt) = engine.find_best_move(&mut game, to_move, true);
+        let moves = scores_opt.unwrap();
 
         // Ensure there is at least one move
         assert!(!moves.is_empty(), "There should be at least one legal move for White");
@@ -520,7 +512,6 @@ mod tests {
         for w in moves.windows(2) {
             assert!(w[0].1 >= w[1].1, "Moves are not sorted by descending evaluation");
         }
-
     }
 
     #[test]
@@ -559,9 +550,9 @@ mod tests {
         game.make_move(&d2_d4);
         game.make_move(&g7_g5);
 
-
         let to_move = game.get_game_state().get_turn();
-        let moves = engine.find_sorted_moves(&mut game, to_move);
+        let (_, scores_opt) = engine.find_best_move(&mut game, to_move, true);
+        let moves = scores_opt.unwrap();
 
         // Ensure there is at least one move
         assert!(!moves.is_empty(), "There should be at least one legal move for White");
@@ -582,7 +573,6 @@ mod tests {
         for w in moves.windows(2) {
             assert!(w[0].1 >= w[1].1, "Moves are not sorted by descending evaluation");
         }
-
     }
 
     #[test]
