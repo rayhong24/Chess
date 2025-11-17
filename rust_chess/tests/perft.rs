@@ -6,37 +6,40 @@ use rust_chess::enums::ChessMove;
 const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 const KIWIPETE: &str = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 
-fn perft(game: &mut Game, depth: u32, magic_bitboard: bool, moves: *mut Vec<Vec<ChessMove>>) -> u64 {
+fn perft(game: &mut Game, depth: u32, magic_bitboard: bool, moves: &mut Vec<ChessMove>) -> u64 {
     if depth == 0 {
         return 1;
     }
 
     let colour = game.get_game_state().get_turn();
-    let current_moves = unsafe { &mut(&mut (*moves))[depth as usize] };
-    current_moves.clear();
-    MoveGenerator::generate_legal_moves_into(game, colour, magic_bitboard, current_moves);
+    let start_moves_len = moves.len();
+    MoveGenerator::generate_legal_moves_into(game, colour, magic_bitboard, moves);
 
     if depth == 1 {
-        return current_moves.len() as u64;
+        let out = moves.len() as u64 - start_moves_len as u64;
+        moves.truncate(start_moves_len);
+        return out;
     }
 
     let mut count = 0;
-    for mv in current_moves {
-        game.make_move(mv);
+
+    while moves.len() > start_moves_len {
+        let mv = moves.pop().unwrap();
+        game.make_move(&mv);
         count += perft(game, depth - 1, magic_bitboard, moves);
         game.undo_last_move();
     }
+
     count
 }
 
 fn run_perft_startpos(depth: u32, expected_nodes: u64, magic_bitboard: bool) {
     let mut game = Game::new();
     game.set_fenstr(STARTPOS);
-    let mut moves = vec![Vec::new(); 10];
-    let moves_ptr = &mut moves as *mut Vec<Vec<ChessMove>>;  // Raw pointer to the pool
+    let mut moves = Vec::with_capacity(2048);
 
     let start = Instant::now();
-    let nodes = perft(&mut game, depth, magic_bitboard, moves_ptr);
+    let nodes = perft(&mut game, depth, magic_bitboard, &mut moves);
     let duration = start.elapsed();
 
     let nps = nodes as f64 / duration.as_secs_f64();
@@ -50,11 +53,10 @@ fn run_perft_startpos(depth: u32, expected_nodes: u64, magic_bitboard: bool) {
 fn run_perft_kiwipete(depth: u32, expected_nodes: u64, magic_bitboard: bool) {
     let mut game = Game::new();
     game.set_fenstr(KIWIPETE);
-    let mut moves = vec![Vec::new(); 10];
-    let moves_ptr = &mut moves as *mut Vec<Vec<ChessMove>>;
+    let mut moves = Vec::with_capacity(2048);
 
     let start = Instant::now();
-    let nodes = perft(&mut game, depth, magic_bitboard, moves_ptr);
+    let nodes = perft(&mut game, depth, magic_bitboard, &mut moves);
     let duration = start.elapsed();
 
     let nps = nodes as f64 / duration.as_secs_f64();
