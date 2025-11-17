@@ -77,16 +77,17 @@ impl PyMinimax {
 
     pub fn go(&mut self) -> String {
         let colour = self.game.get_game_state().get_turn();
+        println!("Searching with depth {} (quiescence depth {})...", self.inner.engine_options.max_depth, self.inner.engine_options.quiescence_max_depth);
         // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
-        // let best = self.inner.find_best_move(&mut self.game, colour);
-        // return best.unwrap().to_string();
+        let best = self.inner.find_best_move(&mut self.game, colour);
+        return best.unwrap().to_string();
 
-        let moves = self.inner.find_sorted_moves(&mut self.game, colour);
-        for (mv, eval) in moves.iter().take(100) {
-            println!("{mv}: {eval}");
-        }
+        // let moves = self.inner.find_sorted_moves(&mut self.game, colour);
+        // for (mv, eval) in moves.iter().take(100) {
+        //     println!("{mv}: {eval}");
+        // }
 
-        return moves[0].0.to_string();
+        // return moves[0].0.to_string();
     }
 
     pub fn evaluate_moves(&mut self) -> Vec<(String, i32)> {
@@ -121,7 +122,7 @@ impl PyMinimax {
 
     /// Engine option setters
     pub fn set_max_depth(&mut self, max_depth: usize) {
-        // self.inner.update_max_depth(max_depth);
+        self.inner.engine_options.max_depth = max_depth;
     }
 
     pub fn set_quiescence_max_depth(&mut self, quiescence_max_depth: usize) {
@@ -182,28 +183,6 @@ impl PyMinimax {
 
     pub fn unmake_move(&mut self, _mv: &str) {
         self.game.undo_last_move();
-    }
-
-    pub fn perft(&mut self, depth: u32) -> u64 {
-        if depth == 0 {
-            return 1;
-        }
-
-        let moves = self.generate_legal_moves();
-
-        if depth == 1 {
-            return moves.len() as u64;
-        }
-
-        let mut nodes = 0;
-
-        for mv in moves {
-            self.make_move(&mv);
-            nodes += self.perft(depth - 1);
-            self.unmake_move(&mv);
-        }
-
-        nodes
     }
 }
 

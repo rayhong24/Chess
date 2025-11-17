@@ -162,7 +162,7 @@ fn test_iterative_deepening_tt_hits() {
 }
 
 #[test]
-fn test_nodes_per_second_comparison() {
+fn test_nodes_per_second_comparison_tt() {
     let mut engines = vec![
         ("No TT", PyMinimax::new(2, 4, false, false)),
         ("TT", PyMinimax::new(2, 4, true, false)),
@@ -214,8 +214,8 @@ fn test_nodes_per_second_comparison_magic_bitboards() {
 #[test]
 fn test_nodes_per_second_comparison_magic_bitboards_complicated() {
     let mut engines = vec![
-        ("Move Rays", PyMinimax::new(2, 4, false, false)),
-        ("Magic Bitboards", PyMinimax::new(2, 4, false, true)),
+        ("Move Rays", PyMinimax::new(3, 4, true, false)),
+        ("Magic Bitboards", PyMinimax::new(3, 4, true, true)),
     ];
 
 
