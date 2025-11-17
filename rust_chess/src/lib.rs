@@ -79,7 +79,7 @@ impl PyMinimax {
         let colour = self.game.get_game_state().get_turn();
         println!("Searching with depth {} (quiescence depth {})...", self.inner.engine_options.max_depth, self.inner.engine_options.quiescence_max_depth);
         // // println!("Current board eval: {}", self.inner.evaluate(&self.game, colour));
-        let best = self.inner.find_best_move(&mut self.game, colour);
+        let (best, _) = self.inner.find_best_move(&mut self.game, colour, false);
         return best.unwrap().to_string();
 
         // let moves = self.inner.find_sorted_moves(&mut self.game, colour);
@@ -96,10 +96,9 @@ impl PyMinimax {
         // let best = self.inner.find_best_move(&mut self.game, colour);
         // return best.unwrap().to_string();
 
-        self.inner.find_sorted_moves(&mut self.game, colour)
-            .iter()                          // iterate over & (ChessMove, i32)
-            .map(|(mv, score)| (mv.to_string(), *score))  // convert ChessMove -> String, copy the i32
-            .collect()
+        let (_, scores_opt) = self.inner.find_best_move(&mut self.game, colour, true);
+        let scores = scores_opt.unwrap();
+        scores.into_iter().map(|(mv, score)| (mv.to_string(), score)).collect()
     }
 
     pub fn set_position(&mut self, fenstr: &str, moves: Vec<String>) {
@@ -126,7 +125,7 @@ impl PyMinimax {
     }
 
     pub fn set_quiescence_max_depth(&mut self, quiescence_max_depth: usize) {
-        // self.inner.update_quiescnece_max_depth(quiescence_max_depth);
+        self.inner.engine_options.quiescence_max_depth = quiescence_max_depth;
     }
 
     pub fn set_use_transposition_tables(&mut self, use_tt: bool) {
@@ -150,7 +149,6 @@ impl PyMinimax {
         self.inner.engine_options.use_transposition_tables
     }
 
-    /// Optional: reset the engine TT if you want to start fresh
     pub fn clear_tt(&mut self) {
         self.inner.tt.clear();
     }
