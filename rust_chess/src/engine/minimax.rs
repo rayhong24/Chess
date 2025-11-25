@@ -136,10 +136,6 @@ impl Minimax {
             // At max depth, return final_move_scores instead of printing
             (best_move, Some(final_move_scores))
         } else {
-            println!("Moves with scores at depth {}:", self.engine_options.max_depth);
-            for (mv, score) in &final_move_scores {
-                println!("{}: {}", mv, score);
-            }
             (best_move, None)
         }
     }
