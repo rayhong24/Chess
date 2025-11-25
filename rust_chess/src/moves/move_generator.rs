@@ -30,8 +30,7 @@ impl MoveGenerator {
         magic_bitboard: bool,
         out_moves: &mut Vec<ChessMove>
     ) {
-        out_moves.clear();
-
+        let initial_len = out_moves.len();
         // generate pseudo-legal moves
         if magic_bitboard {
             Self::generate_pseudo_legal_moves_magic_bitboards_into(game, player, out_moves);
@@ -40,7 +39,7 @@ impl MoveGenerator {
         }
 
         // filter illegal moves in-place
-        let mut i = 0;
+        let mut i = initial_len;
         while i < out_moves.len() {
             if Self::does_leave_player_in_check(game, &out_moves[i], magic_bitboard) {
                 out_moves.swap_remove(i);
@@ -51,36 +50,6 @@ impl MoveGenerator {
 
         // append castling moves
         Self::generate_castling_moves_into(game, player, magic_bitboard, out_moves);
-    }
-
-    pub fn generate_tactical_moves_into(
-        game: &mut Game,
-        to_move: Colour,
-        use_magic: bool,
-        out: &mut Vec<ChessMove>,
-    ) {
-        // Clear the buffer first
-        out.clear();
-
-        // Generate all pseudo-legal moves first
-        let mut pseudo_moves = Vec::new();
-        if use_magic {
-            MoveGenerator::generate_pseudo_legal_moves_magic_bitboards_into(game, to_move, &mut pseudo_moves);
-        } else {
-            MoveGenerator::generate_pseudo_legal_moves_into(game, to_move, &mut pseudo_moves);
-        };
-
-        // Filter tactical moves: captures, promotions, en passant, checks
-        for mv in pseudo_moves {
-            let is_tactical = Self::is_tactical_move(game, &mv, use_magic);
-
-            if is_tactical {
-                // Optionally, skip moves that leave the king in check
-                if !MoveGenerator::does_leave_player_in_check(game, &mv, use_magic) {
-                    out.push(mv);
-                }
-            }
-        }
     }
 
     pub fn is_tactical_move(game: &mut Game, mv: &ChessMove, use_magic: bool) -> bool {
@@ -102,7 +71,6 @@ impl MoveGenerator {
         player: Colour,
         out_moves: &mut Vec<ChessMove>
     ) {
-        out_moves.clear();
         let all_occ = game.get_board().all_occ();
         let own_occ = game.get_board().get_colour_occ(player);
 
@@ -151,7 +119,6 @@ impl MoveGenerator {
         player: Colour,
         out_moves: &mut Vec<ChessMove>
     ) {
-        out_moves.clear();
         for (piece, coords) in &game.get_player_pieces(player) {
             for mv in Self::move_rays_to_chess_moves_into(game, piece, coords) {
                 out_moves.push(mv);

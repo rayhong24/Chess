@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 
 use crate::game_classes::game::Game;
@@ -8,6 +7,7 @@ use crate::move_ordering::order_moves;
 use crate::engine::evaluator::Evaluator;
 
 pub const INF: i32 = 30_000;
+pub const MAX_MOVES: usize = 2048;
 
 #[derive(Clone, Copy)]
 pub enum Bound {
@@ -39,10 +39,7 @@ pub struct Minimax {
     pub nodes: usize,
     pub tt_hits: usize,
 
-    // move buffers: one Vec<ChessMove> per ply (0..=max_depth)
-    pub move_buffers: Vec<Vec<ChessMove>>,
-    // tactical buffers for quiescence (captures/promotions) per ply
-    pub tactical_buffers: Vec<Vec<ChessMove>>,
+    pub move_buffer: Vec<ChessMove>,
 }
 
 impl Minimax {
@@ -57,26 +54,13 @@ impl Minimax {
             magic_bitboards: magic_bitboard,
         };
 
-        // preallocate per-ply buffers: need max_depth + 2 to be safe (root + depths)
-        let buffer_count = max_depth + 2;
-        let mut move_buffers = Vec::with_capacity(buffer_count);
-        for _ in 0..buffer_count {
-            move_buffers.push(Vec::with_capacity(256));     // ~MAX_MOVES
-        }
-
-        let tact_buffer_count = quiescence_max_depth + 2;
-        let mut tactical_buffers = Vec::with_capacity(tact_buffer_count);
-        for _ in 0..tact_buffer_count {
-            tactical_buffers.push(Vec::with_capacity(64));  // fewer tactical moves typically
-        }
-
+        let move_buffer = Vec::with_capacity(MAX_MOVES);
         Self {
             engine_options: options,
             tt: HashMap::new(),
             nodes: 0,
             tt_hits: 0,
-            move_buffers,
-            tactical_buffers,
+            move_buffer,
         }
     }
 
@@ -84,60 +68,49 @@ impl Minimax {
         game.make_move(mv);
         let to_move = game.get_game_state().get_turn();
 
-        // use ply 0 buffer for this temporary generation
-        let ply = 0;
-        self.move_buffers[ply].clear();
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            to_move,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffers[ply],
-        );
+        let move_start_index = self.move_buffer.len();
+        Self::generate_and_order_moves(self, game, to_move, move_start_index);
 
-        let game_result = game.is_game_over_with_moves(&self.move_buffers[ply], self.engine_options.magic_bitboards);
+        let game_result = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards);
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
         game.undo_last_move();
+        self.move_buffer.truncate(move_start_index);
         out
     }
 
-    pub fn find_best_move(&mut self, game: &mut Game, colour: Colour) -> Option<ChessMove> {
+    pub fn find_best_move(&mut self, game: &mut Game, colour: Colour, return_scores: bool) -> (Option<ChessMove>, Option<Vec<(ChessMove, i32)>>) {
+        self.move_buffer.clear();
+        Self::generate_and_order_moves(self, game, colour, 0);
+
         let mut best_move: Option<ChessMove> = None;
         let mut best_score: i32 = -INF;
+        let mut final_move_scores: Vec<(ChessMove, i32)> = Vec::new();  // To store scores at max depth
 
+        // Loop for iterative deepening
         for depth in 1..=self.engine_options.max_depth {
             let mut current_best: Option<ChessMove> = None;
             let mut current_best_score = -INF;
+            let mut current_move_scores: Vec<(ChessMove, i32)> = Vec::new();  // Collect scores for this depth
 
-            // root is ply 0
-            let root_ply = 0;
-            self.move_buffers[root_ply].clear();
-            MoveGenerator::generate_legal_moves_into(
-                game,
-                colour,
-                self.engine_options.magic_bitboards,
-                &mut self.move_buffers[root_ply],
-            );
-            order_moves(&mut self.move_buffers[root_ply], game);
-
-            // PV move promotion
+            // PV move promotion: Move the previous best move to the end of the buffer.
+            // Since we iterate in reverse (line below), the last element is evaluated first,
+            // so placing the PV move at the end ensures it's searched first for better pruning.
             if let Some(prev_best) = &best_move {
-                if let Some(idx) = self.move_buffers[root_ply].iter().position(|m| m == prev_best) {
-                    let mv = self.move_buffers[root_ply].remove(idx);
-                    self.move_buffers[root_ply].insert(0, mv);
+                if let Some(idx) = self.move_buffer.iter().position(|m| m == prev_best) {
+                    let mv = self.move_buffer.swap_remove(idx);
+                    self.move_buffer.push(mv);
                 }
             }
 
-            let len = self.move_buffers[root_ply].len();
-            for i in 0..len {
-                // clone the move out (requires ChessMove: Clone)
-                let mv = self.move_buffers[root_ply][i].clone();
+            for i in (0..self.move_buffer.len()).rev() {
+                let mv = self.move_buffer[i];
+
                 game.make_move(&mv);
-
-                // recurse: pass ply = 1 for child
                 let score = -self.minimax(game, depth - 1, -INF, INF, colour.other(), 1);
-
                 game.undo_last_move();
+
+                current_move_scores.push((mv, score));
 
                 if score > current_best_score {
                     current_best_score = score;
@@ -149,95 +122,110 @@ impl Minimax {
                 best_move = Some(mv);
                 best_score = current_best_score;
             }
-        }
 
-        best_move
-    }
-    pub fn find_sorted_moves(&mut self, game: &mut Game, colour: Colour) -> Vec<(ChessMove, i32)> {
-        let mut move_scores: Vec<(ChessMove, i32)> = Vec::new();
-
-        // Use the configured max depth
-        let depth = self.engine_options.max_depth;
-
-        // root is ply 0
-        let root_ply = 0;
-        self.move_buffers[root_ply].clear();
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            colour,
-            self.engine_options.magic_bitboards,
-            &mut self.move_buffers[root_ply],
-        );
-        order_moves(&mut self.move_buffers[root_ply], game);
-
-        let len = self.move_buffers[root_ply].len();
-        for i in 0..len {
-            let mv = self.move_buffers[root_ply][i].clone();
-            game.make_move(&mv);
-
-            // Recurse with minimax at ply 1
-            let score = -self.minimax(game, depth - 1, -INF, INF, colour.other(), 1);
-
-            game.undo_last_move();
-
-            move_scores.push((mv, score));
-        }
-
-        // Sort descending by score
-        move_scores.sort_by(|a, b| b.1.cmp(&a.1));
-
-        move_scores
-    }
-
-    // minimax now takes an explicit ply parameter so each level uses its own buffers
-    fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour, ply: usize) -> i32 {
-        self.nodes += 1;
-        let hash = game.get_current_hash();
-
-        if self.engine_options.use_transposition_tables {
-            if let Some(entry) = self.tt.get(&hash) {
-                if !entry.is_quiescence && entry.depth >= depth {
-                    self.tt_hits += 1;
-                    match entry.bound {
-                        Bound::Exact => return entry.value,
-                        Bound::Lower => alpha = alpha.max(entry.value),
-                        Bound::Upper => beta = beta.min(entry.value),
-                    }
-                    if alpha >= beta {
-                        return entry.value;
-                    }
+            // At max depth, store and print the sorted scores
+            if depth == self.engine_options.max_depth {
+                final_move_scores = current_move_scores;
+                final_move_scores.sort_by(|a, b| b.1.cmp(&a.1));  // Sort descending by score
+                println!("Moves with scores at depth {}:", depth);
+                for (mv, score) in &final_move_scores {
+                    println!("{}: {}", mv, score);
                 }
             }
         }
 
-        // generate moves into buffer for this ply
-        self.move_buffers[ply].clear();
+        if return_scores {
+            // At max depth, return final_move_scores instead of printing
+            (best_move, Some(final_move_scores))
+        } else {
+            (best_move, None)
+        }
+    }
+
+    // Helper: Probe the TT for a usable entry
+    fn tt_lookup(&mut self, hash: u64, depth: usize, is_quiescence: bool, alpha: &mut i32, beta: &mut i32) -> Option<i32> {
+        if !self.engine_options.use_transposition_tables {
+            return None;
+        }
+        if let Some(entry) = self.tt.get(&hash) {
+            if (!entry.is_quiescence && !is_quiescence && entry.depth >= depth)
+                || (entry.is_quiescence && is_quiescence && entry.depth >= depth) {
+                self.tt_hits += 1;
+                match entry.bound {
+                    Bound::Exact => return Some(entry.value),
+                    Bound::Lower => *alpha = (*alpha).max(entry.value),
+                    Bound::Upper => *beta = (*beta).min(entry.value),
+                }
+                if *alpha >= *beta {
+                    return Some(entry.value);
+                }
+            }
+        }
+        None
+    }
+
+    // Helper: Store a new entry in the TT with replacement logic
+    fn tt_store(&mut self, hash: u64, depth: usize, value: i32, bound: Bound, is_quiescence: bool) {
+        if !self.engine_options.use_transposition_tables {
+            return;
+        }
+        let new_entry = TTEntry { depth, value, bound, is_quiescence };
+        match self.tt.get(&hash) {
+            Some(existing) => {
+                let should_replace = (!existing.is_quiescence && !is_quiescence && new_entry.depth >= existing.depth)
+                    || (existing.is_quiescence && is_quiescence && new_entry.depth >= existing.depth)
+                    || (!existing.is_quiescence && is_quiescence);
+                if should_replace {
+                    self.tt.insert(hash, new_entry);
+                }
+            }
+            None => {
+                self.tt.insert(hash, new_entry);
+            }
+        }
+    }
+
+    // Helper to generate and order moves starting from a given index in move_buffer
+    fn generate_and_order_moves(&mut self, game: &mut Game, colour: Colour, start_index: usize) {
         MoveGenerator::generate_legal_moves_into(
             game,
             colour,
             self.engine_options.magic_bitboards,
-            &mut self.move_buffers[ply],
+            &mut self.move_buffer,
         );
-        order_moves(&mut self.move_buffers[ply], game);
+        order_moves(&mut self.move_buffer[start_index..], game);
+    }
 
-        if let Some(result) = game.is_game_over_with_moves(&self.move_buffers[ply], self.engine_options.magic_bitboards) {
-            return Evaluator::evaluate_game_result(game, Some(result), ply, colour);
+    fn minimax(&mut self, game: &mut Game, depth: usize, mut alpha: i32, mut beta: i32, colour: Colour, depth_level: usize) -> i32 {
+        self.nodes += 1;
+        let hash = game.get_current_hash();
+
+        // TT lookup
+        if let Some(tt_value) = self.tt_lookup(hash, depth, false, &mut alpha, &mut beta) {
+            return tt_value;
+        }
+
+        let move_start_index = self.move_buffer.len();
+        Self::generate_and_order_moves(self, game, colour, move_start_index);
+
+        if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
+            self.move_buffer.truncate(move_start_index);
+            return Evaluator::evaluate_game_result(game, Some(result), depth_level, colour);
         }
 
         if depth == 0 {
+            self.move_buffer.truncate(move_start_index);
             return self.quiescence(game, alpha, beta, self.engine_options.quiescence_max_depth, 0);
         }
 
         let orig_alpha = alpha;
         let mut best_score = -INF;
 
-        let len = self.move_buffers[ply].len();
-        for i in 0..len {
-            let mv = self.move_buffers[ply][i].clone();
+        while self.move_buffer.len() > move_start_index {
+            let mv = self.move_buffer.pop().unwrap();
             game.make_move(&mv);
 
-            // recursive call will generate into move_buffers[ply + 1]
-            let score = -self.minimax(game, depth - 1, -beta, -alpha, colour.other(), ply+1);
+            let score = -self.minimax(game, depth - 1, -beta, -alpha, colour.other(), depth_level + 1);
 
             game.undo_last_move();
 
@@ -245,6 +233,7 @@ impl Minimax {
                 best_score = score;
             }
             if best_score >= beta {
+                self.move_buffer.truncate(move_start_index);
                 break;
             }
             if best_score > alpha {
@@ -252,73 +241,34 @@ impl Minimax {
             }
         }
 
-        if self.engine_options.use_transposition_tables {
-            let bound = if best_score <= orig_alpha {
-                Bound::Upper
-            } else if best_score >= beta {
-                Bound::Lower
-            } else {
-                Bound::Exact
-            };
+        // TT store
+        let bound = if best_score <= orig_alpha {
+            Bound::Upper
+        } else if best_score >= beta {
+            Bound::Lower
+        } else {
+            Bound::Exact
+        };
+        self.tt_store(hash, depth, best_score, bound, false);
 
-            let new_entry = TTEntry {
-                depth,
-                value: best_score,
-                bound,
-                is_quiescence: false,
-            };
-
-            match self.tt.get(&hash) {
-                Some(existing) => {
-                    let should_replace = (!existing.is_quiescence && new_entry.depth >= existing.depth)
-                        || (existing.is_quiescence && !new_entry.is_quiescence);
-                    if should_replace {
-                        self.tt.insert(hash, new_entry);
-                    }
-                }
-                None => {
-                    self.tt.insert(hash, new_entry);
-                }
-            }
-        }
-
+        self.move_buffer.truncate(move_start_index);
         best_score
     }
 
-    // quiescence uses the tactical buffer for this ply
-    fn quiescence(
-        &mut self,
-        game: &mut Game,
-        mut alpha: i32,
-        mut beta: i32,
-        max_depth: usize,
-        ply: usize,
-    ) -> i32 {
+    fn quiescence(&mut self, game: &mut Game, mut alpha: i32, mut beta: i32, max_depth: usize, depth_level: usize) -> i32 {
         self.nodes += 1;
         let hash = game.get_current_hash();
 
-        if self.engine_options.use_transposition_tables {
-            if let Some(entry) = self.tt.get(&hash) {
-                if entry.is_quiescence && entry.depth >= max_depth {
-                    self.tt_hits += 1;
-                    match entry.bound {
-                        Bound::Exact => return entry.value,
-                        Bound::Lower => alpha = alpha.max(entry.value),
-                        Bound::Upper => beta = beta.min(entry.value),
-                    }
-                    if alpha >= beta {
-                        return entry.value;
-                    }
-                }
-            }
+        // TT lookup
+        if let Some(tt_value) = self.tt_lookup(hash, max_depth, true, &mut alpha, &mut beta) {
+            return tt_value;
         }
 
         let to_move = game.get_game_state().get_turn();
         let escape_check = game.is_player_in_check(to_move, self.engine_options.magic_bitboards);
 
-
         // stand pat
-        let stand_pat = Evaluator::evaluate_game_result(game, None, ply, to_move);
+        let stand_pat = Evaluator::evaluate_game_result(game, None, depth_level, to_move);
         if max_depth == 0 || (!escape_check && stand_pat >= beta) {
             return stand_pat;
         }
@@ -326,65 +276,47 @@ impl Minimax {
             alpha = stand_pat;
         }
 
-        // generate only tactical moves into the tactical buffer for this ply
-        self.tactical_buffers[ply].clear();
-        MoveGenerator::generate_legal_moves_into(
-            game,
-            to_move,
-            self.engine_options.magic_bitboards,
-            &mut self.tactical_buffers[ply],
-        );
-        order_moves(&mut self.tactical_buffers[ply], game);
+        let move_start_index = self.move_buffer.len();
+        Self::generate_and_order_moves(self, game, to_move, move_start_index);
 
-        if let Some(result) = game.is_game_over_with_moves(&self.tactical_buffers[ply], self.engine_options.magic_bitboards) {
-            return Evaluator::evaluate_game_result(game, Some(result), ply, to_move);
+        if let Some(result) = game.is_game_over_with_moves(&self.move_buffer[move_start_index..], self.engine_options.magic_bitboards) {
+            self.move_buffer.truncate(move_start_index);
+            return Evaluator::evaluate_game_result(game, Some(result), depth_level, to_move);
         }
 
+        let orig_alpha = alpha;
         let mut best_score = if !escape_check {stand_pat} else {-INF};
-        let len = self.tactical_buffers[ply].len();
 
-
-        for i in 0..len {
-            let mv = self.tactical_buffers[ply][i].clone();
+        while self.move_buffer.len() > move_start_index {
+            let mv = self.move_buffer.pop().unwrap();
             if !escape_check && !MoveGenerator::is_tactical_move(game, &mv, self.engine_options.magic_bitboards) {
                 continue
             }
             game.make_move(&mv);
-            let score = -self.quiescence(game, -beta, -alpha, max_depth - 1, ply + 1);
+            let score = -self.quiescence(game, -beta, -alpha, max_depth - 1, depth_level + 1);
             game.undo_last_move();
 
-            if score >= beta {
-                return score;
-            }
             if score > best_score {
                 best_score = score;
+            }
+            if score >= beta {
+                self.move_buffer.truncate(move_start_index);
+                break;
             }
             if score > alpha {
                 alpha = score;
             }
         }
 
-        // store quiescence result if using TT (same logic as before)
-        if self.engine_options.use_transposition_tables {
-            let new_entry = TTEntry {
-                depth: max_depth,
-                value: best_score,
-                bound: Bound::Exact,
-                is_quiescence: true,
-            };
-            match self.tt.get(&hash) {
-                Some(existing) => {
-                    let should_replace = (existing.is_quiescence && new_entry.depth >= existing.depth)
-                        || (!existing.is_quiescence);
-                    if should_replace {
-                        self.tt.insert(hash, new_entry);
-                    }
-                }
-                None => {
-                    self.tt.insert(hash, new_entry);
-                }
-            }
-        }
+        // TT store
+        let bound = if best_score <= orig_alpha {
+            Bound::Upper
+        } else if best_score >= beta {
+            Bound::Lower
+        } else {
+            Bound::Exact
+        };
+        self.tt_store(hash, max_depth, best_score, bound, true);
 
         best_score
     }
@@ -392,6 +324,8 @@ impl Minimax {
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use super::*;
     use crate::coords::Coords;
     use crate::enums::moves::NormalMove;
@@ -409,16 +343,15 @@ mod tests {
         let mut engine = Minimax::new(3, 6, true, true);
 
         // Generate legal moves at the root
-        engine.move_buffers[0].clear();
         MoveGenerator::generate_legal_moves_into(
             &mut game,
             Colour::White,
             false,
-            &mut engine.move_buffers[0],
+            &mut engine.move_buffer,
         );
 
         // Pick the first move to evaluate
-        let mv = engine.move_buffers[0][0].clone();
+        let mv = engine.move_buffer[0].clone();
         let eval = engine.evaluate_move(&mut game, &mv);
 
         // Evaluation should be within reasonable bounds for starting position
@@ -444,20 +377,20 @@ mod tests {
         let mut game = starting_game();
         let mut engine = Minimax::new(1, 1, false, false);
 
-        let best_move = engine.find_best_move(&mut game, Colour::White);
+        let (best_move, _) = engine.find_best_move(&mut game, Colour::White, false);
 
         assert!(best_move.is_some(), "Best move should not be None");
 
         // Make sure the move is legal
         let mv = best_move.unwrap();
-        engine.move_buffers[0].clear();
+        let mut legal_moves = vec![];
         MoveGenerator::generate_legal_moves_into(
             &mut game,
             Colour::White,
             false,
-            &mut engine.move_buffers[0],
+            &mut legal_moves,
         );
-        assert!(engine.move_buffers[0].contains(&mv), "Best move is not legal");
+        assert!(legal_moves.contains(&mv), "Best move is not legal");
     }
 
     #[test]
@@ -466,14 +399,14 @@ mod tests {
         let mut engine = Minimax::new(1, 1, false, false);
 
         // Pick one move from root and evaluate using minimax
-        engine.move_buffers[0].clear();
+        engine.move_buffer.clear();
         MoveGenerator::generate_legal_moves_into(
             &mut game,
             Colour::White,
             false,
-            &mut engine.move_buffers[0],
+            &mut engine.move_buffer,
         );
-        let mv = engine.move_buffers[0][0].clone();
+        let mv = engine.move_buffer[0].clone();
 
         game.make_move(&mv);
         let score = -engine.minimax(&mut game, 0, -INF, INF, Colour::Black, 1);
@@ -524,7 +457,6 @@ mod tests {
         assert!(eval < 0, "Evaluation should indicate checkmate loss for White");
     }
 
-
     #[test]
     fn test_black_gets_checkmated() {
         let mut game = Game::new();
@@ -556,7 +488,8 @@ mod tests {
 
 
         let to_move = game.get_game_state().get_turn();
-        let moves = engine.find_sorted_moves(&mut game, to_move);
+        let (_, scores_opt) = engine.find_best_move(&mut game, to_move, true);
+        let moves = scores_opt.unwrap();
 
         // Ensure there is at least one move
         assert!(!moves.is_empty(), "There should be at least one legal move for White");
@@ -577,7 +510,6 @@ mod tests {
         for w in moves.windows(2) {
             assert!(w[0].1 >= w[1].1, "Moves are not sorted by descending evaluation");
         }
-
     }
 
     #[test]
@@ -616,9 +548,9 @@ mod tests {
         game.make_move(&d2_d4);
         game.make_move(&g7_g5);
 
-
         let to_move = game.get_game_state().get_turn();
-        let moves = engine.find_sorted_moves(&mut game, to_move);
+        let (_, scores_opt) = engine.find_best_move(&mut game, to_move, true);
+        let moves = scores_opt.unwrap();
 
         // Ensure there is at least one move
         assert!(!moves.is_empty(), "There should be at least one legal move for White");
@@ -639,7 +571,6 @@ mod tests {
         for w in moves.windows(2) {
             assert!(w[0].1 >= w[1].1, "Moves are not sorted by descending evaluation");
         }
-
     }
 
     #[test]
