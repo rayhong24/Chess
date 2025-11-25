@@ -93,7 +93,9 @@ impl Minimax {
             let mut current_best_score = -INF;
             let mut current_move_scores: Vec<(ChessMove, i32)> = Vec::new();  // Collect scores for this depth
 
-            // PV move promotion
+            // PV move promotion: Move the previous best move to the end of the buffer.
+            // Since we iterate in reverse (line below), the last element is evaluated first,
+            // so placing the PV move at the end ensures it's searched first for better pruning.
             if let Some(prev_best) = &best_move {
                 if let Some(idx) = self.move_buffer.iter().position(|m| m == prev_best) {
                     let mv = self.move_buffer.swap_remove(idx);
