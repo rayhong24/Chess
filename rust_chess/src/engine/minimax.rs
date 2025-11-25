@@ -75,6 +75,7 @@ impl Minimax {
         let out = Evaluator::evaluate_game_result(game, game_result, 0, to_move);
 
         game.undo_last_move();
+        self.move_buffer.truncate(move_start_index);
         out
     }
 
