@@ -296,12 +296,12 @@ impl Minimax {
             let score = -self.quiescence(game, -beta, -alpha, max_depth - 1, depth_level + 1);
             game.undo_last_move();
 
-            if score >= beta {
-                self.move_buffer.truncate(move_start_index);
-                return score;
-            }
             if score > best_score {
                 best_score = score;
+            }
+            if score >= beta {
+                self.move_buffer.truncate(move_start_index);
+                break;
             }
             if score > alpha {
                 alpha = score;
