@@ -231,6 +231,7 @@ impl Minimax {
                 best_score = score;
             }
             if best_score >= beta {
+                self.move_buffer.truncate(move_start_index);
                 break;
             }
             if best_score > alpha {
