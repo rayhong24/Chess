@@ -19,7 +19,6 @@ pub mod move_ordering;
 fn rust_chess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyGame>()?;
     m.add_class::<PyMinimax>()?;
-    // m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
 
     Ok(())
 }
